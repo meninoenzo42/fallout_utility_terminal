@@ -740,6 +740,9 @@
     </footer>
   </div>
 
+  <!-- Importação da biblioteca compartilhada de estatísticas derivadas -->
+  <script src="lib_scripts/estastisticasDerivadas.js"></script>
+
   <script>
     /* =======================================================
        ESTADO E CONSTANTES
@@ -837,25 +840,8 @@
     const inputImportJson = document.getElementById("input-import-npc-json");
 
     /* =======================================================
-       FUNÇÕES DE CÁLCULO DAS REGRAS
+       OPÇÕES DE CATEGORIA POR NATUREZA DO NPC
        ======================================================= */
-    function calculateXp(level, nature, type) {
-      let base = 10;
-      let multi = 7;
-      let factor = 1;
-
-      if (nature === "creature") {
-        if (type === "mighty") factor = 2;
-        else if (type === "legendary") factor = 3;
-      } else {
-        if (type === "notable") factor = 2;
-        else if (type === "major") factor = 3;
-      }
-
-      const totalXp = (base * factor) + ((multi * factor) * Math.max(0, level - 1));
-      return totalXp;
-    }
-
     function updateTypeDropdownOptions() {
       selectType.innerHTML = "";
       if (state.nature === "creature") {
@@ -893,61 +879,54 @@
       }
     }
 
+    /* =======================================================
+       CÁLCULOS USANDO A BIBLIOTECA COMPARTILHADA
+       ======================================================= */
     function calculateDerived() {
       const level = Math.max(1, parseInt(state.level, 10) || 1);
       const isCreature = state.nature === "creature";
 
-      // 1. XP
-      const xp = calculateXp(level, state.nature, state.type);
+      // Recompensa de XP calculada pela biblioteca
+      const xp = window.SpecialDerived.calcularXpNpc(level, state.nature, state.type);
       badgeXp.textContent = `XP: ${xp}`;
 
       if (isCreature) {
-        // --- CRIATURA ---
+        // --- CÁLCULO DE CRIATURA VIA SPECIALDERIVED ---
         const body = parseInt(state.creature.body, 10) || 4;
         const mind = parseInt(state.creature.mind, 10) || 4;
         const totalAttr = body + mind;
 
-        // Orçamento Criatura
-        let targetBudget = 8 + Math.ceil(level / 2);
-        if (state.type === "mighty") targetBudget += 2;
-        else if (state.type === "legendary") targetBudget += 4;
+        const derivadasCriatura = window.SpecialDerived.calcularDerivadasCriatura({
+          body,
+          mind,
+          level,
+          type: state.type,
+          size: state.size,
+          skills: {
+            melee: parseInt(state.creature.melee, 10) || 0,
+            guns: parseInt(state.creature.guns, 10) || 0,
+            other: parseInt(state.creature.other, 10) || 0
+          }
+        });
 
+        const targetBudget = derivadasCriatura.orcamentoAtributos;
         badgeAttrBudget.textContent = `Total: ${totalAttr} / ${targetBudget}`;
         badgeAttrBudget.className = totalAttr === targetBudget ? "badge-pill-budget budget-ok" : "badge-pill-budget budget-alert";
         attrFormulaHint.textContent = `Fórmula: 8 + teto(Nível / 2)${state.type === 'mighty' ? ' + 2 (Mighty)' : state.type === 'legendary' ? ' + 4 (Legendary)' : ''}. Mínimo 4 cada.`;
 
-        // HP Base Criatura: Body + Level
-        let baseHp = body + level;
-        if (state.size === "big") baseHp += 4;
-        else if (state.size === "little") baseHp = Math.max(1, baseHp - 2);
-
-        if (state.type === "mighty") baseHp *= 2;
-        else if (state.type === "legendary") baseHp *= 3;
-
-        calcDispHp.textContent = baseHp;
-
-        // Iniciativa: Body + Mind
-        calcDispInitiative.textContent = body + mind;
-
-        // Defesa (Padrão 1)
-        calcDispDefense.textContent = state.size === "little" ? 2 : 1;
-
-        // Melee Bonus
-        let meleeBonus = "+0 DC";
-        if (body >= 11) meleeBonus = "+3 DC";
-        else if (body >= 9) meleeBonus = "+2 DC";
-        else if (body >= 7) meleeBonus = "+1 DC";
-        calcDispMelee.textContent = meleeBonus;
+        calcDispHp.textContent = derivadasCriatura.hp;
+        calcDispInitiative.textContent = derivadasCriatura.iniciativa;
+        calcDispDefense.textContent = derivadasCriatura.defesa;
+        calcDispMelee.textContent = derivadasCriatura.bonusMelee.label;
 
         boxCharLuckPoints.classList.add("hidden");
 
-        // TN Perícias
-        tnCrMelee.textContent = body + (parseInt(state.creature.melee, 10) || 0);
-        tnCrGuns.textContent = body + (parseInt(state.creature.guns, 10) || 0);
-        tnCrOther.textContent = mind + (parseInt(state.creature.other, 10) || 0);
+        tnCrMelee.textContent = derivadasCriatura.tns.melee;
+        tnCrGuns.textContent = derivadasCriatura.tns.guns;
+        tnCrOther.textContent = derivadasCriatura.tns.other;
 
       } else {
-        // --- PERSONAGEM ---
+        // --- CÁLCULO DE PERSONAGEM VIA SPECIALDERIVED ---
         const sp = state.character.special;
         const sumSpecial = sp.S + sp.P + sp.E + sp.C + sp.I + sp.A + sp.L;
 
@@ -960,36 +939,39 @@
         badgeAttrBudget.className = sumSpecial === targetBudget ? "badge-pill-budget budget-ok" : "badge-pill-budget budget-alert";
         attrFormulaHint.textContent = `Orçamento: ${baseSpecialBudget} + teto(Nível / 2). Faixa 4 a 10 por atributo.`;
 
-        // HP Personagem: END + Level + (LCK se notable / 2x LCK se major)
-        let hp = sp.E + level;
-        if (state.type === "notable") hp += sp.L;
-        else if (state.type === "major") hp += (sp.L * 2);
-        calcDispHp.textContent = hp;
+        // Bônus de HP baseado na categoria
+        let multLckHp = 0;
+        if (state.type === "notable") multLckHp = 1;
+        else if (state.type === "major") multLckHp = 2;
 
-        // Iniciativa: PER + AGI (+2 Notable, +4 Major)
-        let init = sp.P + sp.A;
-        if (state.type === "notable") init += 2;
-        else if (state.type === "major") init += 4;
-        calcDispInitiative.textContent = init;
+        const hpResult = window.SpecialDerived.calcularHpBase({
+          endurance: sp.E,
+          luck: sp.L,
+          level: level,
+          multMode: multLckHp > 0 ? "lck" : "none",
+          multEnd: 1,
+          multLck: multLckHp
+        });
+        calcDispHp.textContent = hpResult.totalHp;
 
-        // Defesa: 2 se AGI >= 9, senão 1
-        calcDispDefense.textContent = sp.A >= 9 ? 2 : 1;
+        // Bônus de Iniciativa baseado na categoria (+2 Notable, +4 Major)
+        let bonusInit = 0;
+        if (state.type === "notable") bonusInit = 2;
+        else if (state.type === "major") bonusInit = 4;
+        calcDispInitiative.textContent = window.SpecialDerived.calcularIniciativa(sp.P, sp.A, bonusInit);
 
-        // Melee Bonus
-        let meleeBonus = "+0 DC";
-        if (sp.S >= 11) meleeBonus = "+3 DC";
-        else if (sp.S >= 9) meleeBonus = "+2 DC";
-        else if (sp.S >= 7) meleeBonus = "+1 DC";
-        calcDispMelee.textContent = meleeBonus;
+        // Defesa e Melee calculados pela biblioteca
+        calcDispDefense.textContent = window.SpecialDerived.calcularDefesa(sp.A);
+        calcDispMelee.textContent = window.SpecialDerived.calcularBonusMelee(sp.S).label;
 
-        // Luck Points
+        // Pontos de Sorte (Luck Points)
         boxCharLuckPoints.classList.remove("hidden");
         let luckPts = 0;
         if (state.type === "notable") luckPts = Math.ceil(sp.L / 2);
         else if (state.type === "major") luckPts = sp.L;
         calcDispLuckPoints.textContent = luckPts;
 
-        // Tags permitidas
+        // Tags permitidas e pontos de perícia
         let maxTags = 2;
         if (state.type === "notable") maxTags = 3;
         else if (state.type === "major") maxTags = 4;
@@ -1007,6 +989,9 @@
       }
     }
 
+    /* =======================================================
+       RENDERIZAÇÃO DE TABELAS
+       ======================================================= */
     function renderCharacterSkillsTable() {
       tbodyCharSkills.innerHTML = "";
       CHARACTER_SKILLS.forEach((sk, idx) => {
