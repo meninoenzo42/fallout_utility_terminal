@@ -266,17 +266,81 @@
     .btn-weight-action:hover { background-color: #bbf7d0; }
     .btn-weight-action:active { transform: scale(0.96); }
 
-    .btn-row-remove {
+    .btn-unify {
+      background-color: #ecfccb;
+      width: 100%;
+      justify-content: center;
+      padding: 8px 14px;
+      font-size: 0.78rem;
+      border: 2px dashed #000000;
+    }
+    .btn-unify:hover {
+      background-color: #d9f99d;
+      border-style: solid;
+    }
+
+    /* Barra de Reorganização */
+    .sort-bar {
+      padding: 10px 16px;
+      background-color: #f7fee7;
+      border-bottom: 2px solid #000000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .sort-btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .btn-sort-action {
+      padding: 4px 8px;
+      font-family: var(--font-display);
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: #000000;
+      background-color: #ffffff;
+      border: 1.5px solid #000000;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-sort-action:hover {
+      background-color: #dcfce7;
+      transform: translateY(-1px);
+    }
+    .btn-sort-action:active {
+      transform: scale(0.96);
+    }
+
+    .btn-row-action {
       padding: 4px 8px;
       font-family: var(--font-mono);
       font-size: 0.72rem;
       font-weight: 800;
-      color: #991b1b;
-      background: #fee2e2;
-      border: 1.5px solid #b91c1c;
       border-radius: 4px;
       cursor: pointer;
       transition: all 0.15s;
+    }
+
+    .btn-row-duplicate {
+      color: #000000;
+      background: #e0f2fe;
+      border: 1.5px solid #0284c7;
+    }
+    .btn-row-duplicate:hover {
+      background: #bae6fd;
+    }
+
+    .btn-row-remove {
+      color: #991b1b;
+      background: #fee2e2;
+      border: 1.5px solid #b91c1c;
     }
     .btn-row-remove:hover {
       background: #fecaca;
@@ -426,47 +490,74 @@
             <span>Tabela de Inventário</span>
           </div>
 
+          <!-- Barra de Reorganização de Itens -->
+          <div class="sort-bar">
+            <span style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: #000000;">Reorganizar Itens:</span>
+            <div class="sort-btn-group">
+              <button type="button" class="btn-sort-action" data-sort="name-asc">Nome (A-Z)</button>
+              <button type="button" class="btn-sort-action" data-sort="name-desc">Nome (Z-A)</button>
+              <button type="button" class="btn-sort-action" data-sort="weight-asc">Peso (Cresc.)</button>
+              <button type="button" class="btn-sort-action" data-sort="weight-desc">Peso (Decresc.)</button>
+              <button type="button" class="btn-sort-action" data-sort="qty-asc">Qtd (Cresc.)</button>
+              <button type="button" class="btn-sort-action" data-sort="qty-desc">Qtd (Decresc.)</button>
+              <button type="button" class="btn-sort-action" data-sort="sub-asc">Subtotal (Cresc.)</button>
+              <button type="button" class="btn-sort-action" data-sort="sub-desc">Subtotal (Decresc.)</button>
+              <button type="button" class="btn-sort-action" data-sort="random" style="background-color: #ecfccb;">Aleatório</button>
+            </div>
+          </div>
+
           <div class="custom-scrollbar" style="overflow-x: auto;">
             <table class="weight-table">
               <thead>
                 <tr>
                   <th style="width: 8%; text-align: center;">#</th>
-                  <th style="width: 44%;">Nome do Item</th>
-                  <th style="width: 16%; text-align: center;">Peso Un. (lbs)</th>
+                  <th style="width: 42%;">Nome do Item</th>
+                  <th style="width: 15%; text-align: center;">Peso Un. (lbs)</th>
                   <th style="width: 12%; text-align: center;">Qtd</th>
-                  <th style="width: 12%; text-align: right;">Subtotal</th>
-                  <th style="width: 8%; text-align: center;">Ações</th>
+                  <th style="width: 11%; text-align: right;">Subtotal</th>
+                  <th style="width: 12%; text-align: center;">Ações</th>
                 </tr>
               </thead>
               <tbody id="weight-items-tbody"></tbody>
             </table>
           </div>
 
-          <div style="padding: 12px 16px; background-color: #f0fdf4; border-top: 2px solid #000000; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-            <div style="display: flex; gap: 8px; align-items: center;">
-              <button id="btn-add-weight-item" type="button" class="btn-weight-action">
-                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
-                </svg>
-                Adicionar Item
-              </button>
-              <button id="btn-export-weight-csv" type="button" class="btn-weight-action">
-                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                </svg>
-                Exportar CSV
-              </button>
-              <label class="btn-weight-action" style="cursor: pointer; margin-bottom: 0;">
-                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l4-4m0 0l4 4m-4-4v12"></path>
-                </svg>
-                Importar CSV
-                <input type="file" id="input-import-weight-csv" accept=".csv" style="display: none;">
-              </label>
+          <!-- Rodapé com Botões e Unificação -->
+          <div style="padding: 12px 16px; background-color: #f0fdf4; border-top: 2px solid #000000; display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+              <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                <button id="btn-add-weight-item" type="button" class="btn-weight-action" title="Clique para item vazio. Segure SHIFT para item com nome bobo aleatório.">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
+                  </svg>
+                  Adicionar Item
+                </button>
+                <button id="btn-export-weight-csv" type="button" class="btn-weight-action">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                  </svg>
+                  Exportar CSV
+                </button>
+                <label class="btn-weight-action" style="cursor: pointer; margin-bottom: 0;">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l4-4m0 0l4 4m-4-4v12"></path>
+                  </svg>
+                  Importar CSV
+                  <input type="file" id="input-import-weight-csv" accept=".csv" style="display: none;">
+                </label>
+              </div>
+              <span style="font-size: 0.75rem; color: #000000; font-family: var(--font-mono); font-weight: 700;">
+                Total de Itens: <span id="res-weight-total-items" style="color: #000000;">1</span>
+              </span>
             </div>
-            <span style="font-size: 0.75rem; color: #000000; font-family: var(--font-mono); font-weight: 700;">
-              Total de Itens: <span id="res-weight-total-items" style="color: #000000;">1</span>
-            </span>
+
+            <!-- Linha abaixo dos botões: Unificar Entradas Repetidas -->
+            <button id="btn-unify-items" type="button" class="btn-weight-action btn-unify">
+              <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+              </svg>
+              Unificar Entradas Repetidas
+            </button>
           </div>
         </div>
 
@@ -483,135 +574,132 @@
        LISTA DE NOMES "BOBOS" (CUSTOMIZÁVEL NO JS)
        ======================================================= */
     const SILLY_ITEM_NAMES = [
-  // --- Originais ---
-  "Prato Quebrado Inútil",
-  "Garfo Torto Sem Ponta",
-  "Urso de Pelúcia Sem Olho",
-  "Cinzeiro de Cerâmica Radioativo",
-  "Tampa de Garrafa Amassada",
-  "Globo Ocular de Mirelurk Falso",
-  "Meia Furada de Carniçal",
-  "Revista em Quadrinhos Molhada",
-  "Pato de Borracha Sem Assobio",
-  "Ventilador de Mesa Sem Hélice",
-  "Bola de Beisebol Mofada",
-  "Dentadura de Brinquedo Bizarra",
-  "Clipe de Papel Enferrujado",
-  "Xícara Rachada do Vault-Tec",
-  "Prego Torto da Sorte",
-  "Abajur Sem Fio",
-  "Sabonete Que Virou Pedra",
-  "Pilha Esgotada e Corroída",
-  "Frasco de Perfume Vazio",
-  "Isqueiro Que Não Solta Faísca",
-
-  // --- Novos Adicionados (105 itens) ---
-  "Torradeira Possuída por Espíritos",
-  "Chiclete Mastigado Pré-Guerra",
-  "Colher com Buraco no Meio",
-  "Manual de Instruções em Mandarim",
-  "Rótulo Desbotado de Nuka-Cola",
-  "Fita Adesiva Sem Cola",
-  "Lâmpada Queimada de 100W",
-  "Óculos Escuros Sem Uma Lente",
-  "Parafuso Espanado",
-  "Pé de Pato Seco",
-  "Apito Que Não Apita",
-  "Lata Vazia de Carne Misteriosa",
-  "Pente Careca Sem Dentes",
-  "Bateria Falsa de Fusão",
-  "Mola Cansada e Esticada",
-  "Dado de Seis Lados com Duas Faces 1",
-  "Chaveiro de Posto Red Rocket Sem Chave",
-  "Régua de 30cm Quebrada no 12",
-  "Bucha de Banho Fossilizada",
-  "Baralho com Quatro Ases de Espadas",
-  "Pedaço de Giz Despedaçado",
-  "Rádio Portátil Que Só Toca Estática",
-  "Desentupidor de Pia Sem Cabo",
-  "Carretel de Linha Emaranhada",
-  "Relógio de Pulso Preso em 9:47",
-  "Borracha Escolar Que Rasga Papel",
-  "Filtro de Cigarro Mastigado",
-  "Caneca com Frase Motivacional Ilegível",
-  "Frasco de Pílulas com Bala de Goma Dentro",
-  "Cinto Esfarrapado de Radroach",
-  "Espelho de Bolso Estilhaçado",
-  "Grampeador Vazio e Emperrado",
-  "Vaso Sanitário Miniatura de Cerâmica",
-  "Panfleto Antigo do Vault 76 Manchado",
-  "Presilha de Cabelo Quebrada",
-  "Caixa de Fósforos Molhada",
-  "Chupeta de Criança Ressecada",
-  "Quadro com Foto de um Estranho",
-  "Alfinete de Fralda Enferrujado",
-  "Vela Que Derreteu no Calor do Sol",
-  "Fio Desencapado Suspeito",
-  "Cartucho Vazio de Fita Cassete",
-  "Garrafa de Vidro com Barata Presa",
-  "Chave de Fenda sem Ponta",
-  "Tubete Vazio de Creme Dental Radiante",
-  "Prendedor de Roupa Mordido",
-  "Anel de Lata de Refrigerante",
-  "Touca de Banho Furada",
-  "Gnomo de Jardim Decapitado",
-  "Tesoura Cega que Dobra Papel",
-  "Imã de Geladeira Desmagnetizado",
-  "Pincel com Três Cerdas",
-  "Tampa de Bueiro Rachada",
-  "Frasco de Cola Seca por Dentro",
-  "Dedal Furado",
-  "Guardanapo Gorduroso com Desenho Bobo",
-  "Luva de Cozinha Esquerda Queimada",
-  "Sino de Bicicleta Sem Batente",
-  "Giz de Cera Preto Quebrado ao Meio",
-  "Miniatura Torta do Pip-Boy",
-  "Tigela de Cachorro Sem Nome",
-  "Chave Que Não Abre Porta Nenhuma",
-  "Cabo VGA Abandonado",
-  "Pé de Cabra com Ponta Desgastada",
-  "Taco de Sinuca Empenado",
-  "Termômetro Quebrado Marcando 50°C",
-  "Disco de Vinil Empenado do Ink Spots",
-  "Desodorante Vazio com Cheiro de Radiação",
-  "Lápis de Escrever com Grafite Partido",
-  "Crachá Manchado de Funcionário do Mês",
-  "Pacote de Macarrão Instantâneo de 200 Anos",
-  "Garfão de Churrasco Torto",
-  "Rolha de Vinho Mordiscada",
-  "Pedaço de Papel Alumínio Amassado",
-  "Despertador com Mola Saltada",
-  "Sapato Sem Par Tamanho 45",
-  "Marmita de Metal Amassada",
-  "Chicote de Fios Derretidos",
-  "Frasco de Veneno de Formiga Vazio",
-  "Óculos 3D de Papelão Rasgado",
-  "Esponja de Aço Enferrujada",
-  "Cartão Telefônico Sem Crédito",
-  "Funil Rachado",
-  "Bomba de Bicicleta Furada",
-  "Tampa de Vidro de Conserva Sem o Pote",
-  "Caderno com Todas as Folhas Arrancadas",
-  "Presunto Fóssil Muito Rígido",
-  "Moeda Pré-Guerra Entortada por Bala",
-  "Rolo de Papel Toalha Vazio",
-  "Canudo de Plástico Deformado",
-  "Retalho de Cortina Mofada",
-  "Alça Solta de Mala Velha",
-  "Medalha Falsa de Herói do Refúgio",
-  "Bico de Bunsen Sem Válvula",
-  "Forma de Gelo Trincada",
-  "Flauta Doce Rachada",
-  "Carcaça Oca de Carrapato Mutante",
-  "Boia de Pesca Furada",
-  "Carimbo com Letras Invertidas",
-  "Extintor de Incêndio Sem Pressão",
-  "Pote de Iogurte Petrificado",
-  "Cabide de Arame Retorcido",
-  "Espátula de Manteiga sem Cabo",
-  "Interruptor de Luz Solto",
-  "Cartão de Aniversário para um Desconhecido"
-];
+      "Prato Quebrado Inútil",
+      "Garfo Torto Sem Ponta",
+      "Urso de Pelúcia Sem Olho",
+      "Cinzeiro de Cerâmica Radioativo",
+      "Tampa de Garrafa Amassada",
+      "Globo Ocular de Mirelurk Falso",
+      "Meia Furada de Carniçal",
+      "Revista em Quadrinhos Molhada",
+      "Pato de Borracha Sem Assobio",
+      "Ventilador de Mesa Sem Hélice",
+      "Bola de Beisebol Mofada",
+      "Dentadura de Brinquedo Bizarra",
+      "Clipe de Papel Enferrujado",
+      "Xícara Rachada do Vault-Tec",
+      "Prego Torto da Sorte",
+      "Abajur Sem Fio",
+      "Sabonete Que Virou Pedra",
+      "Pilha Esgotada e Corroída",
+      "Frasco de Perfume Vazio",
+      "Isqueiro Que Não Solta Faísca",
+      "Torradeira Possuída por Espíritos",
+      "Chiclete Mastigado Pré-Guerra",
+      "Colher com Buraco no Meio",
+      "Manual de Instruções em Mandarim",
+      "Rótulo Desbotado de Nuka-Cola",
+      "Fita Adesiva Sem Cola",
+      "Lâmpada Queimada de 100W",
+      "Óculos Escuros Sem Uma Lente",
+      "Parafuso Espanado",
+      "Pé de Pato Seco",
+      "Apito Que Não Apita",
+      "Lata Vazia de Carne Misteriosa",
+      "Pente Careca Sem Dentes",
+      "Bateria Falsa de Fusão",
+      "Mola Cansada e Esticada",
+      "Dado de Seis Lados com Duas Faces 1",
+      "Chaveiro de Posto Red Rocket Sem Chave",
+      "Régua de 30cm Quebrada no 12",
+      "Bucha de Banho Fossilizada",
+      "Baralho com Quatro Ases de Espadas",
+      "Pedaço de Giz Despedaçado",
+      "Rádio Portátil Que Só Toca Estática",
+      "Desentupidor de Pia Sem Cabo",
+      "Carretel de Linha Emaranhada",
+      "Relógio de Pulso Preso em 9:47",
+      "Borracha Escolar Que Rasga Papel",
+      "Filtro de Cigarro Mastigado",
+      "Caneca com Frase Motivacional Ilegível",
+      "Frasco de Pílulas com Bala de Goma Dentro",
+      "Cinto Esfarrapado de Radroach",
+      "Espelho de Bolso Estilhaçado",
+      "Grampeador Vazio e Emperrado",
+      "Vaso Sanitário Miniatura de Cerâmica",
+      "Panfleto Antigo do Vault 76 Manchado",
+      "Presilha de Cabelo Quebrada",
+      "Caixa de Fósforos Molhada",
+      "Chupeta de Criança Ressecada",
+      "Quadro com Foto de um Estranho",
+      "Alfinete de Fralda Enferrujado",
+      "Vela Que Derreteu no Calor do Sol",
+      "Fio Desencapado Suspeito",
+      "Cartucho Vazio de Fita Cassete",
+      "Garrafa de Vidro com Barata Presa",
+      "Chave de Fenda sem Ponta",
+      "Tubete Vazio de Creme Dental Radiante",
+      "Prendedor de Roupa Mordido",
+      "Anel de Lata de Refrigerante",
+      "Touca de Banho Furada",
+      "Gnomo de Jardim Decapitado",
+      "Tesoura Cega que Dobra Papel",
+      "Imã de Geladeira Desmagnetizado",
+      "Pincel com Três Cerdas",
+      "Tampa de Bueiro Rachada",
+      "Frasco de Cola Seca por Dentro",
+      "Dedal Furado",
+      "Guardanapo Gorduroso com Desenho Bobo",
+      "Luva de Cozinha Esquerda Queimada",
+      "Sino de Bicicleta Sem Batente",
+      "Giz de Cera Preto Quebrado ao Meio",
+      "Miniatura Torta do Pip-Boy",
+      "Tigela de Cachorro Sem Nome",
+      "Chave Que Não Abre Porta Nenhuma",
+      "Cabo VGA Abandonado",
+      "Pé de Cabra com Ponta Desgastada",
+      "Taco de Sinuca Empenado",
+      "Termômetro Quebrado Marcando 50°C",
+      "Disco de Vinil Empenado do Ink Spots",
+      "Desodorante Vazio com Cheiro de Radiação",
+      "Lápis de Escrever com Grafite Partido",
+      "Crachá Manchado de Funcionário do Mês",
+      "Pacote de Macarrão Instantâneo de 200 Anos",
+      "Garfão de Churrasco Torto",
+      "Rolha de Vinho Mordiscada",
+      "Pedaço de Papel Alumínio Amassado",
+      "Despertador com Mola Saltada",
+      "Sapato Sem Par Tamanho 45",
+      "Marmita de Metal Amassada",
+      "Chicote de Fios Derretidos",
+      "Frasco de Veneno de Formiga Vazio",
+      "Óculos 3D de Papelão Rasgado",
+      "Esponja de Aço Enferrujada",
+      "Cartão Telefônico Sem Crédito",
+      "Funil Rachado",
+      "Bomba de Bicicleta Furada",
+      "Tampa de Vidro de Conserva Sem o Pote",
+      "Caderno com Todas as Folhas Arrancadas",
+      "Presunto Fóssil Muito Rígido",
+      "Moeda Pré-Guerra Entortada por Bala",
+      "Rolo de Papel Toalha Vazio",
+      "Canudo de Plástico Deformado",
+      "Retalho de Cortina Mofada",
+      "Alça Solta de Mala Velha",
+      "Medalha Falsa de Herói do Refúgio",
+      "Bico de Bunsen Sem Válvula",
+      "Forma de Gelo Trincada",
+      "Flauta Doce Rachada",
+      "Carcaça Oca de Carrapato Mutante",
+      "Boia de Pesca Furada",
+      "Carimbo com Letras Invertidas",
+      "Extintor de Incêndio Sem Pressão",
+      "Pote de Iogurte Petrificado",
+      "Cabide de Arame Retorcido",
+      "Espátula de Manteiga sem Cabo",
+      "Interruptor de Luz Solto",
+      "Cartão de Aniversário para um Desconhecido"
+    ];
 
     function getRandomSillyName() {
       const idx = Math.floor(Math.random() * SILLY_ITEM_NAMES.length);
@@ -701,7 +789,7 @@
       str: 5,
       extra: 0,
       items: [
-        { name: getRandomSillyName(), weight: 0.0, qty: 1 }
+        { name: "", weight: 0.0, qty: 1 }
       ]
     };
 
@@ -728,6 +816,7 @@
     const weightItemsTbody = document.getElementById("weight-items-tbody");
     const resWeightTotalItems = document.getElementById("res-weight-total-items");
     const btnAddWeightItem = document.getElementById("btn-add-weight-item");
+    const btnUnifyItems = document.getElementById("btn-unify-items");
     const btnExportWeightCsv = document.getElementById("btn-export-weight-csv");
     const inputImportWeightCsv = document.getElementById("input-import-weight-csv");
 
@@ -751,7 +840,7 @@
         const inputName = document.createElement("input");
         inputName.type = "text";
         inputName.value = item.name;
-        inputName.placeholder = item.name || "Nome do item...";
+        inputName.placeholder = "Nome do item...";
         inputName.style.width = "100%";
         inputName.style.padding = "4px 8px";
         inputName.style.border = "1.5px solid #000000";
@@ -827,9 +916,28 @@
 
         const tdActions = document.createElement("td");
         tdActions.style.textAlign = "center";
+        tdActions.style.whiteSpace = "nowrap";
+
+        const btnDuplicate = document.createElement("button");
+        btnDuplicate.type = "button";
+        btnDuplicate.className = "btn-row-action btn-row-duplicate";
+        btnDuplicate.textContent = "Duplicar";
+        btnDuplicate.title = "Clonar este item";
+        btnDuplicate.style.marginRight = "4px";
+        btnDuplicate.addEventListener("click", () => {
+          markUnsaved();
+          stateWeight.items.splice(index + 1, 0, {
+            name: item.name,
+            weight: item.weight,
+            qty: item.qty
+          });
+          renderWeightTable();
+          updateWeightCalculations();
+        });
+
         const btnRemove = document.createElement("button");
         btnRemove.type = "button";
-        btnRemove.className = "btn-row-remove";
+        btnRemove.className = "btn-row-action btn-row-remove";
         btnRemove.textContent = "Excluir";
         btnRemove.addEventListener("click", () => {
           markUnsaved();
@@ -837,6 +945,8 @@
           renderWeightTable();
           updateWeightCalculations();
         });
+
+        tdActions.appendChild(btnDuplicate);
         tdActions.appendChild(btnRemove);
 
         tr.appendChild(tdIdx);
@@ -899,7 +1009,6 @@
 
       overloadBarsStack.innerHTML = "";
 
-      // Porcentagem global: (peso carregado / capacidade final) * 100
       const totalPct = standardCapacity > 0 ? (totalCarried / standardCapacity) * 100 : 0;
 
       if (totalCarried <= standardCapacity) {
@@ -920,7 +1029,6 @@
 
         const excess = totalCarried - standardCapacity;
 
-        // Tracker de blocos de 50 lbs ultrapassados
         const penaltyCount = Math.floor(excess / 50);
         badgeWeightPenalty.textContent = `Penalidade (+50 lbs): ${penaltyCount}`;
         badgeWeightPenalty.classList.remove("hidden");
@@ -928,9 +1036,6 @@
         badgeWeightOverloadStep.textContent = `+${excess.toFixed(1)} lbs Excedente`;
         badgeWeightOverloadStep.classList.remove("hidden");
 
-        // Regra de múltiplos:
-        // Tier 1: ativa se totalCarried > standardCapacity * 1
-        // Tier >= 2: ativa se totalCarried >= standardCapacity * multIndex
         let multIndex = 1;
         let highestTierReached = 0;
 
@@ -987,7 +1092,6 @@
           multIndex++;
         }
 
-        // Contador geral de Over-encumbered
         badgeWeightOverloadCount.textContent = `Over-encumbered: ${highestTierReached}`;
         badgeWeightOverloadCount.classList.remove("hidden");
 
@@ -997,7 +1101,7 @@
 
     /* =======================================================
        LISTENERS & EVENTOS
-       ======================================================= */
+       ====================================================== */
     enforceStrictBoundedInput(inputWeightBase, 1, 9999, 100, (v) => {
       stateWeight.base = v;
       updateWeightCalculations();
@@ -1018,9 +1122,115 @@
       updateWeightCalculations(); 
     });
 
-    btnAddWeightItem.addEventListener("click", () => {
+    // Reorganização dos Itens
+    document.querySelectorAll(".btn-sort-action").forEach(btn => {
+      btn.addEventListener("click", () => {
+        if (!stateWeight.items || stateWeight.items.length <= 1) return;
+        markUnsaved();
+
+        const sortMode = btn.getAttribute("data-sort");
+
+        switch (sortMode) {
+          case "name-asc":
+            stateWeight.items.sort((a, b) => (a.name || "").localeCompare(b.name || "", "pt-BR", { sensitivity: "base" }));
+            break;
+          case "name-desc":
+            stateWeight.items.sort((a, b) => (b.name || "").localeCompare(a.name || "", "pt-BR", { sensitivity: "base" }));
+            break;
+          case "weight-asc":
+            stateWeight.items.sort((a, b) => (parseFloat(a.weight) || 0) - (parseFloat(b.weight) || 0));
+            break;
+          case "weight-desc":
+            stateWeight.items.sort((a, b) => (parseFloat(b.weight) || 0) - (parseFloat(a.weight) || 0));
+            break;
+          case "qty-asc":
+            stateWeight.items.sort((a, b) => (parseInt(a.qty, 10) || 0) - (parseInt(b.qty, 10) || 0));
+            break;
+          case "qty-desc":
+            stateWeight.items.sort((a, b) => (parseInt(b.qty, 10) || 0) - (parseInt(a.qty, 10) || 0));
+            break;
+          case "sub-asc":
+            stateWeight.items.sort((a, b) => ((parseFloat(a.weight) || 0) * (parseInt(a.qty, 10) || 0)) - ((parseFloat(b.weight) || 0) * (parseInt(b.qty, 10) || 0)));
+            break;
+          case "sub-desc":
+            stateWeight.items.sort((a, b) => ((parseFloat(b.weight) || 0) * (parseInt(b.qty, 10) || 0)) - ((parseFloat(a.weight) || 0) * (parseInt(a.qty, 10) || 0)));
+            break;
+          case "random":
+            for (let i = stateWeight.items.length - 1; i > 0; i--) {
+              const j = Math.floor(Math.random() * (i + 1));
+              [stateWeight.items[i], stateWeight.items[j]] = [stateWeight.items[j], stateWeight.items[i]];
+            }
+            break;
+        }
+
+        renderWeightTable();
+        updateWeightCalculations();
+      });
+    });
+
+    // Adicionar item: com clique normal gera sem nome; com SHIFT pressionado gera com nome bobo
+    btnAddWeightItem.addEventListener("click", (e) => {
       markUnsaved();
-      stateWeight.items.push({ name: getRandomSillyName(), weight: 0.0, qty: 1 });
+      const chosenName = e.shiftKey ? getRandomSillyName() : "";
+      stateWeight.items.push({ name: chosenName, weight: 0.0, qty: 1 });
+      renderWeightTable();
+      updateWeightCalculations();
+    });
+
+    // Unificar Entradas Repetidas
+    btnUnifyItems.addEventListener("click", () => {
+      if (!stateWeight.items || stateWeight.items.length <= 1) return;
+
+      markUnsaved();
+
+      const exactMergedMap = new Map();
+
+      stateWeight.items.forEach((item) => {
+        const cleanName = (item.name || "").trim();
+        const cleanWeight = Math.round((parseFloat(item.weight) || 0.0) * 10) / 10;
+        const cleanQty = Math.max(1, parseInt(item.qty, 10) || 1);
+
+        const exactKey = `${cleanName.toLowerCase()}|@|${cleanWeight.toFixed(1)}`;
+
+        if (exactMergedMap.has(exactKey)) {
+          const existing = exactMergedMap.get(exactKey);
+          existing.qty += cleanQty;
+        } else {
+          exactMergedMap.set(exactKey, {
+            name: cleanName,
+            weight: cleanWeight,
+            qty: cleanQty
+          });
+        }
+      });
+
+      const uniqueExactItems = Array.from(exactMergedMap.values());
+
+      const nameFrequency = new Map();
+      uniqueExactItems.forEach((item) => {
+        if (!item.name) return;
+        const lower = item.name.toLowerCase();
+        nameFrequency.set(lower, (nameFrequency.get(lower) || 0) + 1);
+      });
+
+      const finalUnifiedItems = uniqueExactItems.map((item) => {
+        if (!item.name) return item;
+        const lower = item.name.toLowerCase();
+        const hasDifferentWeights = (nameFrequency.get(lower) || 0) > 1;
+
+        if (hasDifferentWeights) {
+          const weightLabel = `(Peso ${item.weight.toFixed(1)})`;
+          if (!item.name.endsWith(weightLabel)) {
+            return {
+              ...item,
+              name: `${item.name} ${weightLabel}`
+            };
+          }
+        }
+        return item;
+      });
+
+      stateWeight.items = finalUnifiedItems;
       renderWeightTable();
       updateWeightCalculations();
     });
