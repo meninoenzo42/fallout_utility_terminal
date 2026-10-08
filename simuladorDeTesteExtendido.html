@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulador de Testes Estendidos - Pip-Boy</title>
+
+  <style>
+    /* =======================================================
+       1. VARIÁVEIS & RESET CSS
+       ======================================================= */
+    :root {
+      --vault-bg: #e6f2f7;
+      --vault-paper: #faeed2;
+      --vault-header: #0f2d3c;
+      --vault-border: #9bc5d6;
+      --vault-text: #0d232f;
+      --vault-dim: #446473;
+      --vault-accent: #add8e6;
+      --vault-accent-dark: #27677d;
+      --vault-success: #15803d;
+      --vault-extra: #b45309;
+      --vault-danger: #b91c1c;
+
+      --font-display: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Arial', sans-serif;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: 'Consolas', 'Courier New', 'Lucida Console', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--vault-bg);
+      color: var(--vault-text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    @media (min-width: 640px) {
+      body { padding: 24px; }
+    }
+
+    .app-container {
+      max-width: 980px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+    }
+    input[type=number] {
+      -moz-appearance: textfield;
+      font-family: var(--font-mono);
+      font-weight: 700;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #cde4ee;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #89b8cd;
+      border-radius: 4px;
+    }
+
+    /* =======================================================
+       2. CABEÇALHO
+       ======================================================= */
+    header {
+      margin-bottom: 24px;
+    }
+
+    .header-top {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid var(--vault-header);
+      padding-bottom: 12px;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background-color: var(--vault-header);
+      color: var(--vault-accent);
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    }
+
+    .header-title {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--vault-header);
+    }
+
+    /* =======================================================
+       3. CARDS & ESTILOS GERAIS
+       ======================================================= */
+    .module-container {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .card-theme {
+      border: 2px solid var(--vault-header);
+      border-radius: 8px;
+      background-color: #d8eef7;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .card-header {
+      background-color: var(--vault-header);
+      color: #ffffff;
+      padding: 10px 16px;
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .card-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* UMA CAIXA POR LINHA */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    .cell-box {
+      background-color: #c0e2f0;
+      border: 1.5px solid var(--vault-accent-dark);
+      border-radius: 6px;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .input-num-styled {
+      text-align: center;
+      padding: 6px 10px;
+      border: 2px solid var(--vault-header);
+      border-radius: 4px;
+      background: #ffffff;
+      color: var(--vault-header);
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .toggle-group {
+      display: inline-flex;
+      border: 2px solid var(--vault-header);
+      border-radius: 6px;
+      padding: 2px;
+      background: #ffffff;
+      gap: 2px;
+    }
+
+    .toggle-group label {
+      cursor: pointer;
+    }
+
+    .toggle-group input[type=radio] {
+      display: none;
+    }
+
+    .toggle-pill {
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      font-weight: 700;
+      display: block;
+      color: var(--vault-dim);
+    }
+
+    .toggle-group input[type=radio]:checked + .toggle-pill {
+      background-color: var(--vault-header);
+      color: #ffffff;
+    }
+
+    .btn-action-primary {
+      width: 100%;
+      padding: 12px 20px;
+      background-color: var(--vault-header);
+      color: #ffffff;
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border: 2px solid var(--vault-header);
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.15s ease;
+      font-weight: 700;
+    }
+
+    .btn-action-primary:hover {
+      background-color: var(--vault-accent-dark);
+      border-color: var(--vault-accent-dark);
+    }
+
+    .btn-action-cancel {
+      background-color: var(--vault-danger) !important;
+      border-color: #7f1d1d !important;
+    }
+    .btn-action-cancel:hover {
+      background-color: #991b1b !important;
+    }
+
+    .btn-sub-action {
+      padding: 8px 14px;
+      font-family: var(--font-display);
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #ffffff;
+      background-color: var(--vault-header);
+      border: 1.5px solid var(--vault-header);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .btn-sub-action:hover {
+      background-color: var(--vault-accent-dark);
+      border-color: var(--vault-accent-dark);
+    }
+
+    .btn-force-break {
+      background-color: #b45309;
+      border-color: #78350f;
+    }
+    .btn-force-break:hover {
+      background-color: #92400e;
+      border-color: #92400e;
+    }
+
+    /* =======================================================
+       4. SIMULAÇÃO: STATUS & CHECKMARKS
+       ======================================================= */
+    .status-dashboard {
+      background: #ffffff;
+      border: 2px solid var(--vault-header);
+      border-radius: 6px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .stat-metric {
+      font-family: var(--font-mono);
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--vault-header);
+    }
+
+    .badge-dr-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background-color: #e0f2fe;
+      border: 1.5px solid #0284c7;
+      border-radius: 6px;
+      color: #0369a1;
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 0.85rem;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 18px;
+      background-color: #e2f0f7;
+      border: 2px solid var(--vault-header);
+      border-radius: 9999px;
+      padding: 2px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #38bdf8, #0284c7);
+      border-radius: 9999px;
+      transition: width 0.35s ease;
+    }
+
+    .checkmarks-stream {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 8px;
+      background-color: #eef7fb;
+      border: 1.5px solid var(--vault-accent-dark);
+      border-radius: 6px;
+      min-height: 42px;
+      align-items: center;
+    }
+
+    .check-box-tile {
+      width: 28px;
+      height: 28px;
+      border: 2px solid var(--vault-header);
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 900;
+      user-select: none;
+      background: #ffffff;
+      color: var(--vault-success);
+    }
+
+    .check-box-tile.checked {
+      background-color: #dcfce7;
+      border-color: var(--vault-success);
+      color: var(--vault-success);
+    }
+
+    .check-box-tile.checked-extra {
+      background-color: #fef3c7;
+      border-color: var(--vault-extra);
+      color: var(--vault-extra);
+    }
+
+    .check-box-tile.empty {
+      background-color: #f1f5f9;
+      border-color: #94a3b8;
+      color: transparent;
+    }
+
+    /* =======================================================
+       5. HISTÓRICO
+       ======================================================= */
+    .history-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 420px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .history-entry {
+      background-color: #ffffff;
+      border: 1.5px solid var(--vault-accent-dark);
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+
+    .history-timestamp {
+      font-size: 0.7rem;
+      color: var(--vault-dim);
+      font-weight: 600;
+    }
+
+    .history-effort-line {
+      font-weight: 800;
+      color: var(--vault-header);
+    }
+
+    .history-break-line {
+      font-size: 0.85rem;
+    }
+
+    .strike-ignored {
+      text-decoration: line-through;
+      color: #94a3b8 !important;
+    }
+
+    .badge-crit {
+      display: inline-block;
+      padding: 1px 6px;
+      font-size: 0.65rem;
+      background-color: #fef08a;
+      color: #854d0e;
+      border: 1px solid #ca8a04;
+      border-radius: 4px;
+      margin-left: 6px;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .badge-zeroed {
+      display: inline-block;
+      padding: 1px 6px;
+      font-size: 0.65rem;
+      background-color: #bbf7d0;
+      color: #14532d;
+      border: 1px solid #16a34a;
+      border-radius: 4px;
+      margin-left: 6px;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .badge-pierce {
+      display: inline-block;
+      padding: 1px 6px;
+      font-size: 0.65rem;
+      background-color: #e0f2fe;
+      color: #0369a1;
+      border: 1px solid #38bdf8;
+      border-radius: 4px;
+      margin-left: 6px;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .badge-complete {
+      padding: 12px;
+      background-color: #d1fae5;
+      border: 2px solid var(--vault-success);
+      color: #064e3b;
+      font-weight: 800;
+      text-align: center;
+      border-radius: 6px;
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    footer {
+      margin-top: 32px;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--vault-dim);
+      font-family: var(--font-mono);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-container">
+
+    <!-- Header -->
+    <header>
+      <div class="header-top">
+        <div class="header-brand">
+          <span class="header-icon">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+            </svg>
+          </span>
+          <h1 class="header-title">Pip-Boy &bull; Simulador de Testes Estendidos</h1>
+        </div>
+      </div>
+    </header>
+
+    <main class="module-container">
+
+      <!-- ==================== TABELA 1: PARÂMETROS INICIAIS ==================== -->
+      <section class="card-theme">
+        <div class="card-header">
+          <span>Tabela 1: Parâmetros Iniciais do Teste Estendido</span>
+          <span style="font-size: 0.72rem; font-family: var(--font-mono); color: var(--vault-accent);">Configuração Base</span>
+        </div>
+        <div class="card-body">
+          <div class="form-grid">
+            <!-- 1. Effort Inicial -->
+            <div class="cell-box">
+              <div>
+                <label for="cfg-effort" style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; display: block;">Effort (HP do Teste):</label>
+                <span style="font-size: 0.7rem; color: var(--vault-dim);">Normalmente entre 5 e 20</span>
+              </div>
+              <input type="number" id="cfg-effort" value="5" min="1" step="1" class="input-num-styled" style="width: 80px;">
+            </div>
+
+            <!-- 2. Breakthroughs Requeridos -->
+            <div class="cell-box">
+              <div>
+                <label for="cfg-breakthroughs" style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; display: block;">Breakthroughs Meta:</label>
+                <span style="font-size: 0.7rem; color: var(--vault-dim);">Meta de sucessos (padrão: 2)</span>
+              </div>
+              <input type="number" id="cfg-breakthroughs" value="2" min="1" step="1" class="input-num-styled" style="width: 80px;">
+            </div>
+
+            <!-- 3. Resistência a Dano (DR) -->
+            <div class="cell-box">
+              <div>
+                <label for="cfg-dr" style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; display: block;">Resistência a Dano (DR):</label>
+                <span style="font-size: 0.7rem; color: var(--vault-dim);">Reduz dano recebido (0 a N)</span>
+              </div>
+              <input type="number" id="cfg-dr" value="0" min="0" step="1" class="input-num-styled" style="width: 80px;">
+            </div>
+
+            <!-- 4. Limite de Crítico -->
+            <div class="cell-box">
+              <div style="flex: 1;">
+                <label for="cfg-crit-threshold" style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; display: block;">Limite de Crítico:</label>
+                <span style="font-size: 0.7rem; color: var(--vault-dim);">Padrão: 5 de dano</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <span style="font-size: 0.72rem; font-weight: 700; color: var(--vault-dim);">Usar outro valor de crítico?</span>
+                <div class="toggle-group">
+                  <label title="Bloquear edição e redefinir para 5">
+                    <input type="radio" name="radio-crit-lock" value="nao" checked>
+                    <span class="toggle-pill">Não</span>
+                  </label>
+                  <label title="Liberar edição">
+                    <input type="radio" name="radio-crit-lock" value="sim">
+                    <span class="toggle-pill">Sim</span>
+                  </label>
+                </div>
+                <input type="number" id="cfg-crit-threshold" value="5" min="2" step="1" class="input-num-styled" style="width: 70px; background-color: #f1f5f9; cursor: not-allowed;" readonly>
+              </div>
+            </div>
+          </div>
+
+          <!-- Botão Iniciar / Cancelar -->
+          <button id="btn-toggle-simulation" type="button" class="btn-action-primary">
+            Iniciar Simulação
+          </button>
+        </div>
+      </section>
+
+      <!-- ==================== TABELA 2: SIMULAÇÃO ==================== -->
+      <section id="panel-simulation" class="card-theme hidden">
+        <div class="card-header">
+          <span>Tabela 2: Painel de Resolução &amp; Ações</span>
+          <span id="sim-status-tag" style="font-size: 0.72rem; font-family: var(--font-mono); color: #bbf7d0;">Em Andamento</span>
+        </div>
+        <div class="card-body">
+          
+          <div id="banner-victory" class="badge-complete hidden">
+            🎉 Teste Estendido Concluído com Sucesso! Todos os Breakthroughs foram alcançados.
+          </div>
+
+          <!-- Dados do Topo: Effort, DR & Breakthroughs -->
+          <div class="status-dashboard">
+            <div class="stat-row">
+              <div>
+                <span style="font-size: 0.75rem; font-weight: 700; color: var(--vault-dim); text-transform: uppercase; display: block;">Effort Atual:</span>
+                <span id="sim-disp-effort" class="stat-metric">5 / 5</span>
+              </div>
+              <div style="text-align: center;">
+                <span style="font-size: 0.75rem; font-weight: 700; color: var(--vault-dim); text-transform: uppercase; display: block; margin-bottom: 2px;">Resistência:</span>
+                <span id="sim-disp-dr" class="badge-dr-pill">DR 0</span>
+              </div>
+              <div style="text-align: right;">
+                <span style="font-size: 0.75rem; font-weight: 700; color: var(--vault-dim); text-transform: uppercase; display: block;">Progresso:</span>
+                <span id="sim-disp-breakthroughs-ratio" class="stat-metric" style="color: var(--vault-success);">0 / 2</span>
+              </div>
+            </div>
+
+            <!-- Barra de Progresso do Effort -->
+            <div class="progress-track">
+              <div id="sim-effort-progress-bar" class="progress-fill" style="width: 100%;"></div>
+            </div>
+
+            <!-- Linha de Checkmarks -->
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <span style="font-size: 0.72rem; font-weight: 700; color: var(--vault-dim); text-transform: uppercase;">Indicadores de Conquista:</span>
+                <span id="sim-extra-legend" class="hidden" style="font-size: 0.68rem; font-weight: 800; color: var(--vault-extra); font-family: var(--font-mono);">
+                  ★ Contém Breakthroughs Extras
+                </span>
+              </div>
+              <div id="sim-checkmarks-container" class="checkmarks-stream"></div>
+            </div>
+          </div>
+
+          <!-- Controles de Ação de Dano -->
+          <div class="cell-box" style="flex-direction: column; align-items: stretch; gap: 14px;">
+            <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px;">
+              
+              <!-- Dano a Causar + Botão Aplicar -->
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <label for="act-damage-input" style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase;">Dano a Causar:</label>
+                <input type="number" id="act-damage-input" value="0" min="0" step="1" class="input-num-styled" style="width: 80px;">
+                <button id="btn-apply-damage" type="button" class="btn-sub-action">
+                  Aplicar Dano
+                </button>
+              </div>
+
+              <!-- Ignorar DR -->
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <label for="act-ignore-dr-input" style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase;">Ignorar DR:</label>
+                <input type="number" id="act-ignore-dr-input" value="0" min="0" step="1" class="input-num-styled" style="width: 70px;">
+              </div>
+
+              <!-- Botão de Forçar -->
+              <div>
+                <button id="btn-force-breakthrough" type="button" class="btn-sub-action btn-force-break">
+                  ⭐ Forçar Atingir 1 Breakthrough
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ==================== TABELA 3: HISTÓRICO ==================== -->
+      <section id="panel-history" class="card-theme hidden">
+        <div class="card-header">
+          <span>Tabela 3: Histórico de Ações &amp; Alterações</span>
+          <button id="btn-clear-history" type="button" class="btn-sub-action" style="padding: 2px 8px; font-size: 0.68rem; background-color: #334155;">
+            Limpar Registros
+          </button>
+        </div>
+        <div class="card-body">
+          <div id="history-container" class="history-feed custom-scrollbar">
+            <span id="history-empty-placeholder" style="font-size: 0.8rem; font-style: italic; color: var(--vault-dim);">Nenhuma ação registrada nesta simulação até o momento.</span>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer>
+      Terminal Fallout RPG &bull; Módulo de Testes Estendidos
+    </footer>
+  </div>
+
+  <script>
+    /* =======================================================
+       UTILITÁRIOS DE PARSE & RESTRIÇÃO DE INPUTS
+       ======================================================= */
+    function parseSafeInt(value, fallbackDefault = 0) {
+      if (value === null || value === undefined || value === "") return fallbackDefault;
+      const strVal = String(value).split(".")[0].split(",")[0].trim();
+      const num = parseInt(strVal, 10);
+      return isNaN(num) ? fallbackDefault : Math.floor(num);
+    }
+
+    function enforceStrictIntegerInput(inputElement, minVal = 0) {
+      inputElement.addEventListener("keydown", (e) => {
+        if (e.key === "-" || e.key === "." || e.key === "," || e.key === "e" || e.key === "E" || e.key === "+") {
+          e.preventDefault();
+        }
+      });
+
+      inputElement.addEventListener("paste", (e) => {
+        e.preventDefault();
+        const text = (e.clipboardData || window.clipboardData).getData("text");
+        const clean = text.replace(/[^0-9]/g, "");
+        const parsed = parseSafeInt(clean, minVal);
+        inputElement.value = parsed;
+        inputElement.dispatchEvent(new Event("input"));
+      });
+    }
+
+    function enforceStrictBoundedInput(inputElement, minVal, maxVal, fallbackDefault, onChangeCallback) {
+      enforceStrictIntegerInput(inputElement, minVal);
+
+      inputElement.addEventListener("input", (e) => {
+        const raw = e.target.value;
+        if (raw === "") {
+          if (onChangeCallback) onChangeCallback(fallbackDefault);
+          return;
+        }
+        let val = parseInt(raw, 10);
+        if (isNaN(val)) val = fallbackDefault;
+        if (val > maxVal) {
+          val = maxVal;
+          inputElement.value = val;
+        }
+        if (onChangeCallback) onChangeCallback(val);
+      });
+
+      inputElement.addEventListener("blur", (e) => {
+        const raw = e.target.value;
+        if (raw === "") {
+          inputElement.value = fallbackDefault;
+          if (onChangeCallback) onChangeCallback(fallbackDefault);
+          return;
+        }
+        let val = parseInt(raw, 10);
+        if (isNaN(val)) val = fallbackDefault;
+        if (val < minVal) val = minVal;
+        if (val > maxVal) val = maxVal;
+        inputElement.value = val;
+        if (onChangeCallback) onChangeCallback(val);
+      });
+    }
+
+    /* =======================================================
+       ESTADO DA SIMULAÇÃO
+       ======================================================= */
+    const state = {
+      isSimulating: false,
+      initialEffort: 5,
+      currentEffort: 5,
+      targetBreakthroughs: 2,
+      currentBreakthroughs: 0,
+      baseDr: 0,
+      baseCritThreshold: 5,
+      history: []
+    };
+
+    /* =======================================================
+       ELEMENTOS DOM
+       ======================================================= */
+    const cfgEffort = document.getElementById("cfg-effort");
+    const cfgBreakthroughs = document.getElementById("cfg-breakthroughs");
+    const cfgDr = document.getElementById("cfg-dr");
+    const cfgCritThreshold = document.getElementById("cfg-crit-threshold");
+    const radiosCritLock = document.querySelectorAll('input[name="radio-crit-lock"]');
+    const btnToggleSimulation = document.getElementById("btn-toggle-simulation");
+
+    const panelSimulation = document.getElementById("panel-simulation");
+    const panelHistory = document.getElementById("panel-history");
+    const simStatusTag = document.getElementById("sim-status-tag");
+    const bannerVictory = document.getElementById("banner-victory");
+
+    const simDispEffort = document.getElementById("sim-disp-effort");
+    const simDispDr = document.getElementById("sim-disp-dr");
+    const simDispBreakthroughsRatio = document.getElementById("sim-disp-breakthroughs-ratio");
+    const simEffortProgressBar = document.getElementById("sim-effort-progress-bar");
+    const simCheckmarksContainer = document.getElementById("sim-checkmarks-container");
+    const simExtraLegend = document.getElementById("sim-extra-legend");
+
+    const actDamageInput = document.getElementById("act-damage-input");
+    const actIgnoreDrInput = document.getElementById("act-ignore-dr-input");
+    const btnApplyDamage = document.getElementById("btn-apply-damage");
+    const btnForceBreakthrough = document.getElementById("btn-force-breakthrough");
+
+    const historyContainer = document.getElementById("history-container");
+    const historyEmptyPlaceholder = document.getElementById("history-empty-placeholder");
+    const btnClearHistory = document.getElementById("btn-clear-history");
+
+    /* =======================================================
+       CONFIGURAÇÃO DOS INPUTS
+       ======================================================= */
+    enforceStrictBoundedInput(cfgEffort, 1, 99999, 5, (v) => { state.initialEffort = v; });
+    enforceStrictBoundedInput(cfgBreakthroughs, 1, 999, 2, (v) => { state.targetBreakthroughs = v; });
+    enforceStrictBoundedInput(cfgDr, 0, 999, 0, (v) => { state.baseDr = v; });
+    enforceStrictBoundedInput(cfgCritThreshold, 2, 999, 5, (v) => { state.baseCritThreshold = v; });
+
+    enforceStrictBoundedInput(actDamageInput, 0, 9999, 0, () => {});
+    enforceStrictBoundedInput(actIgnoreDrInput, 0, 9999, 0, () => {});
+
+    // Selecionar "Não" redefine o limite de volta para 5
+    radiosCritLock.forEach(radio => {
+      radio.addEventListener("change", (e) => {
+        const allowEdit = e.target.value === "sim";
+        cfgCritThreshold.readOnly = !allowEdit;
+        if (allowEdit) {
+          cfgCritThreshold.style.backgroundColor = "#ffffff";
+          cfgCritThreshold.style.cursor = "text";
+        } else {
+          cfgCritThreshold.value = 5;
+          state.baseCritThreshold = 5;
+          cfgCritThreshold.style.backgroundColor = "#f1f5f9";
+          cfgCritThreshold.style.cursor = "not-allowed";
+        }
+      });
+    });
+
+    /* =======================================================
+       CONTROLE DE SIMULAÇÃO (INICIAR / CANCELAR)
+       ======================================================= */
+    btnToggleSimulation.addEventListener("click", () => {
+      if (!state.isSimulating) {
+        startSimulation();
+      } else {
+        cancelSimulation();
+      }
+    });
+
+    function startSimulation() {
+      state.isSimulating = true;
+      state.initialEffort = parseSafeInt(cfgEffort.value, 5);
+      state.currentEffort = state.initialEffort;
+      state.targetBreakthroughs = parseSafeInt(cfgBreakthroughs.value, 2);
+      state.currentBreakthroughs = 0;
+      state.baseDr = parseSafeInt(cfgDr.value, 0);
+      state.baseCritThreshold = parseSafeInt(cfgCritThreshold.value, 5);
+      actDamageInput.value = 0;
+      actIgnoreDrInput.value = 0;
+
+      cfgEffort.disabled = true;
+      cfgBreakthroughs.disabled = true;
+      cfgDr.disabled = true;
+      cfgCritThreshold.disabled = true;
+      radiosCritLock.forEach(r => r.disabled = true);
+
+      btnToggleSimulation.textContent = "Cancelar Simulação";
+      btnToggleSimulation.classList.add("btn-action-cancel");
+
+      panelSimulation.classList.remove("hidden");
+      panelHistory.classList.remove("hidden");
+
+      renderSimulationDashboard();
+    }
+
+    function cancelSimulation() {
+      state.isSimulating = false;
+
+      cfgEffort.disabled = false;
+      cfgBreakthroughs.disabled = false;
+      cfgDr.disabled = false;
+      cfgCritThreshold.disabled = false;
+      radiosCritLock.forEach(r => r.disabled = false);
+
+      btnToggleSimulation.textContent = "Iniciar Simulação";
+      btnToggleSimulation.classList.remove("btn-action-cancel");
+
+      panelSimulation.classList.add("hidden");
+      bannerVictory.classList.add("hidden");
+    }
+
+    /* =======================================================
+       RENDERIZAÇÃO DA TABELA 2
+       ======================================================= */
+    function renderSimulationDashboard() {
+      simDispEffort.textContent = `${state.currentEffort} / ${state.initialEffort}`;
+      simDispBreakthroughsRatio.textContent = `${state.currentBreakthroughs} / ${state.targetBreakthroughs}`;
+      simDispDr.textContent = `DR ${state.baseDr}`;
+
+      const pct = state.initialEffort > 0 
+        ? Math.max(0, Math.min(100, (state.currentEffort / state.initialEffort) * 100)) 
+        : 0;
+      simEffortProgressBar.style.width = `${pct}%`;
+
+      simCheckmarksContainer.innerHTML = "";
+      const totalBoxes = Math.max(state.targetBreakthroughs, state.currentBreakthroughs);
+      const hasExtras = state.currentBreakthroughs > state.targetBreakthroughs;
+
+      if (hasExtras) {
+        simExtraLegend.classList.remove("hidden");
+      } else {
+        simExtraLegend.classList.add("hidden");
+      }
+      
+      for (let i = 0; i < totalBoxes; i++) {
+        const box = document.createElement("div");
+        box.className = "check-box-tile";
+        
+        if (i < state.currentBreakthroughs) {
+          if (i >= state.targetBreakthroughs) {
+            // Indicadores de Conquista Extras (Dourado/Âmbar)
+            box.classList.add("checked-extra");
+            box.textContent = "★";
+            box.title = `Breakthrough Extra #${i + 1 - state.targetBreakthroughs}`;
+          } else {
+            // Indicadores de Conquista Normais da Meta (Verde)
+            box.classList.add("checked");
+            box.textContent = "✓";
+          }
+        } else {
+          box.classList.add("empty");
+          box.textContent = "";
+        }
+        simCheckmarksContainer.appendChild(box);
+      }
+
+      if (state.currentBreakthroughs >= state.targetBreakthroughs) {
+        bannerVictory.classList.remove("hidden");
+        simStatusTag.textContent = "Concluído";
+        simStatusTag.style.color = "#15803d";
+      } else {
+        bannerVictory.classList.add("hidden");
+        simStatusTag.textContent = "Em Andamento";
+        simStatusTag.style.color = "#0369a1";
+      }
+    }
+
+    /* =======================================================
+       REGRAS DE DANO & BREAKTHROUGH
+       ======================================================= */
+    btnApplyDamage.addEventListener("click", () => {
+      const rawDamage = parseSafeInt(actDamageInput.value, 0);
+      const ignoreDr = parseSafeInt(actIgnoreDrInput.value, 0);
+      const critThreshold = state.baseCritThreshold;
+
+      const effectiveDr = Math.max(0, state.baseDr - ignoreDr);
+      const netDamage = Math.max(0, rawDamage - effectiveDr);
+
+      const oldEffort = state.currentEffort;
+      const oldBreaks = state.currentBreakthroughs;
+      let addedBreaks = 0;
+      let isCrit = false;
+      let didZeroOut = false;
+
+      if (oldEffort === 0 && rawDamage > 0) {
+        // Se o Effort já estiver zerado e sofrer qualquer quantidade de dano: ganha 2 Breakthroughs
+        addedBreaks += 2;
+      } else if (netDamage > 0) {
+        state.currentEffort = Math.max(0, oldEffort - netDamage);
+
+        // 1. Regra de Crítico: se causou dano bruto >= Limite de Crítico ganha 1 Breakthrough
+        if (rawDamage >= critThreshold) {
+          isCrit = true;
+          addedBreaks += 1;
+        }
+
+        // 2. Regra de Zerar: se zerou o Effort ganha 1 Breakthrough independente de ter sido crítico
+        if (oldEffort > 0 && state.currentEffort === 0) {
+          didZeroOut = true;
+          addedBreaks += 1;
+        }
+        // Se foi crítico E zerou, as duas regras acima acumulam +2 Breakthroughs (1 + 1)
+      }
+
+      state.currentBreakthroughs += addedBreaks;
+
+      recordHistory({
+        type: "damage",
+        oldEffort,
+        newEffort: state.currentEffort,
+        rawDamage,
+        baseDr: state.baseDr,
+        ignoredDr: ignoreDr,
+        effectiveDr,
+        netDamage,
+        isCrit,
+        didZeroOut,
+        oldBreaks,
+        newBreaks: state.currentBreakthroughs,
+        addedBreaks,
+        targetBreaks: state.targetBreakthroughs
+      });
+
+      renderSimulationDashboard();
+      actDamageInput.value = 0;
+    });
+
+    btnForceBreakthrough.addEventListener("click", () => {
+      const oldBreaks = state.currentBreakthroughs;
+      state.currentBreakthroughs += 1;
+
+      recordHistory({
+        type: "force",
+        oldEffort: state.currentEffort,
+        newEffort: state.currentEffort,
+        oldBreaks,
+        newBreaks: state.currentBreakthroughs,
+        addedBreaks: 1,
+        targetBreaks: state.targetBreakthroughs
+      });
+
+      renderSimulationDashboard();
+    });
+
+    /* =======================================================
+       HISTÓRICO FORMATADO COM DR IGNORADO CLARO
+       ======================================================= */
+    function recordHistory(entry) {
+      const now = new Date();
+      const timeStr = now.toLocaleDateString("pt-BR") + " às " + now.toLocaleTimeString("pt-BR");
+
+      let effortHtml = "";
+      const isIgnored = entry.type === "damage" && entry.rawDamage > 0 && entry.netDamage === 0;
+
+      if (entry.type === "force") {
+        effortHtml = `Effort: ${entry.newEffort} (Sem alteração &bull; Breakthrough forçado manualmente)`;
+      } else if (entry.baseDr > 0 || entry.ignoredDr > 0) {
+        let drCalcDesc = `${entry.baseDr}`;
+        if (entry.ignoredDr > 0) {
+          drCalcDesc = `[${entry.baseDr} DR - ${entry.ignoredDr} ignorado = ${entry.effectiveDr}]`;
+        }
+
+        const formula = `Effort ${entry.oldEffort} - (${entry.rawDamage} - ${drCalcDesc}) -> ${entry.newEffort}`;
+        effortHtml = isIgnored ? `<span class="strike-ignored">${formula}</span>` : formula;
+      } else {
+        const formula = `Effort ${entry.oldEffort} - ${entry.rawDamage} -> ${entry.newEffort}`;
+        effortHtml = (entry.rawDamage === 0) ? `Effort mantido: ${entry.oldEffort}` : formula;
+      }
+
+      if (entry.ignoredDr > 0 && entry.type === "damage") {
+        effortHtml += `<span class="badge-pierce">IGNOROU ${entry.ignoredDr} DR</span>`;
+      }
+
+      if (entry.isCrit && !isIgnored) {
+        effortHtml += `<span class="badge-crit">★ CRÍTICO (+1)</span>`;
+      }
+
+      if (entry.didZeroOut) {
+        effortHtml += `<span class="badge-zeroed">ZEROU EFFORT (+1)</span>`;
+      }
+
+      let boxVisual = "";
+      const totalToDisplay = Math.max(entry.targetBreaks, entry.newBreaks);
+      for (let i = 0; i < totalToDisplay; i++) {
+        if (i < entry.newBreaks) {
+          if (i >= entry.targetBreaks) {
+            boxVisual += "⭐";
+          } else {
+            boxVisual += "✅";
+          }
+        } else {
+          boxVisual += "⬜";
+        }
+      }
+
+      const diffText = entry.addedBreaks > 0 ? ` (+${entry.addedBreaks})` : "";
+      const breakLine = `Breakthrough: ${boxVisual}${diffText}`;
+
+      const itemCard = document.createElement("div");
+      itemCard.className = "history-entry";
+      itemCard.innerHTML = `
+        <div class="history-timestamp">${timeStr}</div>
+        <div class="history-effort-line">${effortHtml}</div>
+        <div class="history-break-line">${breakLine}</div>
+      `;
+
+      if (historyEmptyPlaceholder) {
+        historyEmptyPlaceholder.classList.add("hidden");
+      }
+
+      historyContainer.prepend(itemCard);
+    }
+
+    btnClearHistory.addEventListener("click", () => {
+      historyContainer.innerHTML = "";
+      const emptyNote = document.createElement("span");
+      emptyNote.id = "history-empty-placeholder";
+      emptyNote.style.fontSize = "0.8rem";
+      emptyNote.style.fontStyle = "italic";
+      emptyNote.style.color = "var(--vault-dim)";
+      emptyNote.textContent = "Histórico limpo com sucesso.";
+      historyContainer.appendChild(emptyNote);
+    });
+  </script>
+</body>
+</html>
