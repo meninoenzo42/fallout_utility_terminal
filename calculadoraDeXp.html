@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de Nível & Progressão de XP - Pip-Boy</title>
+
+  <style>
+    /* =======================================================
+       1. VARIÁVEIS & RESET CSS
+       ======================================================= */
+    :root {
+      --vault-bg: #fae4e1;
+      --vault-paper: #faeed2;
+      --vault-header: #1a1815;
+      --vault-border: #d6c49c;
+      --vault-text: #221f19;
+      --vault-dim: #665e4e;
+
+      --font-display: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Arial', sans-serif;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: 'Consolas', 'Courier New', 'Lucida Console', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--vault-bg);
+      color: var(--vault-text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    @media (min-width: 640px) {
+      body { padding: 24px; }
+    }
+
+    .app-container {
+      max-width: 800px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+    }
+    input[type=number] {
+      -moz-appearance: textfield;
+      font-family: var(--font-mono);
+      font-weight: 700;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* =======================================================
+       2. CABEÇALHO
+       ======================================================= */
+    header {
+      margin-bottom: 24px;
+    }
+
+    .header-top {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid var(--vault-text);
+      padding-bottom: 12px;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background-color: var(--vault-header);
+      color: #ffffff;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    }
+
+    .header-title {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--vault-header);
+    }
+
+    /* =======================================================
+       3. CARDS & COMPONENTES DA CALCULADORA DE XP
+       ======================================================= */
+    .level-container {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .card {
+      border: 2px solid var(--vault-text);
+      border-radius: 8px;
+      background-color: var(--vault-paper);
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .card-header {
+      background-color: var(--vault-header);
+      color: #ffffff;
+      padding: 10px 16px;
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .level-card-body {
+      background-color: #fde8e5;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .form-row {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #f1b3af;
+    }
+
+    @media (min-width: 640px) {
+      .form-row {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+    }
+
+    .stepper-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-step {
+      width: 36px;
+      height: 36px;
+      border: 2px solid var(--vault-text);
+      border-radius: 4px;
+      background: #ffffff;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-step:hover { background-color: #fee2e2; }
+    .btn-step:active { transform: scale(0.95); }
+
+    .input-num-styled {
+      width: 100px;
+      text-align: center;
+      padding: 6px 10px;
+      border: 2px solid var(--vault-text);
+      border-radius: 4px;
+      background: #ffffff;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .btn-field-icon {
+      width: 36px;
+      height: 36px;
+      border: 2px solid var(--vault-text);
+      border-radius: 4px;
+      background: #ffffff;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--vault-text);
+      transition: background-color 0.15s, transform 0.05s;
+    }
+    .btn-field-icon:hover { background-color: #fee2e2; color: #b91c1c; }
+    .btn-field-icon:active { transform: scale(0.95); }
+
+    .toggle-group {
+      display: inline-flex;
+      background: #ffffff;
+      border: 2px solid var(--vault-text);
+      border-radius: 6px;
+      padding: 2px;
+      gap: 4px;
+    }
+
+    .toggle-group label {
+      cursor: pointer;
+    }
+
+    .toggle-group input[type=radio] {
+      display: none;
+    }
+
+    .toggle-pill {
+      padding: 6px 14px;
+      border-radius: 4px;
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: block;
+      color: #44403c;
+    }
+
+    .toggle-group input[type=radio]:checked + .toggle-pill {
+      background-color: #b91c1c;
+      color: #ffffff;
+    }
+
+    .btn-carmim {
+      background-color: #b91c1c;
+      color: #ffffff;
+      border: 2px solid var(--vault-text);
+      border-radius: 6px;
+      padding: 8px 14px;
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      font-weight: 700;
+      font-size: 0.75rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background-color 0.15s, transform 0.05s;
+    }
+
+    .btn-carmim:hover { background-color: #991b1b; }
+    .btn-carmim:active { transform: scale(0.97); }
+
+    .btn-quick {
+      padding: 4px 10px;
+      background: #ffffff;
+      border: 1px solid var(--vault-text);
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+
+    .btn-quick:hover { background: #fee2e2; }
+
+    .stat-grid-4 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    @media (min-width: 768px) {
+      .stat-grid-4 {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    .stat-box {
+      background: #ffffff;
+      padding: 12px;
+      border: 2px solid var(--vault-text);
+      border-radius: 6px;
+      text-align: center;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 18px;
+      background-color: #f7c3be;
+      border: 2px solid var(--vault-text);
+      border-radius: 9999px;
+      padding: 2px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #dc2626, #991b1b);
+      border-radius: 9999px;
+      transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    footer {
+      margin-top: 32px;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--vault-dim);
+      font-family: var(--font-mono);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-container">
+
+    <!-- Header -->
+    <header>
+      <div class="header-top">
+        <div class="header-brand">
+          <span class="header-icon">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+            </svg>
+          </span>
+          <h1 class="header-title">Pip-Boy &bull; Nível &amp; Progressão de XP</h1>
+        </div>
+      </div>
+    </header>
+
+    <!-- Conteúdo da Calculadora de Nível & XP -->
+    <main>
+      <div class="level-container">
+        
+        <!-- Formulário de Entrada -->
+        <div class="card">
+          <div class="card-header">
+            <span>Calculadora de Nível &amp; Progressão de XP</span>
+            <span style="font-size: 0.75rem; font-family: var(--font-mono); color: #fca5a5;">Meta(L) = (L &times; (L-1) / 2) &times; 100</span>
+          </div>
+          <div class="level-card-body">
+            
+            <div class="form-row">
+              <label for="input-xp-level" style="font-weight: 700; font-size: 0.875rem;">Nível:</label>
+              <div class="stepper-box">
+                <button id="btn-dec-lvl" type="button" class="btn-step">-</button>
+                <input type="number" id="input-xp-level" value="1" min="1" step="1" placeholder="1" class="input-num-styled" style="width: 80px;">
+                <button id="btn-inc-lvl" type="button" class="btn-step">+</button>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div>
+                <div style="font-weight: 700; font-size: 0.875rem;">XP atual reinicia para 0 ao subir nível?</div>
+                <div style="font-size: 0.75rem; color: var(--vault-dim);">
+                  <strong>Sim:</strong> Paga a meta cheia partindo do zero. <strong>Não:</strong> Acumulativo de carreira.
+                </div>
+              </div>
+              <div class="toggle-group">
+                <label>
+                  <input type="radio" name="radio-reset-xp" value="sim">
+                  <span class="toggle-pill">Sim</span>
+                </label>
+                <label>
+                  <input type="radio" name="radio-reset-xp" value="nao" checked>
+                  <span class="toggle-pill">Não</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <label for="input-xp-current" style="font-weight: 700; font-size: 0.875rem;">
+                XP Atual <span style="font-size: 0.75rem; color: #991b1b; font-weight: 400;">(Opcional)</span>:
+              </label>
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <input type="number" id="input-xp-current" value="" min="0" step="1" placeholder="0" class="input-num-styled" style="width: 140px;">
+                <button id="btn-reset-xp-base" type="button" class="btn-field-icon" title="Repor para o XP Base do Nível">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 10px; padding-top: 4px;">
+              <div class="form-row" style="border: none; padding-bottom: 0;">
+                <div>
+                  <div style="font-weight: 700; font-size: 0.875rem;">
+                    XP a Receber <span style="font-size: 0.75rem; color: #991b1b; font-weight: 400;">(Opcional)</span>:
+                  </div>
+                  <div style="font-size: 0.75rem; color: var(--vault-dim);">Experiência recém ganha</div>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                  <input type="number" id="input-xp-to-receive" value="" min="0" step="1" placeholder="0" class="input-num-styled" style="width: 120px;">
+                  <button id="btn-add-xp-to-current" type="button" class="btn-carmim">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Incrementar
+                  </button>
+                </div>
+              </div>
+
+              <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 0.75rem;">
+                <span style="font-weight: 700; color: var(--vault-dim); font-size: 0.7rem;">Atalhos rápidos:</span>
+                <button type="button" data-add-to-receive="50" class="btn-quick">+50</button>
+                <button type="button" data-add-to-receive="100" class="btn-quick">+100</button>
+                <button type="button" data-add-to-receive="250" class="btn-quick">+250</button>
+                <button type="button" data-add-to-receive="500" class="btn-quick">+500</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Card de Resultado Final -->
+        <div class="card">
+          <div class="card-header">
+            <span>XP Faltante para a Meta &bull; Resultado Final</span>
+            <span id="badge-level-up-tag" style="font-size: 0.75rem; font-family: var(--font-mono); padding: 2px 8px; border-radius: 4px; background: #292524; color: #e7e5e4;">Nível Estável</span>
+          </div>
+          <div style="background-color: #fcebe9; padding: 20px; display: flex; flex-direction: column; gap: 16px;">
+            
+            <div id="banner-level-up" class="hidden" style="padding: 12px; border-radius: 6px; border: 2px solid #047857; background-color: #d1fae5; color: #064e3b; font-size: 0.85rem; font-weight: 700;"></div>
+
+            <div class="stat-grid-4">
+              <div class="stat-box">
+                <span style="font-size: 0.7rem; font-weight: 700; color: var(--vault-dim); text-transform: uppercase; display: block; margin-bottom: 4px;">Nível Final</span>
+                <span id="res-final-level" style="font-size: 1.5rem; font-weight: 900;">1</span>
+                <span id="res-final-level-diff" style="font-size: 0.65rem; display: block; margin-top: 2px; color: var(--vault-dim);">Sem mudança</span>
+              </div>
+              <div class="stat-box">
+                <span style="font-size: 0.7rem; font-weight: 700; color: var(--vault-dim); text-transform: uppercase; display: block; margin-bottom: 4px;">XP no Estado Final</span>
+                <span id="res-final-xp-pool" style="font-size: 1.25rem; font-weight: 900; color: #7f1d1d;">0 XP</span>
+                <span id="res-final-xp-type" style="font-size: 0.65rem; display: block; margin-top: 2px; color: var(--vault-dim);">Total acumulativo</span>
+              </div>
+              <div class="stat-box">
+                <span style="font-size: 0.7rem; font-weight: 700; color: var(--vault-dim); text-transform: uppercase; display: block; margin-bottom: 4px;">XP Meta Próx. Nível</span>
+                <span id="res-final-next-target" style="font-size: 1.25rem; font-weight: 900;">100 XP</span>
+                <span id="res-final-next-lvl-label" style="font-size: 0.65rem; display: block; margin-top: 2px; color: var(--vault-dim);">Meta p/ Nível 2</span>
+              </div>
+              <div class="stat-box" style="border-color: #b91c1c; background-color: #fef2f2;">
+                <span style="font-size: 0.7rem; font-weight: 700; color: #991b1b; text-transform: uppercase; display: block; margin-bottom: 4px;">XP Faltante</span>
+                <span id="res-final-missing-xp" style="font-size: 1.25rem; font-weight: 900; color: #7f1d1d;">100 XP</span>
+                <span style="font-size: 0.65rem; display: block; margin-top: 2px; color: #b91c1b; font-weight: 700;">Para próxima meta</span>
+              </div>
+            </div>
+
+            <div style="background: #ffffff; padding: 16px; border: 2px solid var(--vault-text); border-radius: 6px; display: flex; flex-direction: column; gap: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                <span style="text-transform: uppercase; font-family: var(--font-display); font-weight: 700;">% para Atingir a Próxima Meta:</span>
+                <span id="label-final-pct" style="font-family: var(--font-mono); color: #7f1d1d; font-weight: 900; font-size: 0.95rem;">0.0%</span>
+              </div>
+              <div class="progress-track">
+                <div id="xp-final-progress-bar" class="progress-fill" style="width: 0%;"></div>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.7rem; font-family: var(--font-mono); color: var(--vault-dim);">
+                <span id="label-bar-base">Base: 0 XP</span>
+                <span id="label-bar-target">Meta: 100 XP</span>
+              </div>
+            </div>
+
+            <div style="padding-top: 6px;">
+              <button id="btn-overwrite-session" type="button" class="btn-carmim" style="width: 100%; justify-content: center; padding: 12px; font-size: 0.85rem;">
+                Sobrescrever Dados com os Valores Finais
+              </button>
+              <div style="text-align: center; font-size: 0.7rem; color: var(--vault-dim); margin-top: 6px;">
+                Atualiza os campos de <strong>Nível</strong> e <strong>XP Atual</strong> com os resultados calculados e zera o <strong>XP a Receber</strong>.
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <footer>
+      Terminal Fallout RPG &bull; Módulo de Nível &amp; XP
+    </footer>
+  </div>
+
+  <script>
+    /* =======================================================
+       UTILITÁRIOS DE ENTRADA & PARSE
+       ======================================================= */
+    function parseSafeInt(value, fallbackDefault = 0) {
+      if (value === null || value === undefined || value === "") return fallbackDefault;
+      const strVal = String(value).split(".")[0].split(",")[0].trim();
+      const num = parseInt(strVal, 10);
+      return isNaN(num) ? fallbackDefault : Math.floor(num);
+    }
+
+    function enforceStrictIntegerInput(inputElement, minVal = 0) {
+      inputElement.addEventListener("keydown", (e) => {
+        if (e.key === "-" || e.key === "." || e.key === "," || e.key === "e" || e.key === "E" || e.key === "+") {
+          e.preventDefault();
+        }
+      });
+
+      inputElement.addEventListener("paste", (e) => {
+        e.preventDefault();
+        const text = (e.clipboardData || window.clipboardData).getData("text");
+        const clean = text.replace(/[^0-9]/g, "");
+        const parsed = parseSafeInt(clean, minVal);
+        inputElement.value = parsed === 0 ? "" : parsed;
+        inputElement.dispatchEvent(new Event("input"));
+      });
+    }
+
+    function enforceStrictBoundedInput(inputElement, minVal, maxVal, fallbackDefault, onChangeCallback) {
+      enforceStrictIntegerInput(inputElement, minVal);
+
+      inputElement.addEventListener("input", (e) => {
+        const raw = e.target.value;
+        if (raw === "") {
+          if (onChangeCallback) onChangeCallback(fallbackDefault);
+          return;
+        }
+        let val = parseInt(raw, 10);
+        if (isNaN(val)) val = fallbackDefault;
+        if (val > maxVal) {
+          val = maxVal;
+          inputElement.value = val;
+        }
+        if (onChangeCallback) onChangeCallback(val);
+      });
+
+      inputElement.addEventListener("blur", (e) => {
+        const raw = e.target.value;
+        if (raw === "") {
+          if (onChangeCallback) onChangeCallback(fallbackDefault);
+          return;
+        }
+        let val = parseInt(raw, 10);
+        if (isNaN(val)) val = fallbackDefault;
+        if (val < minVal) val = minVal;
+        if (val > maxVal) val = maxVal;
+        inputElement.value = val;
+        if (onChangeCallback) onChangeCallback(val);
+      });
+    }
+
+    /* =======================================================
+       ESTADO E ELEMENTOS DA CALCULADORA DE NÍVEL & XP
+       ======================================================= */
+    const stateXP = {
+      level: 1,
+      currentXP: 0,
+      toReceiveXP: 0,
+      resetOnLevelUp: false,
+      computedFinal: {
+        finalLevel: 1,
+        finalXPInPool: 0,
+        nextTargetXP: 100,
+        missingXP: 100,
+        pct: 0
+      }
+    };
+
+    const inputXpLevel = document.getElementById("input-xp-level");
+    const inputXpCurrent = document.getElementById("input-xp-current");
+    const btnResetXpBase = document.getElementById("btn-reset-xp-base");
+    const inputXpToReceive = document.getElementById("input-xp-to-receive");
+    const btnAddXpToCurrent = document.getElementById("btn-add-xp-to-current");
+    const radiosResetXp = document.querySelectorAll('input[name="radio-reset-xp"]');
+    const btnDecLvl = document.getElementById("btn-dec-lvl");
+    const btnIncLvl = document.getElementById("btn-inc-lvl");
+    const quickRecvButtons = document.querySelectorAll(".btn-quick");
+
+    const badgeLevelUpTag = document.getElementById("badge-level-up-tag");
+    const bannerLevelUp = document.getElementById("banner-level-up");
+    const resFinalLevel = document.getElementById("res-final-level");
+    const resFinalLevelDiff = document.getElementById("res-final-level-diff");
+    const resFinalXpPool = document.getElementById("res-final-xp-pool");
+    const resFinalXpType = document.getElementById("res-final-xp-type");
+    const resFinalNextTarget = document.getElementById("res-final-next-target");
+    const resFinalNextLvlLabel = document.getElementById("res-final-next-lvl-label");
+    const resFinalMissingXp = document.getElementById("res-final-missing-xp");
+    const labelFinalPct = document.getElementById("label-final-pct");
+    const xpFinalProgressBar = document.getElementById("xp-final-progress-bar");
+    const labelBarBase = document.getElementById("label-bar-base");
+    const labelBarTarget = document.getElementById("label-bar-target");
+    const btnOverwriteSession = document.getElementById("btn-overwrite-session");
+
+    /* =======================================================
+       LÓGICA MATEMÁTICA
+       ======================================================= */
+    function getRequirementToReachLevel(level) {
+      if (level <= 1) return 0;
+      return Math.floor(((level * (level - 1)) / 2) * 100);
+    }
+
+    function getResetCostForNextLevel(fromLevel) {
+      return getRequirementToReachLevel(fromLevel + 1);
+    }
+
+    function handleLevelChangeSyncXp() {
+      if (!stateXP.resetOnLevelUp) {
+        const baseRequirement = getRequirementToReachLevel(stateXP.level);
+        stateXP.currentXP = baseRequirement;
+        inputXpCurrent.value = baseRequirement === 0 ? "" : baseRequirement;
+      }
+      updateXpCalculations();
+    }
+
+    function setLevel(lvl) {
+      stateXP.level = lvl;
+      inputXpLevel.value = lvl === 1 ? "" : lvl;
+      handleLevelChangeSyncXp();
+    }
+
+    function updateXpCalculations() {
+      const startLevel = parseSafeInt(stateXP.level, 1);
+      const currentXp = parseSafeInt(stateXP.currentXP, 0);
+      const toReceiveXp = parseSafeInt(stateXP.toReceiveXP, 0);
+      const totalAvailableXp = currentXp + toReceiveXp;
+      const resetOnLevelUp = stateXP.resetOnLevelUp;
+
+      let finalLevel = startLevel;
+      let finalXPInPool = 0;
+      let nextTargetXP = 0;
+      let missingXP = 0;
+      let progressPct = 0;
+      let barBaseLabel = "";
+      let barTargetLabel = "";
+
+      if (resetOnLevelUp) {
+        let remainingPool = totalAvailableXp;
+        while (true) {
+          const cost = getResetCostForNextLevel(finalLevel);
+          if (remainingPool >= cost) {
+            remainingPool -= cost;
+            finalLevel++;
+          } else {
+            break;
+          }
+        }
+
+        finalXPInPool = remainingPool;
+        const nextStepCost = getResetCostForNextLevel(finalLevel);
+        nextTargetXP = nextStepCost;
+        missingXP = Math.max(0, nextStepCost - finalXPInPool);
+        progressPct = nextStepCost > 0 ? Math.min(100, Math.max(0, (finalXPInPool / nextStepCost) * 100)) : 100;
+
+        barBaseLabel = `Nível ${finalLevel}: 0 XP`;
+        barTargetLabel = `Meta Nível ${finalLevel + 1}: ${nextStepCost.toLocaleString("pt-BR")} XP`;
+        resFinalXpType.textContent = "Saldo atual em mãos";
+      } else {
+        while (true) {
+          const reqCum = getRequirementToReachLevel(finalLevel + 1);
+          if (totalAvailableXp >= reqCum) {
+            finalLevel++;
+          } else {
+            break;
+          }
+        }
+
+        finalXPInPool = totalAvailableXp;
+        const targetCum = getRequirementToReachLevel(finalLevel + 1);
+        const baseCum = getRequirementToReachLevel(finalLevel);
+        nextTargetXP = targetCum;
+        missingXP = Math.max(0, targetCum - finalXPInPool);
+
+        const range = targetCum - baseCum;
+        const currentInRange = finalXPInPool - baseCum;
+        progressPct = range > 0 ? Math.min(100, Math.max(0, (currentInRange / range) * 100)) : 100;
+
+        barBaseLabel = `Nível ${finalLevel}: ${baseCum.toLocaleString("pt-BR")} XP`;
+        barTargetLabel = `Meta Nível ${finalLevel + 1}: ${targetCum.toLocaleString("pt-BR")} XP`;
+        resFinalXpType.textContent = "Total acumulativo";
+      }
+
+      stateXP.computedFinal = {
+        finalLevel,
+        finalXPInPool,
+        nextTargetXP,
+        missingXP,
+        pct: progressPct
+      };
+
+      const levelsGained = finalLevel - startLevel;
+      resFinalLevel.textContent = finalLevel;
+
+      if (levelsGained > 0) {
+        resFinalLevelDiff.textContent = `+${levelsGained} nível(is) alcançado(s)!`;
+        resFinalLevelDiff.style.color = "#047857";
+        resFinalLevelDiff.style.fontWeight = "700";
+
+        badgeLevelUpTag.style.background = "#047857";
+        badgeLevelUpTag.style.color = "#ffffff";
+        badgeLevelUpTag.textContent = `+${levelsGained} LEVEL UP!`;
+
+        bannerLevelUp.classList.remove("hidden");
+        bannerLevelUp.innerHTML = `
+          Subida de Nível Confirmada! Você avançou do Nível <strong>${startLevel}</strong> para o <strong>Nível ${finalLevel}</strong> (+${levelsGained} ${levelsGained === 1 ? 'nível' : 'níveis'}).
+        `;
+      } else {
+        resFinalLevelDiff.textContent = "Sem mudança";
+        resFinalLevelDiff.style.color = "var(--vault-dim)";
+        resFinalLevelDiff.style.fontWeight = "400";
+
+        badgeLevelUpTag.style.background = "#292524";
+        badgeLevelUpTag.style.color = "#e7e5e4";
+        badgeLevelUpTag.textContent = "Nível Estável";
+
+        bannerLevelUp.classList.add("hidden");
+      }
+
+      resFinalXpPool.textContent = `${finalXPInPool.toLocaleString("pt-BR")} XP`;
+      resFinalNextTarget.textContent = `${nextTargetXP.toLocaleString("pt-BR")} XP`;
+      resFinalNextLvlLabel.textContent = `Meta p/ Nível ${finalLevel + 1}`;
+      resFinalMissingXp.textContent = `${missingXP.toLocaleString("pt-BR")} XP`;
+
+      const formattedPct = progressPct.toFixed(1);
+      labelFinalPct.textContent = `${formattedPct}%`;
+      xpFinalProgressBar.style.width = `${formattedPct}%`;
+      labelBarBase.textContent = barBaseLabel;
+      labelBarTarget.textContent = barTargetLabel;
+    }
+
+    /* =======================================================
+       LISTENERS & INICIALIZAÇÃO
+       ======================================================= */
+    enforceStrictBoundedInput(inputXpLevel, 1, 9999, 1, (v) => {
+      setLevel(v);
+    });
+
+    enforceStrictBoundedInput(inputXpCurrent, 0, 9999999, 0, (v) => { 
+      stateXP.currentXP = v; 
+      updateXpCalculations(); 
+    });
+
+    enforceStrictBoundedInput(inputXpToReceive, 0, 9999999, 0, (v) => { 
+      stateXP.toReceiveXP = v; 
+      updateXpCalculations(); 
+    });
+
+    btnIncLvl.addEventListener("click", () => {
+      const nextLvl = parseSafeInt(stateXP.level, 1) + 1;
+      setLevel(nextLvl);
+    });
+
+    btnDecLvl.addEventListener("click", () => {
+      const prevLvl = Math.max(1, parseSafeInt(stateXP.level, 1) - 1);
+      setLevel(prevLvl);
+    });
+
+    btnResetXpBase.addEventListener("click", () => {
+      const baseReq = getRequirementToReachLevel(stateXP.level);
+      stateXP.currentXP = baseReq;
+      inputXpCurrent.value = baseReq === 0 ? "" : baseReq;
+      updateXpCalculations();
+    });
+
+    btnAddXpToCurrent.addEventListener("click", () => {
+      const toRecv = parseSafeInt(stateXP.toReceiveXP, 0);
+      if (toRecv > 0) {
+        stateXP.currentXP = parseSafeInt(stateXP.currentXP, 0) + toRecv;
+        stateXP.toReceiveXP = 0;
+        inputXpCurrent.value = stateXP.currentXP === 0 ? "" : stateXP.currentXP;
+        inputXpToReceive.value = "";
+        updateXpCalculations();
+      }
+    });
+
+    radiosResetXp.forEach(radio => {
+      radio.addEventListener("change", (e) => {
+        stateXP.resetOnLevelUp = e.target.value === "sim";
+        if (!stateXP.resetOnLevelUp) {
+          const baseReq = getRequirementToReachLevel(stateXP.level);
+          stateXP.currentXP = baseReq;
+          inputXpCurrent.value = baseReq === 0 ? "" : baseReq;
+        } else {
+          stateXP.currentXP = 0;
+          inputXpCurrent.value = "";
+        }
+        updateXpCalculations();
+      });
+    });
+
+    quickRecvButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const addVal = parseSafeInt(btn.getAttribute("data-add-to-receive"), 0);
+        stateXP.toReceiveXP = parseSafeInt(stateXP.toReceiveXP, 0) + addVal;
+        inputXpToReceive.value = stateXP.toReceiveXP === 0 ? "" : stateXP.toReceiveXP;
+        updateXpCalculations();
+      });
+    });
+
+    btnOverwriteSession.addEventListener("click", () => {
+      const { finalLevel, finalXPInPool } = stateXP.computedFinal;
+      stateXP.currentXP = finalXPInPool;
+      stateXP.toReceiveXP = 0;
+      inputXpCurrent.value = finalXPInPool === 0 ? "" : finalXPInPool;
+      inputXpToReceive.value = "";
+      setLevel(finalLevel);
+    });
+
+    // Inicialização
+    handleLevelChangeSyncXp();
+  </script>
+</body>
+</html>
