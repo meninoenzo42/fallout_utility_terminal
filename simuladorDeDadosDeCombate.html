@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dados de Combate (DC) - Pip-Boy</title>
+
+  <style>
+    /* =======================================================
+       1. VARIÁVEIS & RESET CSS
+       ======================================================= */
+    :root {
+      --vault-bg: #edf2f9;
+      --vault-paper: #faeed2;
+      --vault-header: #172554;
+      --vault-border: #93c5fd;
+      --vault-text: #172554;
+      --vault-dim: #1e3a8a;
+
+      --font-display: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Arial', sans-serif;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: 'Consolas', 'Courier New', 'Lucida Console', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--vault-bg);
+      color: var(--vault-text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    @media (min-width: 640px) {
+      body { padding: 24px; }
+    }
+
+    .app-container {
+      max-width: 960px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+    }
+    input[type=number] {
+      -moz-appearance: textfield;
+      font-family: var(--font-mono);
+      font-weight: 700;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* =======================================================
+       2. CABEÇALHO
+       ======================================================= */
+    header {
+      margin-bottom: 24px;
+    }
+
+    .header-top {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid var(--vault-header);
+      padding-bottom: 12px;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background-color: var(--vault-header);
+      color: #ffffff;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    }
+
+    .header-title {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--vault-header);
+    }
+
+    /* =======================================================
+       3. ESTRUTURA DOS DADOS DE COMBATE
+       ======================================================= */
+    .dice-container {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .card-darkblue {
+      border: 2px solid #172554;
+      border-radius: 8px;
+      background-color: #dbeafe;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .card-header {
+      background-color: #172554;
+      color: #ffffff;
+      padding: 10px 16px;
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .darkblue-cell {
+      background-color: #bfdbfe;
+      border: 2px solid #1e3a8a;
+      border-radius: 6px;
+      padding: 12px;
+    }
+
+    .darkblue-cell-btn {
+      width: 32px;
+      height: 32px;
+      border: 2px solid #1e3a8a;
+      border-radius: 4px;
+      background-color: #dbeafe;
+      font-weight: 700;
+      color: #172554;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .darkblue-cell-btn:hover { background-color: #93c5fd; }
+    .darkblue-cell-btn:active { transform: scale(0.95); }
+
+    .input-num-styled {
+      text-align: center;
+      padding: 6px 10px;
+      border: 2px solid #1e3a8a;
+      border-radius: 4px;
+      background: #eff6ff;
+      color: #172554;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .purple-input-readonly {
+      text-align: center;
+      padding: 6px;
+      border: 2px solid #1e3a8a;
+      border-radius: 4px;
+      background: #eff6ff;
+      color: #172554;
+      font-size: 1rem;
+      cursor: default;
+    }
+
+    .toggle-group {
+      display: inline-flex;
+      border: 2px solid #1e3a8a;
+      border-radius: 6px;
+      padding: 2px;
+      gap: 4px;
+    }
+
+    .toggle-group label {
+      cursor: pointer;
+    }
+
+    .toggle-group input[type=radio] {
+      display: none;
+    }
+
+    .toggle-pill {
+      padding: 6px 14px;
+      border-radius: 4px;
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: block;
+    }
+
+    .toggle-group-darkblue input[type=radio]:checked + .toggle-pill {
+      background-color: #1e3a8a;
+      color: #ffffff;
+    }
+
+    .btn-roll-combat {
+      width: 100%;
+      padding: 14px 24px;
+      background-color: #1e3a8a;
+      color: #ffffff;
+      font-family: var(--font-display);
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border: 2px solid #172554;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+      transition: background-color 0.15s;
+    }
+
+    .btn-roll-combat:hover { background-color: #172554; }
+    .btn-roll-combat:active { transform: scale(0.99); }
+
+    .btn-sort-pool {
+      padding: 4px 10px;
+      font-size: 0.72rem;
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      border-radius: 4px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s;
+    }
+
+    .btn-sort-dc {
+      border: 1.5px solid #93c5fd;
+      background-color: #0f172a;
+      color: #e0f2fe;
+    }
+    .btn-sort-dc:hover:not(:disabled) {
+      background-color: #1e3a8a;
+      border-color: #ffffff;
+    }
+    .btn-sort-pool:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .dc-box {
+      width: 68px;
+      height: 68px;
+      border: 2px solid #172554;
+      background-color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      font-family: var(--font-mono);
+      border-radius: 4px;
+    }
+
+    @media (min-width: 640px) {
+      .dc-box {
+        width: 76px;
+        height: 76px;
+      }
+    }
+
+    .dc-symbol {
+      font-size: 1.6rem;
+      font-weight: 900;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+    }
+
+    .dc-tag {
+      font-size: 0.55rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .dc-face-blank {
+      background-color: #f3f4f6 !important;
+      border-color: #9ca3af !important;
+      color: #6b7280 !important;
+    }
+
+    .dc-face-one {
+      background-color: #fef08a !important;
+      border-color: #ca8a04 !important;
+      color: #713f12 !important;
+    }
+
+    .dc-face-two {
+      background-color: #fed7aa !important;
+      border-color: #ea580c !important;
+      color: #7c2d12 !important;
+    }
+
+    .dc-face-effect {
+      background-color: #bbf7d0 !important;
+      border-color: #15803d !important;
+      color: #14532d !important;
+    }
+
+    .btn-dc-reroll {
+      margin-top: 6px;
+      padding: 3px 8px;
+      font-size: 0.65rem;
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      border: 1.5px solid #1e3a8a;
+      border-radius: 4px;
+      background-color: #ffffff;
+      color: #1e3a8a;
+      cursor: pointer;
+      transition: all 0.15s;
+      width: 100%;
+    }
+
+    .btn-dc-reroll:hover:not(:disabled) {
+      background-color: #1e3a8a;
+      color: #ffffff;
+    }
+
+    .btn-dc-reroll:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      border-color: #9ca3af;
+      color: #6b7280;
+      background-color: #e5e7eb;
+    }
+
+    .btn-dc-force {
+      margin-top: 3px;
+      padding: 2px 6px;
+      font-size: 0.6rem;
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      border: 1.5px dashed #1e3a8a;
+      border-radius: 4px;
+      background-color: #f0fdf4;
+      color: #172554;
+      cursor: pointer;
+      transition: all 0.15s;
+      width: 100%;
+    }
+
+    .btn-dc-force:hover:not(:disabled) {
+      background-color: #93c5fd;
+      color: #172554;
+      border-style: solid;
+    }
+
+    .btn-dc-force:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      border-color: #9ca3af;
+      color: #6b7280;
+      background-color: #e5e7eb;
+    }
+
+    @keyframes rollIcosahedron {
+      0% { transform: rotate(0deg) scale(1); }
+      25% { transform: rotate(-18deg) scale(1.08); }
+      50% { transform: rotate(18deg) scale(1.12); }
+      75% { transform: rotate(-10deg) scale(1.04); }
+      100% { transform: rotate(0deg) scale(1); }
+    }
+    .dice-rolling {
+      animation: rollIcosahedron 0.12s infinite linear;
+    }
+
+    /* Modal Forçar Face DC */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(26, 24, 21, 0.65);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      backdrop-filter: blur(2px);
+    }
+
+    .modal-card-darkblue {
+      background-color: #dbeafe;
+      border: 3px solid #172554;
+      border-radius: 12px;
+      padding: 20px;
+      max-width: 440px;
+      width: 90%;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.35);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .modal-grid-dc-4 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    @media (min-width: 500px) {
+      .modal-grid-dc-4 {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    .btn-face-choice-dc {
+      padding: 14px 8px;
+      background-color: #ffffff;
+      border: 2px solid #1e3a8a;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: #172554;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s;
+    }
+
+    .btn-face-choice-dc:hover:not(:disabled) {
+      background-color: #1e3a8a;
+      color: #ffffff;
+      transform: scale(1.04);
+    }
+
+    .btn-face-choice-dc:disabled {
+      opacity: 0.3 !important;
+      cursor: not-allowed !important;
+      background-color: #d1d5db !important;
+      border-color: #9ca3af !important;
+      color: #6b7280 !important;
+      transform: none !important;
+    }
+
+    footer {
+      margin-top: 32px;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--vault-dim);
+      font-family: var(--font-mono);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-container">
+
+    <!-- Header -->
+    <header>
+      <div class="header-top">
+        <div class="header-brand">
+          <span class="header-icon">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+          </span>
+          <h1 class="header-title">Pip-Boy &bull; Dados de Combate (DC)</h1>
+        </div>
+      </div>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main>
+      <div class="dice-container">
+        
+        <!-- Configurações da Rolagem -->
+        <div class="card-darkblue">
+          <div class="card-header">
+            <span>Simulador de Rolagem de Dados de Combate (DC)</span>
+            <span style="font-size: 0.75rem; font-family: var(--font-mono); color: #93c5fd;">D6 Combat Dice Engine</span>
+          </div>
+
+          <div style="padding: 20px; display: flex; flex-direction: column; gap: 16px;">
+            <div class="darkblue-cell" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+              <div>
+                <label for="dc-qty-input" style="font-size: 0.85rem; font-weight: 700; color: #172554; text-transform: uppercase; display: block;">
+                  Quantidade de Dados de Combate (DC):
+                </label>
+                <span style="font-size: 0.72rem; color: #1e3a8a;">Digite a quantidade desejada de dados a rolar (1 a 100 DC)</span>
+              </div>
+              <div>
+                <input type="number" id="dc-qty-input" value="" min="1" max="100" step="1" placeholder="4" class="input-num-styled" style="width: 80px;">
+              </div>
+            </div>
+
+            <div class="darkblue-cell" style="display: flex; flex-direction: column; gap: 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                <div>
+                  <span style="font-size: 0.85rem; font-weight: 700; color: #172554; text-transform: uppercase; display: block;">
+                    Somar efeitos com dano (Vicious):
+                  </span>
+                </div>
+                <div class="toggle-group toggle-group-darkblue" style="background: #dbeafe;">
+                  <label style="flex: 1; text-align: center;">
+                    <input type="radio" name="dc-radio-vicious" value="sim">
+                    <span class="toggle-pill" style="color: #172554;">Sim</span>
+                  </label>
+                  <label style="flex: 1; text-align: center;">
+                    <input type="radio" name="dc-radio-vicious" value="nao" checked>
+                    <span class="toggle-pill" style="color: #172554;">Não</span>
+                  </label>
+                </div>
+              </div>
+
+              <div id="dc-vicious-multiplier-box" class="hidden" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; border-top: 1px solid #93c5fd; padding-top: 10px;">
+                <div>
+                  <label style="font-size: 0.78rem; font-weight: 700; color: #172554; text-transform: uppercase; display: block;">
+                    Cada efeito aumenta o dano em:
+                  </label>
+                  <span style="font-size: 0.7rem; color: #1e3a8a;">Alterar o bônus de dano por efeito com Vicious, aplicado por Perks e Mods. Padrão: 1</span>
+                </div>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <button id="dc-btn-dec-vicious" type="button" class="darkblue-cell-btn">-</button>
+                  <input type="number" id="dc-vicious-val-input" value="1" min="1" readonly tabindex="-1" class="purple-input-readonly" style="width: 60px;">
+                  <button id="dc-btn-inc-vicious" type="button" class="darkblue-cell-btn">+</button>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <button id="dc-btn-roll" type="button" class="btn-roll-combat">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+                Confirmar &amp; Rolar Dados de Combate
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mesa de Rolagem -->
+        <div class="card-darkblue">
+          <div class="card-header">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span>Mesa de Rolagem dos Dados de Combate</span>
+              <button id="dc-btn-sort" type="button" class="btn-sort-pool btn-sort-dc" disabled>
+                ↕ Ordenar Dados (1, 2, E, 0)
+              </button>
+            </div>
+            <span id="dc-roll-status-tag" style="font-size: 0.75rem; font-family: var(--font-mono); color: #93c5fd;">Pronto para rolar</span>
+          </div>
+          <div style="padding: 24px; background-color: #dbeafe;">
+            <div id="dc-pool-display" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; min-height: 110px; align-items: flex-start;">
+              <span style="font-size: 0.875rem; font-style: italic; color: #1e3a8a; font-weight: 600;">Pressione "Confirmar &amp; Rolar Dados de Combate" para calcular dano e efeitos.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resultados -->
+        <div class="card-darkblue">
+          <div class="card-header">
+            <span>Resultados</span>
+            <span style="font-size: 0.75rem; color: #93c5fd;">Totalizador</span>
+          </div>
+          <div style="padding: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; font-family: var(--font-mono); text-align: center;">
+            <div class="darkblue-cell" style="border-color: #ca8a04; background-color: #fef08a;">
+              <span style="font-size: 0.7rem; font-weight: 700; color: #713f12; text-transform: uppercase; display: block; margin-bottom: 2px;">Dano Total</span>
+              <span id="dc-res-total-damage" style="font-size: 2rem; font-weight: 900; color: #713f12;">0</span>
+              <span id="dc-res-damage-breakdown" style="font-size: 0.65rem; color: #854d0e; font-weight: 700; display: block; margin-top: 2px;">Base: 0</span>
+            </div>
+            <div class="darkblue-cell" style="border-color: #15803d; background-color: #bbf7d0;">
+              <span style="font-size: 0.7rem; font-weight: 700; color: #14532d; text-transform: uppercase; display: block; margin-bottom: 2px;">Total de Efeitos (E)</span>
+              <span id="dc-res-total-effects" style="font-size: 2rem; font-weight: 900; color: #14532d;">0</span>
+              <span style="font-size: 0.65rem; color: #166534; font-weight: 700; display: block; margin-top: 2px;">Efeitos</span>
+            </div>
+            <div class="darkblue-cell">
+              <span style="font-size: 0.7rem; font-weight: 700; color: #1e3a8a; text-transform: uppercase; display: block; margin-bottom: 2px;">Rerolls Usados</span>
+              <span id="dc-res-rerolls" style="font-size: 2rem; font-weight: 900; color: #172554;">0 ((0/3)+1)</span>
+            </div>
+            <div class="darkblue-cell">
+              <span style="font-size: 0.7rem; font-weight: 700; color: #1e3a8a; text-transform: uppercase; display: block; margin-bottom: 2px;">Faces Forçadas</span>
+              <span id="dc-res-forced" style="font-size: 2rem; font-weight: 900; color: #172554;">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detalhes -->
+        <div class="card-darkblue">
+          <div class="card-header">
+            <span>Detalhes</span>
+            <span style="font-size: 0.75rem; color: #93c5fd;">Distribuição</span>
+          </div>
+          <div style="padding: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; font-family: var(--font-mono); text-align: center;">
+            <div class="darkblue-cell" style="background-color: #fef08a; border-color: #ca8a04;">
+              <span style="font-size: 0.68rem; font-weight: 700; color: #713f12; text-transform: uppercase; display: block; margin-bottom: 2px;">Face 1</span>
+              <span id="dc-res-count-1" style="font-size: 1.5rem; font-weight: 900; color: #713f12;">0</span>
+            </div>
+            <div class="darkblue-cell" style="background-color: #fed7aa; border-color: #ea580c;">
+              <span style="font-size: 0.68rem; font-weight: 700; color: #7c2d12; text-transform: uppercase; display: block; margin-bottom: 2px;">Face 2</span>
+              <span id="dc-res-count-2" style="font-size: 1.5rem; font-weight: 900; color: #7c2d12;">0</span>
+            </div>
+            <div class="darkblue-cell" style="background-color: #f3f4f6; border-color: #9ca3af;">
+              <span style="font-size: 0.68rem; font-weight: 700; color: #4b5563; text-transform: uppercase; display: block; margin-bottom: 2px;">Vazio</span>
+              <span id="dc-res-count-blank" style="font-size: 1.5rem; font-weight: 900; color: #4b5563;">0</span>
+            </div>
+            <div class="darkblue-cell" style="background-color: #bbf7d0; border-color: #15803d;">
+              <span style="font-size: 0.68rem; font-weight: 700; color: #14532d; text-transform: uppercase; display: block; margin-bottom: 2px;">Efeito</span>
+              <span id="dc-res-count-effect" style="font-size: 1.5rem; font-weight: 900; color: #14532d;">0</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- Modal Forçar Face DC -->
+    <div id="modal-force-dc" class="modal-overlay hidden">
+      <div class="modal-card-darkblue">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #172554; padding-bottom: 8px;">
+          <span style="font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; text-transform: uppercase; color: #172554;">
+            Escolher Face do Dado de Combate (DC)
+          </span>
+          <button id="btn-close-dc-modal" type="button" style="background: none; border: none; font-size: 1.2rem; font-weight: 900; color: #172554; cursor: pointer; line-height: 1;">&times;</button>
+        </div>
+        <div id="modal-dc-grid" class="modal-grid-dc-4"></div>
+      </div>
+    </div>
+
+    <footer>
+      Terminal Fallout RPG &bull; Módulo de Dados de Combate (DC)
+    </footer>
+  </div>
+
+  <script>
+    /* =======================================================
+       UTILITÁRIOS DE ENTRADA & PARSE
+       ======================================================= */
+    function parseSafeInt(value, fallbackDefault = 0) {
+      if (value === null || value === undefined || value === "") return fallbackDefault;
+      const strVal = String(value).split(".")[0].split(",")[0].trim();
+      const num = parseInt(strVal, 10);
+      return isNaN(num) ? fallbackDefault : Math.floor(num);
+    }
+
+    function enforceStrictIntegerInput(inputElement, minVal = 0) {
+      inputElement.addEventListener("keydown", (e) => {
+        if (e.key === "-" || e.key === "." || e.key === "," || e.key === "e" || e.key === "E" || e.key === "+") {
+          e.preventDefault();
+        }
+      });
+
+      inputElement.addEventListener("paste", (e) => {
+        e.preventDefault();
+        const text = (e.clipboardData || window.clipboardData).getData("text");
+        const clean = text.replace(/[^0-9]/g, "");
+        const parsed = parseSafeInt(clean, minVal);
+        inputElement.value = parsed === 0 ? "" : parsed;
+        inputElement.dispatchEvent(new Event("input"));
+      });
+    }
+
+    function enforceStrictBoundedInput(inputElement, minVal, maxVal, fallbackDefault, onChangeCallback) {
+      enforceStrictIntegerInput(inputElement, minVal);
+
+      inputElement.addEventListener("input", (e) => {
+        const raw = e.target.value;
+        if (raw === "") {
+          if (onChangeCallback) onChangeCallback(fallbackDefault);
+          return;
+        }
+        let val = parseInt(raw, 10);
+        if (isNaN(val)) val = fallbackDefault;
+        if (val > maxVal) {
+          val = maxVal;
+          inputElement.value = val;
+        }
+        if (onChangeCallback) onChangeCallback(val);
+      });
+
+      inputElement.addEventListener("blur", (e) => {
+        const raw = e.target.value;
+        if (raw === "") {
+          if (onChangeCallback) onChangeCallback(fallbackDefault);
+          return;
+        }
+        let val = parseInt(raw, 10);
+        if (isNaN(val)) val = fallbackDefault;
+        if (val < minVal) val = minVal;
+        if (val > maxVal) val = maxVal;
+        inputElement.value = val;
+        if (onChangeCallback) onChangeCallback(val);
+      });
+    }
+
+    /* =======================================================
+       REGRAS E ELEMENTOS DOM
+       ======================================================= */
+    const COMBAT_DICE_RULES = {
+      1: { damage: 1, effects: 0, label: "1", type: "1", desc: "1 Dano", bgClass: "dc-face-one" },
+      2: { damage: 2, effects: 0, label: "2", type: "2", desc: "2 Dano", bgClass: "dc-face-two" },
+      3: { damage: 0, effects: 0, label: "—", type: "blank", desc: "Vazio", bgClass: "dc-face-blank" },
+      4: { damage: 0, effects: 0, label: "—", type: "blank", desc: "Vazio", bgClass: "dc-face-blank" },
+      5: { damage: 1, effects: 1, label: "1+E", type: "effect", desc: "1 Dano + Efeito", bgClass: "dc-face-effect" },
+      6: { damage: 1, effects: 1, label: "1+E", type: "effect", desc: "1 Dano + Efeito", bgClass: "dc-face-effect" }
+    };
+
+    let currentDcPool = [];
+    let dcRerollsUsed = 0;
+    let dcForcedFacesUsed = 0;
+    let currentlyTargetedDcItem = null;
+    let isDcRolling = false;
+
+    let isViciousActive = false;
+    let viciousMultiplier = 1;
+
+    const dcQtyInput = document.getElementById("dc-qty-input");
+    const dcBtnRoll = document.getElementById("dc-btn-roll");
+    const dcBtnSort = document.getElementById("dc-btn-sort");
+    const dcPoolDisplay = document.getElementById("dc-pool-display");
+    const dcRollStatusTag = document.getElementById("dc-roll-status-tag");
+
+    const dcRadiosVicious = document.querySelectorAll('input[name="dc-radio-vicious"]');
+    const dcViciousMultiplierBox = document.getElementById("dc-vicious-multiplier-box");
+    const dcViciousValInput = document.getElementById("dc-vicious-val-input");
+    const dcBtnDecVicious = document.getElementById("dc-btn-dec-vicious");
+    const dcBtnIncVicious = document.getElementById("dc-btn-inc-vicious");
+
+    const dcResTotalDamage = document.getElementById("dc-res-total-damage");
+    const dcResDamageBreakdown = document.getElementById("dc-res-damage-breakdown");
+    const dcResTotalEffects = document.getElementById("dc-res-total-effects");
+    const dcResRerolls = document.getElementById("dc-res-rerolls");
+    const dcResForced = document.getElementById("dc-res-forced");
+
+    const dcResCount1 = document.getElementById("dc-res-count-1");
+    const dcResCount2 = document.getElementById("dc-res-count-2");
+    const dcResCountBlank = document.getElementById("dc-res-count-blank");
+    const dcResCountEffect = document.getElementById("dc-res-count-effect");
+
+    const modalForceDc = document.getElementById("modal-force-dc");
+    const btnCloseDcModal = document.getElementById("btn-close-dc-modal");
+    const modalDcGrid = document.getElementById("modal-dc-grid");
+
+    enforceStrictBoundedInput(dcQtyInput, 1, 100, 4, () => {});
+
+    /* =======================================================
+       LÓGICA DOS DADOS DE COMBATE
+       ======================================================= */
+    function styleDcItem(item) {
+      const faceInfo = COMBAT_DICE_RULES[item.face] || COMBAT_DICE_RULES[3];
+      item.box.className = `dc-box ${faceInfo.bgClass}`;
+      
+      if (faceInfo.type === "effect") {
+        item.symbolSpan.innerHTML = `1 <span style="font-size:1.15rem; color:#15803d; margin-left:1px;">&#9786;</span>`;
+        item.tagSpan.textContent = "1 Dano + E";
+      } else if (faceInfo.type === "blank") {
+        item.symbolSpan.textContent = "—";
+        item.tagSpan.textContent = "Vazio";
+      } else {
+        item.symbolSpan.textContent = faceInfo.label;
+        item.tagSpan.textContent = faceInfo.desc;
+      }
+    }
+
+    function recalculateDcResults() {
+      let baseDamage = 0;
+      let totalEffects = 0;
+      let count1 = 0;
+      let count2 = 0;
+      let countBlank = 0;
+      let countEffect = 0;
+
+      currentDcPool.forEach(item => {
+        const info = COMBAT_DICE_RULES[item.face];
+        if (info) {
+          baseDamage += info.damage;
+          totalEffects += info.effects;
+
+          if (info.type === "1") count1++;
+          else if (info.type === "2") count2++;
+          else if (info.type === "blank") countBlank++;
+          else if (info.type === "effect") countEffect++;
+        }
+      });
+
+      const extraVicious = isViciousActive ? (totalEffects * viciousMultiplier) : 0;
+      const finalDamage = baseDamage + extraVicious;
+
+      dcResTotalDamage.textContent = finalDamage;
+      if (isViciousActive && extraVicious > 0) {
+        dcResDamageBreakdown.textContent = `Base: ${baseDamage} + Vicious: ${extraVicious}`;
+      } else {
+        dcResDamageBreakdown.textContent = `Base: ${baseDamage}`;
+      }
+
+      dcResTotalEffects.textContent = totalEffects;
+      const rerollsRatio = Math.floor(dcRerollsUsed / 3) + 1;
+      dcResRerolls.textContent = `${dcRerollsUsed} ((${dcRerollsUsed}/3)+1 = ${rerollsRatio})`;
+      dcResForced.textContent = dcForcedFacesUsed;
+
+      dcResCount1.textContent = count1;
+      dcResCount2.textContent = count2;
+      dcResCountBlank.textContent = countBlank;
+      dcResCountEffect.textContent = countEffect;
+    }
+
+    dcRadiosVicious.forEach(radio => {
+      radio.addEventListener("change", (e) => {
+        isViciousActive = e.target.value === "sim";
+        if (isViciousActive) {
+          dcViciousMultiplierBox.classList.remove("hidden");
+        } else {
+          dcViciousMultiplierBox.classList.add("hidden");
+        }
+        recalculateDcResults();
+      });
+    });
+
+    dcBtnDecVicious.addEventListener("click", () => {
+      viciousMultiplier = Math.max(1, parseSafeInt(dcViciousValInput.value, 1) - 1);
+      dcViciousValInput.value = viciousMultiplier;
+      recalculateDcResults();
+    });
+
+    dcBtnIncVicious.addEventListener("click", () => {
+      viciousMultiplier = parseSafeInt(dcViciousValInput.value, 1) + 1;
+      dcViciousValInput.value = viciousMultiplier;
+      recalculateDcResults();
+    });
+
+    function rerollSingleDc(item) {
+      if (isDcRolling || item.hasRerolled) return;
+
+      item.btnReroll.disabled = true;
+      item.btnReroll.textContent = "...";
+      item.box.classList.add("dice-rolling");
+
+      let ticks = 8;
+      const tInterval = setInterval(() => {
+        const tempFace = Math.floor(Math.random() * 6) + 1;
+        const tempInfo = COMBAT_DICE_RULES[tempFace];
+        item.symbolSpan.textContent = tempInfo.label;
+        ticks--;
+
+        if (ticks <= 0) {
+          clearInterval(tInterval);
+          item.box.classList.remove("dice-rolling");
+          item.face = Math.floor(Math.random() * 6) + 1;
+          item.hasRerolled = true;
+          item.btnReroll.textContent = "Usado";
+          item.btnReroll.disabled = true;
+
+          dcRerollsUsed++;
+          styleDcItem(item);
+          recalculateDcResults();
+        }
+      }, 60);
+    }
+
+    function openForceDcModal(item) {
+      if (isDcRolling || item.hasForced) return;
+      currentlyTargetedDcItem = item;
+      buildForceDcModalGrid(item.face);
+      modalForceDc.classList.remove("hidden");
+    }
+
+    function closeForceDcModal() {
+      modalForceDc.classList.add("hidden");
+      currentlyTargetedDcItem = null;
+    }
+
+    btnCloseDcModal.addEventListener("click", closeForceDcModal);
+    modalForceDc.addEventListener("click", (e) => {
+      if (e.target === modalForceDc) closeForceDcModal();
+    });
+
+    function buildForceDcModalGrid(currentFace) {
+      modalDcGrid.innerHTML = "";
+      const allowedFaces = [1, 2, 4, 6];
+      const currentType = COMBAT_DICE_RULES[currentFace] ? COMBAT_DICE_RULES[currentFace].type : null;
+
+      allowedFaces.forEach(f => {
+        const info = COMBAT_DICE_RULES[f];
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "btn-face-choice-dc";
+        
+        let iconHtml = info.label;
+        if (info.type === "effect") {
+          iconHtml = `1 &#9786;`;
+        }
+
+        btn.innerHTML = `
+          <span style="font-size:1.35rem; font-weight:900;">${iconHtml}</span>
+          <span style="font-size:0.68rem; font-weight:700;">${info.desc}</span>
+        `;
+
+        if (info.type === currentType) {
+          btn.disabled = true;
+        } else {
+          const faceVal = f;
+          btn.addEventListener("click", () => {
+            if (currentlyTargetedDcItem && !currentlyTargetedDcItem.hasForced) {
+              currentlyTargetedDcItem.face = faceVal;
+              currentlyTargetedDcItem.hasForced = true;
+              currentlyTargetedDcItem.btnForce.textContent = "Forçado";
+              currentlyTargetedDcItem.btnForce.disabled = true;
+
+              dcForcedFacesUsed++;
+              styleDcItem(currentlyTargetedDcItem);
+              recalculateDcResults();
+            }
+            closeForceDcModal();
+          });
+        }
+        modalDcGrid.appendChild(btn);
+      });
+    }
+
+    dcBtnSort.addEventListener("click", () => {
+      if (isDcRolling || currentDcPool.length === 0) return;
+      const priority = { "1": 1, "2": 2, "effect": 3, "blank": 4 };
+      currentDcPool.sort((a, b) => {
+        const pA = priority[COMBAT_DICE_RULES[a.face].type];
+        const pB = priority[COMBAT_DICE_RULES[b.face].type];
+        return pA - pB;
+      });
+      dcPoolDisplay.innerHTML = "";
+      currentDcPool.forEach(item => dcPoolDisplay.appendChild(item.wrapper));
+    });
+
+    dcBtnRoll.addEventListener("click", () => {
+      if (isDcRolling) return;
+
+      const rawDC = dcQtyInput.value;
+      const numDice = rawDC === "" ? 4 : Math.min(100, Math.max(1, parseSafeInt(rawDC, 4)));
+      isDcRolling = true;
+      dcBtnRoll.disabled = true;
+      dcBtnSort.disabled = true;
+      dcBtnRoll.style.opacity = "0.75";
+      dcBtnRoll.style.cursor = "not-allowed";
+      dcRollStatusTag.textContent = `Rolando ${numDice} DCs...`;
+      dcRollStatusTag.style.color = "#93c5fd";
+
+      dcPoolDisplay.innerHTML = "";
+      currentDcPool = [];
+      dcRerollsUsed = 0;
+      dcForcedFacesUsed = 0;
+
+      for (let i = 0; i < numDice; i++) {
+        const dWrapper = document.createElement("div");
+        dWrapper.style.position = "relative";
+        dWrapper.style.display = "flex";
+        dWrapper.style.flexDirection = "column";
+        dWrapper.style.alignItems = "center";
+        dWrapper.style.filter = "drop-shadow(0 2px 3px rgba(0,0,0,0.15))";
+        dWrapper.style.width = "76px";
+
+        const dBox = document.createElement("div");
+        dBox.className = "dc-box dice-rolling";
+
+        const symbolSpan = document.createElement("span");
+        symbolSpan.className = "dc-symbol";
+        symbolSpan.textContent = "?";
+
+        const tagSpan = document.createElement("span");
+        tagSpan.className = "dc-tag";
+        tagSpan.textContent = "DC";
+
+        const btnReroll = document.createElement("button");
+        btnReroll.type = "button";
+        btnReroll.className = "btn-dc-reroll";
+        btnReroll.textContent = "Reroll";
+        btnReroll.disabled = true;
+
+        const btnForce = document.createElement("button");
+        btnForce.type = "button";
+        btnForce.className = "btn-dc-force";
+        btnForce.textContent = "Forçar Face";
+        btnForce.disabled = true;
+
+        const dcObj = {
+          face: 4,
+          hasRerolled: false,
+          hasForced: false,
+          wrapper: dWrapper,
+          box: dBox,
+          symbolSpan: symbolSpan,
+          tagSpan: tagSpan,
+          btnReroll: btnReroll,
+          btnForce: btnForce
+        };
+
+        btnReroll.addEventListener("click", () => rerollSingleDc(dcObj));
+        btnForce.addEventListener("click", () => openForceDcModal(dcObj));
+
+        dBox.appendChild(symbolSpan);
+        dBox.appendChild(tagSpan);
+        dWrapper.appendChild(dBox);
+        dWrapper.appendChild(btnReroll);
+        dWrapper.appendChild(btnForce);
+        dcPoolDisplay.appendChild(dWrapper);
+
+        currentDcPool.push(dcObj);
+      }
+
+      let ticks = 12;
+      const interval = setInterval(() => {
+        currentDcPool.forEach(d => {
+          const tempFace = Math.floor(Math.random() * 6) + 1;
+          const tempInfo = COMBAT_DICE_RULES[tempFace];
+          d.symbolSpan.textContent = tempInfo.label;
+        });
+        ticks--;
+
+        if (ticks <= 0) {
+          clearInterval(interval);
+
+          currentDcPool.forEach(item => {
+            item.box.classList.remove("dice-rolling");
+            item.face = Math.floor(Math.random() * 6) + 1;
+            item.btnReroll.disabled = false;
+            item.btnForce.disabled = false;
+            styleDcItem(item);
+          });
+
+          recalculateDcResults();
+
+          isDcRolling = false;
+          dcBtnRoll.disabled = false;
+          dcBtnSort.disabled = false;
+          dcBtnRoll.style.opacity = "1";
+          dcBtnRoll.style.cursor = "pointer";
+          dcRollStatusTag.textContent = "Rolagem finalizada!";
+          dcRollStatusTag.style.color = "#93c5fd";
+        }
+      }, 70);
+    });
+  </script>
+</body>
+</html>
