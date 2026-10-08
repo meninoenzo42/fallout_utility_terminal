@@ -666,6 +666,9 @@
     </footer>
   </div>
 
+  <!-- Importação da biblioteca compartilhada de estatísticas derivadas -->
+  <script src="lib_scripts/estastisticasDerivadas.js"></script>
+
   <script>
     /* =======================================================
        UTILITÁRIOS DE ENTRADA & PARSE
@@ -943,36 +946,42 @@
         if (attr.points > attr.max) hasAboveMax = true;
       });
 
-      const baseCarry = Math.max(1, parseSafeInt(stateSpecial.derived.baseCarry, 100));
-      const multVal = Math.max(0, parseSafeInt(stateSpecial.derived.weightMult, 0));
+      // --- CÁLCULO VIA BIBLIOTECA COMPARTILHADA (lib_scripts/estastisticasDerivadas.js) ---
+      const derivedCalc = window.SpecialDerived ? window.SpecialDerived.calcularTodasDerivadas({
+        strength: strPoints,
+        perception: perPoints,
+        endurance: endPoints,
+        charisma: chaPoints,
+        intelligence: intPoints,
+        agility: agiPoints,
+        luck: lckPoints,
+        options: {
+          baseCarry: parseSafeInt(stateSpecial.derived.baseCarry, 100),
+          weightMult: parseSafeInt(stateSpecial.derived.weightMult, 10),
+          hpLevel: parseSafeInt(stateSpecial.derived.hpLevel, 1),
+          hpMultMode: stateSpecial.derived.hpMultMode,
+          hpMultEnd: parseSafeInt(stateSpecial.derived.hpMultEnd, 1),
+          hpMultLck: parseSafeInt(stateSpecial.derived.hpMultLck, 1),
+          apDivisor: parseSafeInt(stateSpecial.derived.apDivisor, 2)
+        }
+      }) : {
+        iniciativa: perPoints + agiPoints,
+        defesa: agiPoints >= 9 ? 2 : 1,
+        bonusMelee: { label: "+0 DC", activeTierId: "melee-tier-0" },
+        capacidadeCargaLbs: 100 + (10 * strPoints),
+        hp: { totalHp: endPoints + lckPoints, formulaLabel: "END + LCK + (Nível - 1)" },
+        ap: { displayText: "Contribuição: +2 AP (Sobra: 1)" }
+      };
 
-      const iniciativa = perPoints + agiPoints;
-      if (resDerivedInitiative) resDerivedInitiative.textContent = iniciativa;
-
-      const defesa = agiPoints >= 9 ? 2 : 1;
-      if (resDerivedDefense) resDerivedDefense.textContent = defesa;
-
-      let meleeBonus = "+0";
-      let activeTierId = "melee-tier-0";
-      if (strPoints >= 11) {
-        meleeBonus = "+3";
-        activeTierId = "melee-tier-3";
-      } else if (strPoints >= 9) {
-        meleeBonus = "+2";
-        activeTierId = "melee-tier-2";
-      } else if (strPoints >= 7) {
-        meleeBonus = "+1";
-        activeTierId = "melee-tier-1";
-      } else {
-        meleeBonus = "+0";
-        activeTierId = "melee-tier-0";
-      }
-      if (resDerivedMelee) resDerivedMelee.textContent = `${meleeBonus} DC`;
+      // Atualiza interface com os valores retornados pelo módulo
+      if (resDerivedInitiative) resDerivedInitiative.textContent = derivedCalc.iniciativa;
+      if (resDerivedDefense) resDerivedDefense.textContent = derivedCalc.defesa;
+      if (resDerivedMelee) resDerivedMelee.textContent = derivedCalc.bonusMelee.label;
 
       ["melee-tier-0", "melee-tier-1", "melee-tier-2", "melee-tier-3"].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
-          if (id === activeTierId) {
+          if (id === derivedCalc.bonusMelee.activeTierId) {
             el.classList.add("melee-row-active");
           } else {
             el.classList.remove("melee-row-active");
@@ -980,40 +989,12 @@
         }
       });
 
-      // FÓRMULA SPECIAL: Base + (Multiplicador * Força)
-      const totalCarry = baseCarry + (multVal * strPoints);
-      if (resDerivedCarry) resDerivedCarry.textContent = `${totalCarry} lbs`;
+      if (resDerivedCarry) resDerivedCarry.textContent = `${derivedCalc.capacidadeCargaLbs} lbs`;
+      if (resDerivedHp) resDerivedHp.textContent = derivedCalc.hp.totalHp;
+      if (labelHpFormulaDisplay) labelHpFormulaDisplay.textContent = derivedCalc.hp.formulaLabel;
+      if (resDerivedApText) resDerivedApText.textContent = derivedCalc.ap.displayText;
 
-      // CÁLCULO DE HP & FÓRMULA DINÂMICA
-      const hpLevel = Math.max(1, parseSafeInt(stateSpecial.derived.hpLevel, 1));
-      const hpMode = stateSpecial.derived.hpMultMode;
-      const multEnd = (hpMode === "end" || hpMode === "both") ? Math.max(1, parseSafeInt(stateSpecial.derived.hpMultEnd, 1)) : 1;
-      const multLck = (hpMode === "lck" || hpMode === "both") ? Math.max(1, parseSafeInt(stateSpecial.derived.hpMultLck, 1)) : 1;
-
-      const endContribution = endPoints * multEnd;
-      const lckContribution = lckPoints * multLck;
-      const totalHp = endContribution + lckContribution + (hpLevel - 1);
-      if (resDerivedHp) resDerivedHp.textContent = totalHp;
-
-      let endPart = "END";
-      if (multEnd !== 1) {
-        endPart = `(END * ${multEnd})`;
-      }
-      let lckPart = "LCK";
-      if (multLck !== 1) {
-        lckPart = `(LCK * ${multLck})`;
-      }
-      if (labelHpFormulaDisplay) {
-        labelHpFormulaDisplay.textContent = `${endPart} + ${lckPart} + (Nível - 1)`;
-      }
-
-      const divisor = Math.max(1, parseSafeInt(stateSpecial.derived.apDivisor, 2));
-      const apContrib = Math.floor(chaPoints / divisor);
-      const apRemainder = chaPoints % divisor;
-      if (resDerivedApText) {
-        resDerivedApText.textContent = `Contribuição: +${apContrib} AP (Sobra: ${apRemainder})`;
-      }
-
+      // Balanço de Pontos S.P.E.C.I.A.L.
       const totalPermitido = 40 + stateSpecial.extraPoints;
       const diferenca = totalPermitido - totalUsados;
 
