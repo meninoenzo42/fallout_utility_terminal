@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora S.P.E.C.I.A.L. - Pip-Boy</title>
+
+  <style>
+    /* =======================================================
+       1. VARIÁVEIS & RESET CSS
+       ======================================================= */
+    :root {
+      --vault-bg: #ffedd5;
+      --vault-paper: #faeed2;
+      --vault-header: #1a1815;
+      --vault-border: #d6c49c;
+      --vault-text: #221f19;
+      --vault-dim: #665e4e;
+
+      --font-display: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Arial', sans-serif;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: 'Consolas', 'Courier New', 'Lucida Console', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--vault-bg);
+      color: var(--vault-text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    @media (min-width: 640px) {
+      body { padding: 24px; }
+    }
+
+    .app-container {
+      max-width: 1152px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+    }
+    input[type=number] {
+      -moz-appearance: textfield;
+      font-family: var(--font-mono);
+      font-weight: 700;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #ebdcb9;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #c8b485;
+      border-radius: 4px;
+    }
+
+    /* =======================================================
+       2. CABEÇALHO
+       ======================================================= */
+    header {
+      margin-bottom: 24px;
+    }
+
+    .header-top {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid var(--vault-text);
+      padding-bottom: 12px;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background-color: var(--vault-header);
+      color: #ffffff;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    }
+
+    .header-title {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--vault-header);
+    }
+
+    /* =======================================================
+       3. SPECIAL & ESTATÍSTICAS DERIVADAS
+       ======================================================= */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (min-width: 1024px) {
+      .skills-grid {
+        grid-template-columns: 2fr 1fr;
+      }
+    }
+
+    .card {
+      border: 2px solid var(--vault-text);
+      border-radius: 8px;
+      background-color: var(--vault-paper);
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .card-header {
+      background-color: var(--vault-header);
+      color: #ffffff;
+      padding: 10px 16px;
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .row-orange-odd { background-color: #ffedd5; }
+    .row-orange-even { background-color: #fed7aa; }
+    .row-orange-odd:hover, .row-orange-even:hover { filter: brightness(0.97); }
+
+    .preset-selector-vertical {
+      padding: 12px 16px;
+      background-color: #ffedd5;
+      border-bottom: 2px solid #ea580c;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .btn-preset-action {
+      padding: 8px 12px;
+      font-family: var(--font-display);
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #7c2d12;
+      background-color: #ffffff;
+      border: 1.5px solid #ea580c;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: left;
+      transition: background-color 0.15s, transform 0.05s;
+    }
+    .btn-preset-action:hover {
+      background-color: #fed7aa;
+    }
+    .btn-preset-action:active {
+      transform: scale(0.98);
+      background-color: #ea580c;
+      color: #ffffff;
+    }
+
+    .skills-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .skills-table th {
+      background-color: var(--vault-header);
+      color: #ffffff;
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      padding: 12px 16px;
+    }
+
+    .skills-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(235, 215, 160, 0.6);
+      font-size: 0.875rem;
+    }
+
+    .input-skill-points {
+      width: 72px;
+      text-align: center;
+      padding: 6px 8px;
+      border: 2px solid var(--vault-text);
+      border-radius: 4px;
+      background: #ffffff;
+      font-size: 0.875rem;
+    }
+
+    .derived-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 640px) {
+      .derived-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .derived-item {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 12px;
+      background: #fffaf5;
+      border: 2px solid var(--vault-text);
+      border-radius: 6px;
+      gap: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+
+    .badge-homebrew {
+      display: inline-block;
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      font-size: 0.6rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background-color: #7c2d12;
+      color: #ffffff;
+    }
+
+    .melee-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-sans);
+      font-size: 0.72rem;
+      border: 1px solid #ea580c;
+      margin-top: 6px;
+      background-color: #fffaf5;
+    }
+
+    .melee-table th {
+      background-color: #1a1815;
+      color: #ffffff;
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      padding: 4px 6px;
+      font-size: 0.65rem;
+      letter-spacing: 0.04em;
+    }
+
+    .melee-table td {
+      padding: 4px 6px;
+      border-bottom: 1px solid #fed7aa;
+      font-family: var(--font-mono);
+      font-weight: 700;
+    }
+
+    .melee-row-active {
+      background-color: #f97316 !important;
+      color: #ffffff !important;
+    }
+
+    .btn-derived-action {
+      padding: 5px 8px;
+      font-family: var(--font-display);
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #7c2d12;
+      background: #ffffff;
+      border: 1px solid #ea580c;
+      border-radius: 4px;
+      cursor: pointer;
+      text-align: left;
+      transition: background-color 0.15s, transform 0.05s;
+    }
+    .btn-derived-action:hover {
+      background-color: #fed7aa;
+    }
+    .btn-derived-action:active {
+      transform: scale(0.98);
+      background-color: #ea580c;
+      color: #ffffff;
+    }
+
+    .btn-step {
+      width: 36px;
+      height: 36px;
+      border: 2px solid var(--vault-text);
+      border-radius: 4px;
+      background: #ffffff;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-step:hover { background-color: #fee2e2; }
+    .btn-step:active { transform: scale(0.95); }
+
+    .input-num-styled {
+      width: 100px;
+      text-align: center;
+      padding: 6px 10px;
+      border: 2px solid var(--vault-text);
+      border-radius: 4px;
+      background: #ffffff;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .status-alert {
+      padding: 14px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      border: 2px solid;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    footer {
+      margin-top: 32px;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--vault-dim);
+      font-family: var(--font-mono);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-container">
+
+    <!-- Header -->
+    <header>
+      <div class="header-top">
+        <div class="header-brand">
+          <span class="header-icon">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </span>
+          <h1 class="header-title">Pip-Boy &bull; S.P.E.C.I.A.L. &amp; Derivadas</h1>
+        </div>
+      </div>
+    </header>
+
+    <!-- Conteúdo da Calculadora SPECIAL -->
+    <main>
+      <div class="skills-grid">
+        
+        <!-- Coluna Esquerda: Tabela de Atributos + Estatísticas Derivadas -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+          <div class="card">
+            <div class="card-header" style="background-color: #1a1815;">
+              <span>Tabela de Atributos S.P.E.C.I.A.L.</span>
+            </div>
+            
+            <div class="preset-selector-vertical">
+              <span style="font-size: 0.78rem; font-weight: 800; color: #7c2d12; text-transform: uppercase;">
+                Aplicar Presets de Atributos:
+              </span>
+              <button type="button" class="btn-preset-action" data-preset="normal">
+                Normal &bull; (Todos 10)
+              </button>
+              <button type="button" class="btn-preset-action" data-preset="supermutant">
+                Super Mutante &bull; (STR/END 12, CHA/INT 6)
+              </button>
+              <button type="button" class="btn-preset-action" data-preset="nightkin">
+                Nightkin Vanilla &bull; (STR/END 12, CHA/INT 8)
+              </button>
+            </div>
+
+            <div class="custom-scrollbar" style="overflow-x: auto;">
+              <table class="skills-table">
+                <thead>
+                  <tr>
+                    <th style="width: 40%;">Atributo</th>
+                    <th style="width: 25%; text-align: center;">Pontos</th>
+                    <th style="width: 20%; text-align: center;">Máx.</th>
+                    <th style="width: 15%; text-align: right; padding-right: 24px;">Valor</th>
+                  </tr>
+                </thead>
+                <tbody id="special-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Estatísticas Derivadas -->
+          <div class="card">
+            <div class="card-header" style="background-color: #000000; color: #ffffff;">
+              <span>Estatísticas Derivadas</span>
+              <span style="font-size: 0.7rem; font-family: var(--font-mono); color: #a8a29e;">Cálculos de Combate &amp; Sobrevivência</span>
+            </div>
+            
+            <div style="padding: 16px; background-color: #fff7ed;">
+              <div class="derived-grid">
+                
+                <div class="derived-item">
+                  <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                      <strong style="font-size: 0.8rem; color: #1c1917; text-transform: uppercase;">Iniciativa Base</strong>
+                      <span style="font-size: 0.68rem; color: var(--vault-dim); display: block;">PER + AGI</span>
+                    </div>
+                    <span id="res-derived-initiative" style="font-family: var(--font-mono); font-size: 1.35rem; font-weight: 900; color: #ea580c;">0</span>
+                  </div>
+                </div>
+
+                <div class="derived-item">
+                  <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                      <strong style="font-size: 0.8rem; color: #1c1917; text-transform: uppercase;">Defesa</strong>
+                      <span style="font-size: 0.68rem; color: var(--vault-dim); display: block;">AGI &ge; 9: 2 | AGI &lt; 9: 1</span>
+                    </div>
+                    <span id="res-derived-defense" style="font-family: var(--font-mono); font-size: 1.35rem; font-weight: 900; color: #ea580c;">1</span>
+                  </div>
+                </div>
+
+                <div class="derived-item" style="grid-column: 1 / -1;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #fed7aa; padding-bottom: 4px;">
+                    <div>
+                      <strong style="font-size: 0.8rem; color: #1c1917; text-transform: uppercase;">Bônus Corpo-a-Corpo</strong>
+                    </div>
+                    <span id="res-derived-melee" style="font-family: var(--font-mono); font-size: 1.4rem; font-weight: 900; color: #ea580c;">+0 DC</span>
+                  </div>
+
+                  <table class="melee-table">
+                    <thead>
+                      <tr>
+                        <th style="text-align: left;">Atributo de Força (STR)</th>
+                        <th style="text-align: center;">Dados de Combate Adicionais (DC)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr id="melee-tier-0">
+                        <td>6 ou menos</td>
+                        <td style="text-align: center;">+0 DC</td>
+                      </tr>
+                      <tr id="melee-tier-1">
+                        <td>7–8</td>
+                        <td style="text-align: center;">+1 DC</td>
+                      </tr>
+                      <tr id="melee-tier-2">
+                        <td>9–10</td>
+                        <td style="text-align: center;">+2 DC</td>
+                      </tr>
+                      <tr id="melee-tier-3">
+                        <td>11+</td>
+                        <td style="text-align: center;">+3 DC</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Capacidade de Carga com Fórmula Dinâmica: Base + (Mult * STR) -->
+                <div class="derived-item" style="grid-column: 1 / -1; gap: 10px;">
+                  <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; border-bottom: 1px dashed #fed7aa; padding-bottom: 8px;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                      <span style="font-size: 0.75rem; font-weight: 700; color: #7c2d12; text-transform: uppercase;">Carga Base:</span>
+                      <input type="number" id="input-derived-base-carry" value="" min="1" max="9999" step="1" placeholder="100" class="input-num-styled" style="width: 75px; height: 32px; font-size: 0.85rem; border-color: #ea580c;">
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                      <span style="font-size: 0.75rem; font-weight: 700; color: #7c2d12; text-transform: uppercase;">Mult. de Força:</span>
+                      <input type="number" id="input-derived-weight-mult" value="10" min="0" max="9999" step="1" class="input-num-styled" style="width: 75px; height: 32px; font-size: 0.85rem; border-color: #ea580c;">
+                    </div>
+                  </div>
+
+                  <div style="display: flex; flex-direction: column; gap: 4px; border-bottom: 1px dashed #fed7aa; padding-bottom: 8px;">
+                    <span style="font-size: 0.7rem; font-weight: 800; color: #9a3412; text-transform: uppercase;">
+                      Presets de Multiplicador de Carga:
+                    </span>
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                      <button type="button" class="btn-derived-action" data-carry-mult="10">Padrão (10)</button>
+                      <button type="button" class="btn-derived-action" data-carry-mult="5">Estrutura Pequena (5)</button>
+                      <button type="button" class="btn-derived-action" data-carry-mult="0">Robô (0)</button>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; justify-content: space-between; align-items: flex-end; padding-top: 4px;">
+                    <div>
+                      <strong style="font-size: 0.8rem; color: #1c1917; text-transform: uppercase;">Capacidade Total</strong>
+                      <span style="font-size: 0.68rem; color: var(--vault-dim); display: block;">Base + (Multiplicador &times; Força) lbs</span>
+                    </div>
+                    <span id="res-derived-carry" style="font-family: var(--font-mono); font-size: 1.25rem; font-weight: 900; color: #ea580c;">150 lbs</span>
+                  </div>
+                </div>
+
+                <!-- Sub-tabela de HP com Multiplicadores Condicionais -->
+                <div class="derived-item" style="grid-column: 1 / -1; gap: 8px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #fed7aa; padding-bottom: 6px;">
+                    <span style="font-size: 0.75rem; font-weight: 700; color: #7c2d12; text-transform: uppercase;">Nível p/ HP:</span>
+                    <input type="number" id="input-derived-hp-level" value="" min="1" max="9999" step="1" placeholder="1" class="input-num-styled" style="width: 75px; height: 32px; font-size: 0.85rem; border-color: #ea580c;">
+                  </div>
+
+                  <div style="display: flex; flex-direction: column; gap: 6px; border-bottom: 1px dashed #fed7aa; padding-bottom: 6px;">
+                    <label for="select-hp-multiplier-mode" style="font-size: 0.73rem; font-weight: 700; color: #7c2d12;">
+                      Possui algum benefício que multiplique o valor dos atributos para a fórmula?
+                    </label>
+                    <select id="select-hp-multiplier-mode" class="input-num-styled" style="width: 100%; text-align: left; height: 32px; font-size: 0.8rem; border-color: #ea580c; font-family: var(--font-sans); cursor: pointer; padding: 4px 8px;">
+                      <option value="none" selected>Não</option>
+                      <option value="end">Apenas END</option>
+                      <option value="lck">Apenas LCK</option>
+                      <option value="both">Ambos</option>
+                    </select>
+
+                    <div id="box-hp-mult-end" class="hidden" style="display: flex; justify-content: space-between; align-items: center; padding-top: 4px;">
+                      <label for="input-hp-mult-end" style="font-size: 0.73rem; font-weight: 700; color: #7c2d12; text-transform: uppercase;">
+                        Multiplicador de END:
+                      </label>
+                      <input type="number" id="input-hp-mult-end" value="1" min="1" max="99" step="1" class="input-num-styled" style="width: 75px; height: 30px; font-size: 0.85rem; border-color: #ea580c;">
+                    </div>
+
+                    <div id="box-hp-mult-lck" class="hidden" style="display: flex; justify-content: space-between; align-items: center; padding-top: 4px;">
+                      <label for="input-hp-mult-lck" style="font-size: 0.73rem; font-weight: 700; color: #7c2d12; text-transform: uppercase;">
+                        Multiplicador de LCK:
+                      </label>
+                      <input type="number" id="input-hp-mult-lck" value="1" min="1" max="99" step="1" class="input-num-styled" style="width: 75px; height: 30px; font-size: 0.85rem; border-color: #ea580c;">
+                    </div>
+                  </div>
+
+                  <div style="display: flex; justify-content: space-between; align-items: flex-end; padding-top: 4px;">
+                    <div>
+                      <strong style="font-size: 0.8rem; color: #1c1917; text-transform: uppercase;">HP Base</strong>
+                      <span id="label-hp-formula-display" style="font-size: 0.68rem; color: var(--vault-dim); display: block;">END + LCK + (Nível - 1)</span>
+                    </div>
+                    <span id="res-derived-hp" style="font-family: var(--font-mono); font-size: 1.25rem; font-weight: 900; color: #ea580c;">10</span>
+                  </div>
+                </div>
+
+                <!-- Contribuição de AP -->
+                <div class="derived-item" style="grid-column: 1 / -1; gap: 8px;">
+                  <div>
+                    <span class="badge-homebrew">Regra Caseira</span>
+                  </div>
+                  <div style="display: flex; flex-direction: column; gap: 4px; border-bottom: 1px dashed #fed7aa; padding-bottom: 6px;">
+                    <span style="font-size: 0.75rem; font-weight: 700; color: #7c2d12; text-transform: uppercase;">
+                      Divisor de AP:
+                    </span>
+                    <input type="number" id="input-derived-ap-divisor" value="" min="1" max="100" step="1" placeholder="2" class="input-num-styled" style="width: 80px; height: 32px; padding: 4px 8px; font-size: 0.9rem; border-color: #ea580c;">
+                  </div>
+                  <div style="padding-top: 2px;">
+                    <strong style="font-size: 0.8rem; color: #1c1917; text-transform: uppercase; display: block;">Contribuição de AP</strong>
+                    <div id="res-derived-ap-text" style="font-family: var(--font-mono); font-size: 0.95rem; font-weight: 900; color: #ea580c; margin-top: 2px;">
+                      Contribuição: +2 AP (Sobra: 1)
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Coluna Direita: Configuração do Sistema e Balanço de Pontos -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+          
+          <div class="card">
+            <div class="card-header" style="background-color: #1a1815;">
+              <span>Configuração do Sistema</span>
+            </div>
+            <div style="padding: 16px; background-color: #fed7aa; display: flex; flex-direction: column; gap: 14px;">
+              
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                <div>
+                  <label for="input-special-min" style="font-size: 0.85rem; font-weight: 700; color: #7c2d12; text-transform: uppercase; display: block;">
+                    Mínimo por Atributo:
+                  </label>
+                  <span style="font-size: 0.7rem; color: #9a3412;">Valor mínimo permitido (1 a 5, padrão: 3)</span>
+                </div>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <button id="btn-dec-special-min" type="button" class="btn-step" style="width:32px; height:32px; font-size:0.9rem;">-</button>
+                  <input type="number" id="input-special-min" value="3" min="1" max="5" step="1" placeholder="3" class="input-num-styled" style="width: 60px; color:#7c2d12;">
+                  <button id="btn-inc-special-min" type="button" class="btn-step" style="width:32px; height:32px; font-size:0.9rem;">+</button>
+                </div>
+              </div>
+
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; border-top: 1px solid #f97316; padding-top: 10px;">
+                <div>
+                  <label for="input-special-extra" style="font-size: 0.85rem; font-weight: 700; color: #7c2d12; text-transform: uppercase; display: block;">
+                    SPECIALs Extras (Traços / Perks):
+                  </label>
+                  <span style="font-size: 0.7rem; color: #9a3412;">Altera o total de pontos permitido (+ ou -)</span>
+                </div>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <button id="btn-dec-special-extra" type="button" class="btn-step" style="width:32px; height:32px; font-size:0.9rem;">-</button>
+                  <input type="number" id="input-special-extra" value="" step="1" placeholder="0" class="input-num-styled" style="width: 60px; color:#7c2d12;">
+                  <button id="btn-inc-special-extra" type="button" class="btn-step" style="width:32px; height:32px; font-size:0.9rem;">+</button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div id="status-message-special" class="status-alert"></div>
+
+          <div class="card">
+            <div class="card-header">
+              <span>Balanço de Pontos S.P.E.C.I.A.L.</span>
+              <span id="status-pill-special" style="font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; border: 1px solid;">Calculando...</span>
+            </div>
+            <div style="padding: 16px; background-color: #fff7ed; display: flex; flex-direction: column; gap: 10px; font-family: var(--font-mono); font-size: 0.875rem;">
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--vault-border); padding-bottom: 6px;">
+                <span style="font-family: var(--font-sans); color: var(--vault-dim); font-weight: 600;">Total de Pontos Usados</span>
+                <span id="res-special-usados" style="font-weight: 700;">0</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--vault-border); padding-bottom: 6px;">
+                <span style="font-family: var(--font-sans); color: var(--vault-dim); font-weight: 600;">Total Permitido</span>
+                <span id="res-special-permitido" style="font-weight: 700;">40</span>
+              </div>
+              <div id="box-diferenca-special" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border: 2px solid; border-radius: 4px;">
+                <span style="font-family: var(--font-sans); font-weight: 700;">Diferença</span>
+                <span id="res-special-diferenca" style="font-size: 1.15rem; font-weight: 900;">0</span>
+              </div>
+            </div>
+            <div style="padding: 10px 16px; background-color: #ffedd5; border-top: 2px solid var(--vault-text); font-size: 0.75rem; color: var(--vault-dim);">
+              <strong style="display: block; color: #7c2d12; font-family: var(--font-display); text-transform: uppercase;">Regra Oficial:</strong>
+              <span style="font-family: var(--font-mono); color: var(--vault-header); font-weight: 600;">Total Permitido = 40 + Extras | Mínimo [Definível] a Máximo [Por Atributo]</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      Terminal Fallout RPG &bull; Módulo S.P.E.C.I.A.L.
+    </footer>
+  </div>
+
+  <script>
+    /* =======================================================
+       UTILITÁRIOS DE ENTRADA & PARSE
+       ======================================================= */
+    function parseSafeInt(value, fallbackDefault = 0) {
+      if (value === null || value === undefined || value === "") return fallbackDefault;
+      const strVal = String(value).split(".")[0].split(",")[0].trim();
+      const num = parseInt(strVal, 10);
+      return isNaN(num) ? fallbackDefault : Math.floor(num);
+    }
+
+    function parseSafeSignedInt(value, fallback = 0) {
+      if (value === null || value === undefined || value === "") return fallback;
+      const num = parseInt(value, 10);
+      return isNaN(num) ? fallback : num;
+    }
+
+    function enforceStrictIntegerInput(inputElement, minVal = 0) {
+      inputElement.addEventListener("keydown", (e) => {
+        if (e.key === "-" || e.key === "." || e.key === "," || e.key === "e" || e.key === "E" || e.key === "+") {
+          e.preventDefault();
+        }
+      });
+
+      inputElement.addEventListener("paste", (e) => {
+        e.preventDefault();
+        const text = (e.clipboardData || window.clipboardData).getData("text");
+        const clean = text.replace(/[^0-9]/g, "");
+        const parsed = parseSafeInt(clean, minVal);
+        inputElement.value = parsed === 0 ? "" : parsed;
+        inputElement.dispatchEvent(new Event("input"));
+      });
+    }
+
+    function enforceStrictBoundedInput(inputElement, minVal, maxVal, fallbackDefault, onChangeCallback) {
+      enforceStrictIntegerInput(inputElement, minVal);
+
+      inputElement.addEventListener("input", (e) => {
+        const raw = e.target.value;
+        if (raw === "") {
+          if (onChangeCallback) onChangeCallback(fallbackDefault);
+          return;
+        }
+        let val = parseInt(raw, 10);
+        if (isNaN(val)) val = fallbackDefault;
+        if (val > maxVal) {
+          val = maxVal;
+          inputElement.value = val;
+        }
+        if (onChangeCallback) onChangeCallback(val);
+      });
+
+      inputElement.addEventListener("blur", (e) => {
+        const raw = e.target.value;
+        if (raw === "") {
+          if (onChangeCallback) onChangeCallback(fallbackDefault);
+          return;
+        }
+        let val = parseInt(raw, 10);
+        if (isNaN(val)) val = fallbackDefault;
+        if (val < minVal) val = minVal;
+        if (val > maxVal) val = maxVal;
+        inputElement.value = val;
+        if (onChangeCallback) onChangeCallback(val);
+      });
+    }
+
+    /* =======================================================
+       ESTADO DA CALCULADORA SPECIAL
+       ======================================================= */
+    const SPECIAL_ATTRIBUTES = [
+      { key: "S", name: "Força (Strength)", points: 5, max: 10 },
+      { key: "P", name: "Percepção (Perception)", points: 5, max: 10 },
+      { key: "E", name: "Resistência (Endurance)", points: 5, max: 10 },
+      { key: "C", name: "Carisma (Charisma)", points: 5, max: 10 },
+      { key: "I", name: "Inteligência (Intelligence)", points: 5, max: 10 },
+      { key: "A", name: "Agilidade (Agility)", points: 5, max: 10 },
+      { key: "L", name: "Sorte (Luck)", points: 5, max: 10 }
+    ];
+
+    const stateSpecial = {
+      minVal: 3,
+      extraPoints: 0,
+      derived: {
+        baseCarry: 100,
+        weightMult: 10,
+        hpLevel: 1,
+        hpMultMode: "none",
+        hpMultEnd: 1,
+        hpMultLck: 1,
+        apDivisor: 2
+      },
+      attributes: SPECIAL_ATTRIBUTES.map(attr => ({ ...attr }))
+    };
+
+    const SPECIAL_PRESETS = {
+      normal: { S: 10, P: 10, E: 10, C: 10, I: 10, A: 10, L: 10 },
+      supermutant: { S: 12, P: 10, E: 12, C: 6, I: 6, A: 10, L: 10 },
+      nightkin: { S: 12, P: 10, E: 12, C: 8, I: 8, A: 10, L: 10 }
+    };
+
+    /* =======================================================
+       ELEMENTOS DOM
+       ======================================================= */
+    const specialTbody = document.getElementById("special-tbody");
+    const presetActionButtons = document.querySelectorAll(".btn-preset-action");
+    const inputSpecialMin = document.getElementById("input-special-min");
+    const btnDecSpecialMin = document.getElementById("btn-dec-special-min");
+    const btnIncSpecialMin = document.getElementById("btn-inc-special-min");
+
+    const inputSpecialExtra = document.getElementById("input-special-extra");
+    const btnDecSpecialExtra = document.getElementById("btn-dec-special-extra");
+    const btnIncSpecialExtra = document.getElementById("btn-inc-special-extra");
+
+    const statusMessageSpecial = document.getElementById("status-message-special");
+    const statusPillSpecial = document.getElementById("status-pill-special");
+    const resSpecialUsados = document.getElementById("res-special-usados");
+    const resSpecialPermitido = document.getElementById("res-special-permitido");
+    const boxDiferencaSpecial = document.getElementById("box-diferenca-special");
+    const resSpecialDiferenca = document.getElementById("res-special-diferenca");
+
+    // Estatísticas Derivadas DOM
+    const resDerivedInitiative = document.getElementById("res-derived-initiative");
+    const resDerivedDefense = document.getElementById("res-derived-defense");
+    const resDerivedMelee = document.getElementById("res-derived-melee");
+    const inputDerivedBaseCarry = document.getElementById("input-derived-base-carry");
+    const inputDerivedWeightMult = document.getElementById("input-derived-weight-mult");
+    const resDerivedCarry = document.getElementById("res-derived-carry");
+    const inputDerivedHpLevel = document.getElementById("input-derived-hp-level");
+    const selectHpMultiplierMode = document.getElementById("select-hp-multiplier-mode");
+    const boxHpMultEnd = document.getElementById("box-hp-mult-end");
+    const inputHpMultEnd = document.getElementById("input-hp-mult-end");
+    const boxHpMultLck = document.getElementById("box-hp-mult-lck");
+    const inputHpMultLck = document.getElementById("input-hp-mult-lck");
+    const labelHpFormulaDisplay = document.getElementById("label-hp-formula-display");
+    const resDerivedHp = document.getElementById("res-derived-hp");
+    const inputDerivedApDivisor = document.getElementById("input-derived-ap-divisor");
+    const resDerivedApText = document.getElementById("res-derived-ap-text");
+
+    /* =======================================================
+       RENDERIZAÇÃO & CÁLCULOS
+       ======================================================= */
+    function renderSpecialTable() {
+      specialTbody.innerHTML = "";
+      stateSpecial.attributes.forEach((attr, index) => {
+        const tr = document.createElement("tr");
+        const isOdd = index % 2 === 0;
+        tr.className = isOdd ? 'row-orange-odd' : 'row-orange-even';
+
+        const tdName = document.createElement("td");
+        tdName.style.fontWeight = "700";
+        tdName.textContent = attr.name;
+
+        const tdInput = document.createElement("td");
+        tdInput.style.textAlign = "center";
+        const inputVal = document.createElement("input");
+        inputVal.type = "number";
+        inputVal.min = stateSpecial.minVal;
+        inputVal.max = attr.max;
+        inputVal.step = "1";
+        inputVal.value = attr.points === stateSpecial.minVal ? "" : attr.points;
+        inputVal.placeholder = stateSpecial.minVal;
+        inputVal.className = "input-skill-points";
+        inputVal.style.borderColor = "#c2410c";
+        inputVal.style.color = "#7c2d12";
+        inputVal.id = `input-special-points-${index}`;
+        enforceStrictIntegerInput(inputVal, 0);
+
+        function handlePointsChange(forceStrictClamp = false) {
+          const raw = inputVal.value;
+          if (raw === "") {
+            stateSpecial.attributes[index].points = stateSpecial.minVal;
+            updateSpecialCalculations();
+            return;
+          }
+          let val = parseInt(raw, 10);
+          if (isNaN(val)) val = stateSpecial.minVal;
+
+          if (forceStrictClamp) {
+            if (val < stateSpecial.minVal) val = stateSpecial.minVal;
+          }
+          if (val > stateSpecial.attributes[index].max) {
+            val = stateSpecial.attributes[index].max;
+          }
+
+          inputVal.value = val === stateSpecial.minVal ? "" : val;
+          stateSpecial.attributes[index].points = val;
+          updateSpecialCalculations();
+        }
+
+        inputVal.addEventListener("input", () => handlePointsChange(false));
+        inputVal.addEventListener("blur", () => handlePointsChange(true));
+        tdInput.appendChild(inputVal);
+
+        const tdMax = document.createElement("td");
+        tdMax.style.textAlign = "center";
+        const inputMax = document.createElement("input");
+        inputMax.type = "number";
+        inputMax.min = "1";
+        inputMax.step = "1";
+        inputMax.value = attr.max === 10 ? "" : attr.max;
+        inputMax.placeholder = "10";
+        inputMax.className = "input-skill-points";
+        inputMax.style.width = "54px";
+        inputMax.style.borderColor = "#ea580c";
+        inputMax.style.color = "#9a3412";
+        inputMax.style.backgroundColor = "#fff7ed";
+        inputMax.id = `input-special-max-${index}`;
+        enforceStrictIntegerInput(inputMax, 1);
+
+        function handleMaxChange() {
+          const raw = inputMax.value;
+          let maxVal = raw === "" ? 10 : parseSafeInt(raw, 1);
+          stateSpecial.attributes[index].max = maxVal;
+          inputVal.max = maxVal;
+
+          if (stateSpecial.attributes[index].points > maxVal) {
+            stateSpecial.attributes[index].points = maxVal;
+            inputVal.value = maxVal === stateSpecial.minVal ? "" : maxVal;
+          }
+          updateSpecialCalculations();
+        }
+
+        inputMax.addEventListener("input", handleMaxChange);
+        inputMax.addEventListener("blur", handleMaxChange);
+        tdMax.appendChild(inputMax);
+
+        const tdFinal = document.createElement("td");
+        tdFinal.style.textAlign = "right";
+        tdFinal.style.paddingRight = "24px";
+        tdFinal.style.fontFamily = "var(--font-mono)";
+        tdFinal.style.fontWeight = "900";
+        tdFinal.style.fontSize = "1rem";
+        tdFinal.style.color = "#7c2d12";
+        tdFinal.id = `special-final-${index}`;
+        tdFinal.textContent = attr.points;
+
+        tr.appendChild(tdName);
+        tr.appendChild(tdInput);
+        tr.appendChild(tdMax);
+        tr.appendChild(tdFinal);
+
+        specialTbody.appendChild(tr);
+      });
+    }
+
+    function updateSpecialCalculations() {
+      let totalUsados = 0;
+      let hasBelowMin = false;
+      let hasAboveMax = false;
+      const minLimit = stateSpecial.minVal;
+
+      let strPoints = 5;
+      let perPoints = 5;
+      let endPoints = 5;
+      let chaPoints = 5;
+      let intPoints = 5;
+      let agiPoints = 5;
+      let lckPoints = 5;
+
+      stateSpecial.attributes.forEach((attr, idx) => {
+        const cell = document.getElementById(`special-final-${idx}`);
+        if (cell) cell.textContent = attr.points;
+        totalUsados += attr.points;
+
+        if (attr.key === "S") strPoints = attr.points;
+        else if (attr.key === "P") perPoints = attr.points;
+        else if (attr.key === "E") endPoints = attr.points;
+        else if (attr.key === "C") chaPoints = attr.points;
+        else if (attr.key === "I") intPoints = attr.points;
+        else if (attr.key === "A") agiPoints = attr.points;
+        else if (attr.key === "L") lckPoints = attr.points;
+
+        if (attr.points < minLimit) hasBelowMin = true;
+        if (attr.points > attr.max) hasAboveMax = true;
+      });
+
+      const baseCarry = Math.max(1, parseSafeInt(stateSpecial.derived.baseCarry, 100));
+      const multVal = Math.max(0, parseSafeInt(stateSpecial.derived.weightMult, 0));
+
+      const iniciativa = perPoints + agiPoints;
+      if (resDerivedInitiative) resDerivedInitiative.textContent = iniciativa;
+
+      const defesa = agiPoints >= 9 ? 2 : 1;
+      if (resDerivedDefense) resDerivedDefense.textContent = defesa;
+
+      let meleeBonus = "+0";
+      let activeTierId = "melee-tier-0";
+      if (strPoints >= 11) {
+        meleeBonus = "+3";
+        activeTierId = "melee-tier-3";
+      } else if (strPoints >= 9) {
+        meleeBonus = "+2";
+        activeTierId = "melee-tier-2";
+      } else if (strPoints >= 7) {
+        meleeBonus = "+1";
+        activeTierId = "melee-tier-1";
+      } else {
+        meleeBonus = "+0";
+        activeTierId = "melee-tier-0";
+      }
+      if (resDerivedMelee) resDerivedMelee.textContent = `${meleeBonus} DC`;
+
+      ["melee-tier-0", "melee-tier-1", "melee-tier-2", "melee-tier-3"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          if (id === activeTierId) {
+            el.classList.add("melee-row-active");
+          } else {
+            el.classList.remove("melee-row-active");
+          }
+        }
+      });
+
+      // FÓRMULA SPECIAL: Base + (Multiplicador * Força)
+      const totalCarry = baseCarry + (multVal * strPoints);
+      if (resDerivedCarry) resDerivedCarry.textContent = `${totalCarry} lbs`;
+
+      // CÁLCULO DE HP & FÓRMULA DINÂMICA
+      const hpLevel = Math.max(1, parseSafeInt(stateSpecial.derived.hpLevel, 1));
+      const hpMode = stateSpecial.derived.hpMultMode;
+      const multEnd = (hpMode === "end" || hpMode === "both") ? Math.max(1, parseSafeInt(stateSpecial.derived.hpMultEnd, 1)) : 1;
+      const multLck = (hpMode === "lck" || hpMode === "both") ? Math.max(1, parseSafeInt(stateSpecial.derived.hpMultLck, 1)) : 1;
+
+      const endContribution = endPoints * multEnd;
+      const lckContribution = lckPoints * multLck;
+      const totalHp = endContribution + lckContribution + (hpLevel - 1);
+      if (resDerivedHp) resDerivedHp.textContent = totalHp;
+
+      let endPart = "END";
+      if (multEnd !== 1) {
+        endPart = `(END * ${multEnd})`;
+      }
+      let lckPart = "LCK";
+      if (multLck !== 1) {
+        lckPart = `(LCK * ${multLck})`;
+      }
+      if (labelHpFormulaDisplay) {
+        labelHpFormulaDisplay.textContent = `${endPart} + ${lckPart} + (Nível - 1)`;
+      }
+
+      const divisor = Math.max(1, parseSafeInt(stateSpecial.derived.apDivisor, 2));
+      const apContrib = Math.floor(chaPoints / divisor);
+      const apRemainder = chaPoints % divisor;
+      if (resDerivedApText) {
+        resDerivedApText.textContent = `Contribuição: +${apContrib} AP (Sobra: ${apRemainder})`;
+      }
+
+      const totalPermitido = 40 + stateSpecial.extraPoints;
+      const diferenca = totalPermitido - totalUsados;
+
+      resSpecialUsados.textContent = totalUsados;
+      resSpecialPermitido.textContent = totalPermitido;
+      resSpecialDiferenca.textContent = diferenca > 0 ? `+${diferenca}` : diferenca;
+
+      if (hasAboveMax) {
+        boxDiferencaSpecial.style.backgroundColor = "#fee2e2";
+        boxDiferencaSpecial.style.borderColor = "#ef4444";
+        boxDiferencaSpecial.style.color = "#7f1d1d";
+
+        statusPillSpecial.style.borderColor = "#ef4444";
+        statusPillSpecial.style.backgroundColor = "#fecaca";
+        statusPillSpecial.style.color = "#450a0a";
+        statusPillSpecial.textContent = "Ultrapassa Máximo";
+
+        statusMessageSpecial.style.backgroundColor = "#fef2f2";
+        statusMessageSpecial.style.borderColor = "#ef4444";
+        statusMessageSpecial.style.color = "#450a0a";
+        statusMessageSpecial.innerHTML = `
+          <div>
+            <strong style="display: block; font-family: var(--font-display); text-transform: uppercase; color: #7f1d1d; margin-bottom: 2px;">Limite Individual Excedido!</strong>
+            Existe(m) atributo(s) com valor acima do valor máximo permitido.
+          </div>
+        `;
+      } else if (hasBelowMin) {
+        boxDiferencaSpecial.style.backgroundColor = "#fee2e2";
+        boxDiferencaSpecial.style.borderColor = "#ef4444";
+        boxDiferencaSpecial.style.color = "#7f1d1d";
+
+        statusPillSpecial.style.borderColor = "#ea580c";
+        statusPillSpecial.style.backgroundColor = "#fed7aa";
+        statusPillSpecial.style.color = "#7c2d12";
+        statusPillSpecial.textContent = "Abaixo do Mínimo";
+
+        statusMessageSpecial.style.backgroundColor = "#fff7ed";
+        statusMessageSpecial.style.borderColor = "#ea580c";
+        statusMessageSpecial.style.color = "#7c2d12";
+        statusMessageSpecial.innerHTML = `
+          <div>
+            <strong style="display: block; font-family: var(--font-display); text-transform: uppercase; color: #7c2d12; margin-bottom: 2px;">Valor Abaixo do Mínimo!</strong>
+            Existe(m) atributo(s) com valor menor que o mínimo configurado (<strong>${minLimit} pontos</strong>).
+          </div>
+        `;
+      } else if (diferenca < 0) {
+        boxDiferencaSpecial.style.backgroundColor = "#fee2e2";
+        boxDiferencaSpecial.style.borderColor = "#ef4444";
+        boxDiferencaSpecial.style.color = "#7f1d1d";
+
+        statusPillSpecial.style.borderColor = "#ef4444";
+        statusPillSpecial.style.backgroundColor = "#fecaca";
+        statusPillSpecial.style.color = "#450a0a";
+        statusPillSpecial.textContent = "Limite Excedido";
+
+        statusMessageSpecial.style.backgroundColor = "#fef2f2";
+        statusMessageSpecial.style.borderColor = "#ef4444";
+        statusMessageSpecial.style.color = "#450a0a";
+        statusMessageSpecial.innerHTML = `
+          <div>
+            <strong style="display: block; font-family: var(--font-display); text-transform: uppercase; color: #7f1d1d; margin-bottom: 2px;">Atenção! Limite ultrapassado:</strong>
+            Você gastou <strong>${Math.abs(diferenca)} ponto(s) a mais</strong> do que o total permitido (${totalPermitido}).
+          </div>
+        `;
+      } else if (diferenca === 0) {
+        boxDiferencaSpecial.style.backgroundColor = "#d7ecd6";
+        boxDiferencaSpecial.style.borderColor = "#047857";
+        boxDiferencaSpecial.style.color = "#064e3b";
+
+        statusPillSpecial.style.borderColor = "#047857";
+        statusPillSpecial.style.backgroundColor = "#a7f3d0";
+        statusPillSpecial.style.color = "#064e3b";
+        statusPillSpecial.textContent = "Exato";
+
+        statusMessageSpecial.style.backgroundColor = "#eaf6e9";
+        statusMessageSpecial.style.borderColor = "#047857";
+        statusMessageSpecial.style.color = "#064e3b";
+        statusMessageSpecial.innerHTML = `
+          <div>
+            <strong style="display: block; font-family: var(--font-display); text-transform: uppercase; color: #064e3b; margin-bottom: 2px;">Distribuição Correta:</strong>
+            Todos os <strong>${totalPermitido} pontos SPECIAL</strong> foram distribuídos com perfeição.
+          </div>
+        `;
+      } else {
+        boxDiferencaSpecial.style.backgroundColor = "#fed7aa";
+        boxDiferencaSpecial.style.borderColor = "#ea580c";
+        boxDiferencaSpecial.style.color = "#7c2d12";
+
+        statusPillSpecial.style.borderColor = "#ea580c";
+        statusPillSpecial.style.backgroundColor = "#ffedd5";
+        statusPillSpecial.style.color = "#7c2d12";
+        statusPillSpecial.textContent = "Disponível";
+
+        statusMessageSpecial.style.backgroundColor = "#fff7ed";
+        statusMessageSpecial.style.borderColor = "#ea580c";
+        statusMessageSpecial.style.color = "#7c2d12";
+        statusMessageSpecial.innerHTML = `
+          <div>
+            <strong style="display: block; font-family: var(--font-display); text-transform: uppercase; color: #7c2d12; margin-bottom: 2px;">Pontos Restantes:</strong>
+            Você ainda tem <strong>${diferenca} ponto(s)</strong> para distribuir entre os atributos SPECIAL.
+          </div>
+        `;
+      }
+    }
+
+    function applyMinClampToAll() {
+      stateSpecial.attributes.forEach((attr, idx) => {
+        if (attr.points < stateSpecial.minVal) {
+          attr.points = stateSpecial.minVal;
+          const valInput = document.getElementById(`input-special-points-${idx}`);
+          if (valInput) valInput.value = "";
+        }
+      });
+      renderSpecialTable();
+      updateSpecialCalculations();
+    }
+
+    /* =======================================================
+       LISTENERS DE PRESETS & INPUTS
+       ======================================================= */
+    presetActionButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const presetKey = btn.getAttribute("data-preset");
+        const preset = SPECIAL_PRESETS[presetKey];
+        if (!preset) return;
+
+        stateSpecial.attributes.forEach((attr, idx) => {
+          if (preset[attr.key] !== undefined) {
+            const newMax = preset[attr.key];
+            attr.max = newMax;
+
+            const maxInput = document.getElementById(`input-special-max-${idx}`);
+            const valInput = document.getElementById(`input-special-points-${idx}`);
+            if (maxInput) maxInput.value = newMax === 10 ? "" : newMax;
+
+            if (attr.points > newMax) {
+              attr.points = newMax;
+              if (valInput) valInput.value = newMax === stateSpecial.minVal ? "" : newMax;
+            }
+          }
+        });
+        updateSpecialCalculations();
+      });
+    });
+
+    document.querySelectorAll(".btn-derived-action[data-carry-mult]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const mult = parseSafeInt(btn.getAttribute("data-carry-mult"), 0);
+        stateSpecial.derived.weightMult = mult;
+        if (inputDerivedWeightMult) inputDerivedWeightMult.value = mult;
+        updateSpecialCalculations();
+      });
+    });
+
+    enforceStrictBoundedInput(inputSpecialMin, 1, 5, 3, (v) => { 
+      stateSpecial.minVal = v; 
+      applyMinClampToAll(); 
+    });
+
+    btnDecSpecialMin.addEventListener("click", () => {
+      let v = Math.max(1, stateSpecial.minVal - 1);
+      stateSpecial.minVal = v;
+      inputSpecialMin.value = v === 3 ? "" : v;
+      applyMinClampToAll();
+    });
+
+    btnIncSpecialMin.addEventListener("click", () => {
+      let v = Math.min(5, stateSpecial.minVal + 1);
+      stateSpecial.minVal = v;
+      inputSpecialMin.value = v === 3 ? "" : v;
+      applyMinClampToAll();
+    });
+
+    inputSpecialExtra.addEventListener("input", (e) => {
+      stateSpecial.extraPoints = parseSafeSignedInt(e.target.value, 0);
+      updateSpecialCalculations();
+    });
+
+    btnDecSpecialExtra.addEventListener("click", () => {
+      stateSpecial.extraPoints--;
+      inputSpecialExtra.value = stateSpecial.extraPoints === 0 ? "" : stateSpecial.extraPoints;
+      updateSpecialCalculations();
+    });
+
+    btnIncSpecialExtra.addEventListener("click", () => {
+      stateSpecial.extraPoints++;
+      inputSpecialExtra.value = stateSpecial.extraPoints === 0 ? "" : stateSpecial.extraPoints;
+      updateSpecialCalculations();
+    });
+
+    enforceStrictBoundedInput(inputDerivedBaseCarry, 1, 9999, 100, (val) => {
+      stateSpecial.derived.baseCarry = val;
+      updateSpecialCalculations();
+    });
+
+    enforceStrictBoundedInput(inputDerivedWeightMult, 0, 9999, 10, (val) => {
+      stateSpecial.derived.weightMult = val;
+      updateSpecialCalculations();
+    });
+
+    enforceStrictBoundedInput(inputDerivedHpLevel, 1, 9999, 1, (val) => {
+      stateSpecial.derived.hpLevel = val;
+      updateSpecialCalculations();
+    });
+
+    selectHpMultiplierMode.addEventListener("change", (e) => {
+      stateSpecial.derived.hpMultMode = e.target.value;
+      if (stateSpecial.derived.hpMultMode === "end") {
+        boxHpMultEnd.classList.remove("hidden");
+        boxHpMultLck.classList.add("hidden");
+      } else if (stateSpecial.derived.hpMultMode === "lck") {
+        boxHpMultEnd.classList.add("hidden");
+        boxHpMultLck.classList.remove("hidden");
+      } else if (stateSpecial.derived.hpMultMode === "both") {
+        boxHpMultEnd.classList.remove("hidden");
+        boxHpMultLck.classList.remove("hidden");
+      } else {
+        boxHpMultEnd.classList.add("hidden");
+        boxHpMultLck.classList.add("hidden");
+      }
+      updateSpecialCalculations();
+    });
+
+    enforceStrictBoundedInput(inputHpMultEnd, 1, 99, 1, (val) => {
+      stateSpecial.derived.hpMultEnd = val;
+      updateSpecialCalculations();
+    });
+
+    enforceStrictBoundedInput(inputHpMultLck, 1, 99, 1, (val) => {
+      stateSpecial.derived.hpMultLck = val;
+      updateSpecialCalculations();
+    });
+
+    enforceStrictBoundedInput(inputDerivedApDivisor, 1, 100, 2, (val) => {
+      stateSpecial.derived.apDivisor = val;
+      updateSpecialCalculations();
+    });
+
+    // Inicialização
+    renderSpecialTable();
+    updateSpecialCalculations();
+  </script>
+</body>
+</html>
