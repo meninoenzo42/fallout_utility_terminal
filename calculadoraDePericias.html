@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de Perícias - Pip-Boy</title>
+
+  <style>
+    /* =======================================================
+       1. VARIÁVEIS & RESET CSS
+       ======================================================= */
+    :root {
+      --vault-bg: #f3edd9;
+      --vault-paper: #faeed2;
+      --vault-header: #1a1815;
+      --vault-border: #d6c49c;
+      --vault-text: #221f19;
+      --vault-dim: #665e4e;
+
+      --font-display: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Arial', sans-serif;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: 'Consolas', 'Courier New', 'Lucida Console', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--vault-bg);
+      color: var(--vault-text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    @media (min-width: 640px) {
+      body { padding: 24px; }
+    }
+
+    .app-container {
+      max-width: 1152px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+    }
+    input[type=number] {
+      -moz-appearance: textfield;
+      font-family: var(--font-mono);
+      font-weight: 700;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #ebdcb9;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #c8b485;
+      border-radius: 4px;
+    }
+
+    /* =======================================================
+       2. CABEÇALHO
+       ======================================================= */
+    header {
+      margin-bottom: 24px;
+    }
+
+    .header-top {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border-bottom: 2px solid var(--vault-text);
+      padding-bottom: 12px;
+    }
+
+    @media (min-width: 640px) {
+      .header-top {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background-color: var(--vault-header);
+      color: #ffffff;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    }
+
+    .header-title {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--vault-header);
+    }
+
+    .btn-reset {
+      padding: 8px 14px;
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 700;
+      color: var(--vault-text);
+      background-color: var(--vault-paper);
+      border: 2px solid var(--vault-text);
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s, transform 0.05s;
+    }
+
+    .btn-reset:hover { background-color: #ebd7a0; }
+    .btn-reset:active { transform: scale(0.96); }
+
+    /* =======================================================
+       3. ESTRUTURA DO MÓDULO DE PERÍCIAS
+       ======================================================= */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (min-width: 1024px) {
+      .skills-grid {
+        grid-template-columns: 2fr 1fr;
+      }
+    }
+
+    .card {
+      border: 2px solid var(--vault-text);
+      border-radius: 8px;
+      background-color: var(--vault-paper);
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .card-header {
+      background-color: var(--vault-header);
+      color: #ffffff;
+      padding: 10px 16px;
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .skills-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .skills-table th {
+      background-color: var(--vault-header);
+      color: #ffffff;
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      padding: 12px 16px;
+    }
+
+    .skills-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(235, 215, 160, 0.6);
+      font-size: 0.875rem;
+    }
+
+    .row-yellow-odd { background-color: #fdedbe; }
+    .row-yellow-even { background-color: #f7de91; }
+
+    .input-skill-points {
+      width: 72px;
+      text-align: center;
+      padding: 6px 8px;
+      border: 2px solid var(--vault-text);
+      border-radius: 4px;
+      background: #ffffff;
+      font-size: 0.875rem;
+    }
+
+    .checkbox-tag {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: var(--vault-header);
+    }
+
+    .input-num-styled {
+      width: 100px;
+      text-align: center;
+      padding: 6px 10px;
+      border: 2px solid var(--vault-text);
+      border-radius: 4px;
+      background: #ffffff;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .status-alert {
+      padding: 14px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      border: 2px solid;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .badge-pill {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border: 1px solid;
+      margin: 2px;
+    }
+
+    footer {
+      margin-top: 32px;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--vault-dim);
+      font-family: var(--font-mono);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-container">
+
+    <!-- Header -->
+    <header>
+      <div class="header-top">
+        <div class="header-brand">
+          <span class="header-icon">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+            </svg>
+          </span>
+          <h1 class="header-title">Pip-Boy &bull; Gestão de Perícias</h1>
+        </div>
+
+        <div>
+          <button id="btn-reset-skills" class="btn-reset">
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            Redefinir Perícias
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main>
+      <div class="skills-grid">
+        <!-- Tabela de Perícias -->
+        <div class="card">
+          <div class="custom-scrollbar" style="overflow-x: auto;">
+            <table class="skills-table">
+              <thead>
+                <tr>
+                  <th style="width: 40%;">Perícias</th>
+                  <th style="width: 25%; text-align: center;">Quantidade Bruta (Sem tag)</th>
+                  <th style="width: 15%; text-align: center;">Tag?</th>
+                  <th style="width: 20%; text-align: right; padding-right: 24px;">Quantidade Líquida</th>
+                </tr>
+              </thead>
+              <tbody id="skills-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Painel Lateral: Parâmetros, Balanço e Avisos -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+          <!-- Parâmetros do Personagem -->
+          <div class="card">
+            <div class="card-header">Parâmetros do Personagem</div>
+            <div style="padding: 16px; background-color: #fbedc8; display: flex; flex-direction: column; gap: 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <label for="input-inteligencia" style="font-size: 0.875rem; font-weight: 700;">Inteligência (INT)</label>
+                <input type="number" id="input-inteligencia" value="5" min="0" step="1" placeholder="5" class="input-num-styled" style="width: 80px;">
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <label for="input-nivel-skills" style="font-size: 0.875rem; font-weight: 700;">Nível</label>
+                <input type="number" id="input-nivel-skills" value="1" min="1" step="1" placeholder="1" class="input-num-styled" style="width: 80px;">
+              </div>
+            </div>
+          </div>
+
+          <!-- Mensagem de Status -->
+          <div id="status-message" class="status-alert"></div>
+
+          <!-- Balanço de Pontos -->
+          <div class="card">
+            <div class="card-header">
+              <span>Balanço de Pontos</span>
+              <span id="status-pill" style="font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; border: 1px solid;">Calculando...</span>
+            </div>
+            <div style="padding: 16px; background-color: #fcf5e5; display: flex; flex-direction: column; gap: 10px; font-family: var(--font-mono); font-size: 0.875rem;">
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--vault-border); padding-bottom: 6px;">
+                <span style="font-family: var(--font-sans); color: var(--vault-dim); font-weight: 600;">Total de Pontos usados</span>
+                <span id="res-usados" style="font-weight: 700;">0</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--vault-border); padding-bottom: 6px;">
+                <span style="font-family: var(--font-sans); color: var(--vault-dim); font-weight: 600;">Total Permitido de Pontos</span>
+                <span id="res-permitido" style="font-weight: 700;">0</span>
+              </div>
+              <div id="box-diferenca" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border: 2px solid; border-radius: 4px;">
+                <span style="font-family: var(--font-sans); font-weight: 700;">Diferença</span>
+                <span id="res-diferenca" style="font-size: 1.15rem; font-weight: 900;">0</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--vault-border); padding-top: 4px; padding-bottom: 6px;">
+                <span style="font-family: var(--font-sans); color: var(--vault-dim); font-weight: 600;">Valor Líquido (com Tags)</span>
+                <span id="res-bruto-tags" style="font-weight: 700; color: #78350f;">0</span>
+              </div>
+              <div style="border-top: 1px solid var(--vault-border); padding-top: 8px;">
+                <div style="display: flex; justify-content: space-between;">
+                  <span style="font-family: var(--font-sans); color: var(--vault-dim); font-weight: 600;">Total de Tag Skills</span>
+                  <span id="res-tags-count" style="font-weight: 700;">0</span>
+                </div>
+                <div id="res-tags-names" style="margin-top: 8px; font-family: var(--font-sans); font-size: 0.75rem; padding: 8px; border-radius: 4px; border: 1px solid;"></div>
+              </div>
+            </div>
+            <div style="padding: 10px 16px; background-color: #f5e9ce; border-top: 2px solid var(--vault-text); font-size: 0.75rem; color: var(--vault-dim);">
+              <strong style="display: block; color: var(--vault-text); font-family: var(--font-display); text-transform: uppercase;">Fórmula Oficial:</strong>
+              <span style="font-family: var(--font-mono); color: var(--vault-header); font-weight: 600;">Total = INT + 9 + (NÍVEL - 1)</span>
+              <span style="display: block; margin-top: 4px; font-size: 0.7rem; color: var(--vault-dim);">
+                Valor Bruto (Estatística): INT + 9 + (NÍVEL - 1) + (TAGs &times; 2)
+              </span>
+            </div>
+          </div>
+
+          <!-- Avisos de Perícias -->
+          <div class="card">
+            <div class="card-header">
+              <span>Relatório final</span>
+              <span style="font-size: 0.7rem; color: #fde68a;">Por Valor Final</span>
+            </div>
+            <div style="padding: 16px; background-color: #fcf5e5; display: flex; flex-direction: column; gap: 14px;">
+              <div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; margin-bottom: 6px;">
+                  <span style="color: #7f1d1d;">▲ Mais de 6 pontos (Final &gt; 6)</span>
+                  <span id="badge-count-gt6" style="font-family: var(--font-mono); color: #991b1b;">0</span>
+                </div>
+                <div id="list-skills-gt6" style="display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; background: #f4ebd1; border: 1px solid var(--vault-border); border-radius: 4px; font-size: 0.75rem; min-height: 36px;"></div>
+              </div>
+              <div style="border-top: 1px solid var(--vault-border); padding-top: 10px;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; margin-bottom: 6px;">
+                  <span style="color: #78350f;">★ Exatamente 6 pontos (Final = 6)</span>
+                  <span id="badge-count-eq6" style="font-family: var(--font-mono); color: #92400e;">0</span>
+                </div>
+                <div id="list-skills-eq6" style="display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; background: #f4ebd1; border: 1px solid var(--vault-border); border-radius: 4px; font-size: 0.75rem; min-height: 36px;"></div>
+              </div>
+              <div style="border-top: 1px solid var(--vault-border); padding-top: 10px;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; margin-bottom: 6px;">
+                  <span style="color: #292524;">◆ Entre 4 e 5 pontos (Final 4 ou 5)</span>
+                  <span id="badge-count-4-5" style="font-family: var(--font-mono); color: #44403c;">0</span>
+                </div>
+                <div id="list-skills-4-5" style="display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; background: #f4ebd1; border: 1px solid var(--vault-border); border-radius: 4px; font-size: 0.75rem; min-height: 36px;"></div>
+              </div>
+              <div style="border-top: 1px solid var(--vault-border); padding-top: 10px;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; margin-bottom: 6px;">
+                  <span style="color: #166534;">● Entre 1 e 3 pontos (Final 1 a 3)</span>
+                  <span id="badge-count-1-3" style="font-family: var(--font-mono); color: #14532d;">0</span>
+                </div>
+                <div id="list-skills-1-3" style="display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; background: #f4ebd1; border: 1px solid var(--vault-border); border-radius: 4px; font-size: 0.75rem; min-height: 36px;"></div>
+              </div>
+              <div style="border-top: 1px solid var(--vault-border); padding-top: 10px;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; margin-bottom: 6px;">
+                  <span style="color: #6b7280;">○ Zero pontos (Final = 0)</span>
+                  <span id="badge-count-0" style="font-family: var(--font-mono); color: #4b5563;">0</span>
+                </div>
+                <div id="list-skills-0" style="display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; background: #f4ebd1; border: 1px solid var(--vault-border); border-radius: 4px; font-size: 0.75rem; min-height: 36px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      Terminal Fallout RPG &bull; Módulo de Perícias
+    </footer>
+  </div>
+
+  <script>
+    /* =======================================================
+       UTILITÁRIOS DE ENTRADA & PARSE
+       ======================================================= */
+    function parseSafeInt(value, fallbackDefault = 0) {
+      if (value === null || value === undefined || value === "") return fallbackDefault;
+      const strVal = String(value).split(".")[0].split(",")[0].trim();
+      const num = parseInt(strVal, 10);
+      return isNaN(num) ? fallbackDefault : Math.floor(num);
+    }
+
+    function enforceStrictIntegerInput(inputElement, minVal = 0) {
+      inputElement.addEventListener("keydown", (e) => {
+        if (e.key === "-" || e.key === "." || e.key === "," || e.key === "e" || e.key === "E" || e.key === "+") {
+          e.preventDefault();
+        }
+      });
+
+      inputElement.addEventListener("paste", (e) => {
+        e.preventDefault();
+        const text = (e.clipboardData || window.clipboardData).getData("text");
+        const clean = text.replace(/[^0-9]/g, "");
+        const parsed = parseSafeInt(clean, minVal);
+        inputElement.value = parsed === 0 ? "" : parsed;
+        inputElement.dispatchEvent(new Event("input"));
+      });
+    }
+
+    function enforceStrictBoundedInput(inputElement, minVal, maxVal, fallbackDefault, onChangeCallback) {
+      enforceStrictIntegerInput(inputElement, minVal);
+
+      inputElement.addEventListener("input", (e) => {
+        const raw = e.target.value;
+        if (raw === "") {
+          if (onChangeCallback) onChangeCallback(fallbackDefault);
+          return;
+        }
+        let val = parseInt(raw, 10);
+        if (isNaN(val)) val = fallbackDefault;
+        if (val > maxVal) {
+          val = maxVal;
+          inputElement.value = val;
+        }
+        if (onChangeCallback) onChangeCallback(val);
+      });
+
+      inputElement.addEventListener("blur", (e) => {
+        const raw = e.target.value;
+        if (raw === "") {
+          if (onChangeCallback) onChangeCallback(fallbackDefault);
+          return;
+        }
+        let val = parseInt(raw, 10);
+        if (isNaN(val)) val = fallbackDefault;
+        if (val < minVal) val = minVal;
+        if (val > maxVal) val = maxVal;
+        inputElement.value = val;
+        if (onChangeCallback) onChangeCallback(val);
+      });
+    }
+
+    /* =======================================================
+       ESTADO E ELEMENTOS DA CALCULADORA DE PERÍCIAS
+       ======================================================= */
+    const SKILLS_LIST = [
+      "Athletics", "Barter", "Big Guns", "Energy Weapons", "Explosives",
+      "Lockpick", "Medicine", "Melee Weapons", "Pilot", "Repair",
+      "Science", "Small Guns", "Sneak", "Speech", "Survival", "Throwing", "Unarmed"
+    ];
+
+    const stateSkills = {
+      inteligencia: 5,
+      nivel: 1,
+      skills: SKILLS_LIST.map(name => ({
+        name: name,
+        points: 0,
+        isTag: false
+      }))
+    };
+
+    const tbodySkills = document.getElementById("skills-tbody");
+    const inputInt = document.getElementById("input-inteligencia");
+    const inputNivelSkills = document.getElementById("input-nivel-skills");
+    const resUsados = document.getElementById("res-usados");
+    const resPermitido = document.getElementById("res-permitido");
+    const resDiferenca = document.getElementById("res-diferenca");
+    const resBrutoTags = document.getElementById("res-bruto-tags");
+    const resTagsCount = document.getElementById("res-tags-count");
+    const resTagsNames = document.getElementById("res-tags-names");
+    const boxDiferenca = document.getElementById("box-diferenca");
+    const statusPill = document.getElementById("status-pill");
+    const statusMessage = document.getElementById("status-message");
+    const btnResetSkills = document.getElementById("btn-reset-skills");
+
+    // Categorias de Alerta de Perícias
+    const listSkillsGt6 = document.getElementById("list-skills-gt6");
+    const badgeCountGt6 = document.getElementById("badge-count-gt6");
+    const listSkillsEq6 = document.getElementById("list-skills-eq6");
+    const badgeCountEq6 = document.getElementById("badge-count-eq6");
+    const listSkills45 = document.getElementById("list-skills-4-5");
+    const badgeCount45 = document.getElementById("badge-count-4-5");
+    const listSkills13 = document.getElementById("list-skills-1-3");
+    const badgeCount13 = document.getElementById("badge-count-1-3");
+    const listSkills0 = document.getElementById("list-skills-0");
+    const badgeCount0 = document.getElementById("badge-count-0");
+
+    /* =======================================================
+       RENDERIZAÇÃO & CÁLCULOS
+       ======================================================= */
+    function calculateSkillFinal(skill) {
+      const pts = parseSafeInt(skill.points, 0);
+      return pts + (skill.isTag ? 2 : 0);
+    }
+
+    function renderSkillsTable() {
+      tbodySkills.innerHTML = "";
+      stateSkills.skills.forEach((skill, index) => {
+        const tr = document.createElement("tr");
+        tr.className = index % 2 === 0 ? 'row-yellow-odd' : 'row-yellow-even';
+
+        const tdName = document.createElement("td");
+        tdName.style.fontWeight = "700";
+        tdName.textContent = skill.name;
+
+        const tdPoints = document.createElement("td");
+        tdPoints.style.textAlign = "center";
+        const inputPts = document.createElement("input");
+        inputPts.type = "number";
+        inputPts.min = "0";
+        inputPts.step = "1";
+        inputPts.value = skill.points === 0 ? "" : skill.points;
+        inputPts.placeholder = "0";
+        inputPts.className = "input-skill-points";
+        enforceStrictIntegerInput(inputPts, 0);
+
+        inputPts.addEventListener("input", (e) => {
+          const val = parseSafeInt(e.target.value, 0);
+          stateSkills.skills[index].points = val;
+          updateSkillsCalculations();
+        });
+        tdPoints.appendChild(inputPts);
+
+        const tdTag = document.createElement("td");
+        tdTag.style.textAlign = "center";
+        const checkboxTag = document.createElement("input");
+        checkboxTag.type = "checkbox";
+        checkboxTag.checked = skill.isTag;
+        checkboxTag.className = "checkbox-tag";
+        checkboxTag.addEventListener("change", (e) => {
+          stateSkills.skills[index].isTag = e.target.checked;
+          updateSkillsCalculations();
+        });
+        tdTag.appendChild(checkboxTag);
+
+        const tdFinal = document.createElement("td");
+        tdFinal.style.textAlign = "right";
+        tdFinal.style.paddingRight = "24px";
+        tdFinal.style.fontFamily = "var(--font-mono)";
+        tdFinal.style.fontWeight = "900";
+        tdFinal.style.fontSize = "1rem";
+        tdFinal.id = `final-val-${index}`;
+        tdFinal.textContent = calculateSkillFinal(skill);
+
+        tr.appendChild(tdName);
+        tr.appendChild(tdPoints);
+        tr.appendChild(tdTag);
+        tr.appendChild(tdFinal);
+
+        tbodySkills.appendChild(tr);
+      });
+    }
+
+    function updateSkillsCalculations() {
+      const skillsWithFinal = stateSkills.skills.map((skill, idx) => {
+        const finalVal = calculateSkillFinal(skill);
+        const cell = document.getElementById(`final-val-${idx}`);
+        if (cell) cell.textContent = finalVal;
+        return { ...skill, finalVal };
+      });
+
+      const tagSkills = skillsWithFinal.filter(s => s.isTag);
+      resTagsCount.textContent = tagSkills.length;
+      if (tagSkills.length > 0) {
+        resTagsNames.style.backgroundColor = "rgba(253, 224, 71, 0.9)";
+        resTagsNames.style.borderColor = "rgba(34, 31, 25, 0.4)";
+        resTagsNames.style.color = "var(--vault-text)";
+        resTagsNames.style.fontWeight = "600";
+        resTagsNames.textContent = tagSkills.map(s => s.name).join(", ");
+      } else {
+        resTagsNames.style.backgroundColor = "#f3edd9";
+        resTagsNames.style.borderColor = "var(--vault-border)";
+        resTagsNames.style.color = "var(--vault-dim)";
+        resTagsNames.style.fontWeight = "400";
+        resTagsNames.textContent = "Nenhuma perícia marcada como Tag";
+      }
+
+      const totalUsados = stateSkills.skills.reduce((acc, s) => acc + parseSafeInt(s.points, 0), 0);
+      const inteligencia = parseSafeInt(stateSkills.inteligencia, 0);
+      const nivel = parseSafeInt(stateSkills.nivel, 1);
+      
+      const totalPermitido = inteligencia + 9 + (nivel - 1);
+      const valorBrutoOriginal = totalPermitido + (tagSkills.length * 2);
+      
+      const diferenca = totalPermitido - totalUsados;
+
+      resUsados.textContent = totalUsados;
+      resPermitido.textContent = totalPermitido;
+      resDiferenca.textContent = diferenca > 0 ? `+${diferenca}` : diferenca;
+      resBrutoTags.textContent = valorBrutoOriginal;
+
+      if (diferenca < 0) {
+        boxDiferenca.style.backgroundColor = "#fee2e2";
+        boxDiferenca.style.borderColor = "#ef4444";
+        boxDiferenca.style.color = "#7f1d1d";
+
+        statusPill.style.borderColor = "#ef4444";
+        statusPill.style.backgroundColor = "#fecaca";
+        statusPill.style.color = "#450a0a";
+        statusPill.textContent = "Limite Excedido";
+
+        statusMessage.style.backgroundColor = "#fef2f2";
+        statusMessage.style.borderColor = "#ef4444";
+        statusMessage.style.color = "#450a0a";
+        statusMessage.innerHTML = `
+          <div>
+            <strong style="display: block; font-family: var(--font-display); text-transform: uppercase; color: #7f1d1d; margin-bottom: 2px;">Atenção! Limite ultrapassado:</strong>
+            Você gastou <strong>${Math.abs(diferenca)} ponto(s) a mais</strong> do que o permitido pelo nível e atributos.
+          </div>
+        `;
+      } else if (diferenca === 0) {
+        boxDiferenca.style.backgroundColor = "#d7ecd6";
+        boxDiferenca.style.borderColor = "#047857";
+        boxDiferenca.style.color = "#064e3b";
+
+        statusPill.style.borderColor = "#047857";
+        statusPill.style.backgroundColor = "#a7f3d0";
+        statusPill.style.color = "#064e3b";
+        statusPill.textContent = "Exato";
+
+        statusMessage.style.backgroundColor = "#eaf6e9";
+        statusMessage.style.borderColor = "#047857";
+        statusMessage.style.color = "#064e3b";
+        statusMessage.innerHTML = `
+          <div>
+            <strong style="display: block; font-family: var(--font-display); text-transform: uppercase; color: #064e3b; margin-bottom: 2px;">Distribuição Ideal:</strong>
+            Todos os <strong>${totalPermitido} pontos disponíveis</strong> foram distribuídos com precisão.
+          </div>
+        `;
+      } else {
+        boxDiferenca.style.backgroundColor = "#f4de9c";
+        boxDiferenca.style.borderColor = "var(--vault-text)";
+        boxDiferenca.style.color = "var(--vault-text)";
+
+        statusPill.style.borderColor = "var(--vault-text)";
+        statusPill.style.backgroundColor = "#ebd7a0";
+        statusPill.style.color = "var(--vault-text)";
+        statusPill.textContent = "Disponível";
+
+        statusMessage.style.backgroundColor = "#faeed2";
+        statusMessage.style.borderColor = "var(--vault-text)";
+        statusMessage.style.color = "var(--vault-text)";
+        statusMessage.innerHTML = `
+          <div>
+            <strong style="display: block; font-family: var(--font-display); text-transform: uppercase; color: var(--vault-header); margin-bottom: 2px;">Pontos Restantes:</strong>
+            Você ainda possui <strong>${diferenca} ponto(s)</strong> livres para atribuir às suas perícias.
+          </div>
+        `;
+      }
+
+      // 1. > 6 pontos
+      const skillsTierGt6 = skillsWithFinal.filter(s => s.finalVal > 6);
+      badgeCountGt6.textContent = skillsTierGt6.length;
+      if (skillsTierGt6.length > 0) {
+        listSkillsGt6.innerHTML = skillsTierGt6.map(s => `
+          <span class="badge-pill" style="background:#fee2e2; border-color:#f87171; color:#450a0a;">
+            ${s.name} <strong style="font-family:var(--font-mono);">${s.finalVal}</strong>
+          </span>
+        `).join("");
+      } else {
+        listSkillsGt6.innerHTML = `<span style="font-style:italic; color:var(--vault-dim);">Nenhuma perícia nesta faixa</span>`;
+      }
+
+      // 2. = 6 pontos
+      const skillsTierEq6 = skillsWithFinal.filter(s => s.finalVal === 6);
+      badgeCountEq6.textContent = skillsTierEq6.length;
+      if (skillsTierEq6.length > 0) {
+        listSkillsEq6.innerHTML = skillsTierEq6.map(s => `
+          <span class="badge-pill" style="background:#fef3c7; border-color:#fbbf24; color:#78350f;">
+            ${s.name} <strong style="font-family:var(--font-mono);">${s.finalVal}</strong>
+          </span>
+        `).join("");
+      } else {
+        listSkillsEq6.innerHTML = `<span style="font-style:italic; color:var(--vault-dim);">Nenhuma perícia nesta faixa</span>`;
+      }
+
+      // 3. 4 a 5 pontos
+      const skillsTier45 = skillsWithFinal.filter(s => s.finalVal >= 4 && s.finalVal <= 5);
+      badgeCount45.textContent = skillsTier45.length;
+      if (skillsTier45.length > 0) {
+        listSkills45.innerHTML = skillsTier45.map(s => `
+          <span class="badge-pill" style="background:#fdedbe; border-color:#d6c49c; color:var(--vault-text);">
+            ${s.name} <strong style="font-family:var(--font-mono);">${s.finalVal}</strong>
+          </span>
+        `).join("");
+      } else {
+        listSkills45.innerHTML = `<span style="font-style:italic; color:var(--vault-dim);">Nenhuma perícia nesta faixa</span>`;
+      }
+
+      // 4. 1 a 3 pontos
+      const skillsTier13 = skillsWithFinal.filter(s => s.finalVal >= 1 && s.finalVal <= 3);
+      badgeCount13.textContent = skillsTier13.length;
+      if (skillsTier13.length > 0) {
+        listSkills13.innerHTML = skillsTier13.map(s => `
+          <span class="badge-pill" style="background:#dcfce7; border-color:#86efac; color:#14532d;">
+            ${s.name} <strong style="font-family:var(--font-mono);">${s.finalVal}</strong>
+          </span>
+        `).join("");
+      } else {
+        listSkills13.innerHTML = `<span style="font-style:italic; color:var(--vault-dim);">Nenhuma perícia nesta faixa</span>`;
+      }
+
+      // 5. 0 pontos
+      const skillsTier0 = skillsWithFinal.filter(s => s.finalVal === 0);
+      badgeCount0.textContent = skillsTier0.length;
+      if (skillsTier0.length > 0) {
+        listSkills0.innerHTML = skillsTier0.map(s => `
+          <span class="badge-pill" style="background:#f3f4f6; border-color:#d1d5db; color:#374151;">
+            ${s.name} <strong style="font-family:var(--font-mono);">${s.finalVal}</strong>
+          </span>
+        `).join("");
+      } else {
+        listSkills0.innerHTML = `<span style="font-style:italic; color:var(--vault-dim);">Nenhuma perícia nesta faixa</span>`;
+      }
+    }
+
+    /* =======================================================
+       LISTENERS & INICIALIZAÇÃO
+       ======================================================= */
+    enforceStrictBoundedInput(inputInt, 0, 9999, 5, (v) => { 
+      stateSkills.inteligencia = v; 
+      updateSkillsCalculations(); 
+    });
+
+    enforceStrictBoundedInput(inputNivelSkills, 1, 9999, 1, (v) => {
+      stateSkills.nivel = v;
+      updateSkillsCalculations();
+    });
+
+    btnResetSkills.addEventListener("click", () => {
+      stateSkills.skills.forEach(s => {
+        s.points = 0;
+        s.isTag = false;
+      });
+      stateSkills.inteligencia = 5;
+      stateSkills.nivel = 1;
+      inputInt.value = "";
+      inputNivelSkills.value = "";
+      renderSkillsTable();
+      updateSkillsCalculations();
+    });
+
+    // Inicialização
+    renderSkillsTable();
+    updateSkillsCalculations();
+  </script>
+</body>
+</html>
