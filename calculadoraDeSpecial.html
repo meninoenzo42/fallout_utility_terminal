@@ -666,7 +666,7 @@
     </footer>
   </div>
 
-  <!-- Importação da biblioteca compartilhada de estatísticas derivadas -->
+  <!-- Carrega a biblioteca modular antes dos cálculos da página -->
   <script src="lib_scripts/estastisticasDerivadas.js"></script>
 
   <script>
@@ -946,8 +946,17 @@
         if (attr.points > attr.max) hasAboveMax = true;
       });
 
-      // --- CÁLCULO VIA BIBLIOTECA COMPARTILHADA (lib_scripts/estastisticasDerivadas.js) ---
-      const derivedCalc = window.SpecialDerived ? window.SpecialDerived.calcularTodasDerivadas({
+      // Lê diretamente os valores dos inputs para garantir que qualquer alteração seja capturada
+      const curBaseCarry = inputDerivedBaseCarry.value === "" ? 100 : parseSafeInt(inputDerivedBaseCarry.value, 100);
+      const curWeightMult = inputDerivedWeightMult.value === "" ? 10 : parseSafeInt(inputDerivedWeightMult.value, 10);
+      const curHpLevel = inputDerivedHpLevel.value === "" ? 1 : parseSafeInt(inputDerivedHpLevel.value, 1);
+      const curHpMode = selectHpMultiplierMode.value;
+      const curMultEnd = parseSafeInt(inputHpMultEnd.value, 1);
+      const curMultLck = parseSafeInt(inputHpMultLck.value, 1);
+      const curApDivisor = inputDerivedApDivisor.value === "" ? 2 : parseSafeInt(inputDerivedApDivisor.value, 2);
+
+      // --- CÁLCULO VIA BIBLIOTECA COMPARTILHADA ---
+      const derivedCalc = window.SpecialDerived.calcularTodasDerivadas({
         strength: strPoints,
         perception: perPoints,
         endurance: endPoints,
@@ -956,24 +965,17 @@
         agility: agiPoints,
         luck: lckPoints,
         options: {
-          baseCarry: parseSafeInt(stateSpecial.derived.baseCarry, 100),
-          weightMult: parseSafeInt(stateSpecial.derived.weightMult, 10),
-          hpLevel: parseSafeInt(stateSpecial.derived.hpLevel, 1),
-          hpMultMode: stateSpecial.derived.hpMultMode,
-          hpMultEnd: parseSafeInt(stateSpecial.derived.hpMultEnd, 1),
-          hpMultLck: parseSafeInt(stateSpecial.derived.hpMultLck, 1),
-          apDivisor: parseSafeInt(stateSpecial.derived.apDivisor, 2)
+          baseCarry: curBaseCarry,
+          weightMult: curWeightMult,
+          hpLevel: curHpLevel,
+          hpMultMode: curHpMode,
+          hpMultEnd: curMultEnd,
+          hpMultLck: curMultLck,
+          apDivisor: curApDivisor
         }
-      }) : {
-        iniciativa: perPoints + agiPoints,
-        defesa: agiPoints >= 9 ? 2 : 1,
-        bonusMelee: { label: "+0 DC", activeTierId: "melee-tier-0" },
-        capacidadeCargaLbs: 100 + (10 * strPoints),
-        hp: { totalHp: endPoints + lckPoints, formulaLabel: "END + LCK + (Nível - 1)" },
-        ap: { displayText: "Contribuição: +2 AP (Sobra: 1)" }
-      };
+      });
 
-      // Atualiza interface com os valores retornados pelo módulo
+      // Atualiza a interface
       if (resDerivedInitiative) resDerivedInitiative.textContent = derivedCalc.iniciativa;
       if (resDerivedDefense) resDerivedDefense.textContent = derivedCalc.defesa;
       if (resDerivedMelee) resDerivedMelee.textContent = derivedCalc.bonusMelee.label;
