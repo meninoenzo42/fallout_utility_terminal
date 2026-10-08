@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teste de Perícia (2d20) - Pip-Boy</title>
+
+  <style>
+    /* =======================================================
+       1. VARIÁVEIS & RESET CSS
+       ======================================================= */
+    :root {
+      --vault-bg: #f6eff9;
+      --vault-paper: #faeed2;
+      --vault-header: #3b0764;
+      --vault-border: #d8b4e2;
+      --vault-text: #3b0764;
+      --vault-dim: #581c87;
+
+      --font-display: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Arial', sans-serif;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: 'Consolas', 'Courier New', 'Lucida Console', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--vault-bg);
+      color: var(--vault-text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    @media (min-width: 640px) {
+      body { padding: 24px; }
+    }
+
+    .app-container {
+      max-width: 960px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+    }
+    input[type=number] {
+      -moz-appearance: textfield;
+      font-family: var(--font-mono);
+      font-weight: 700;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* =======================================================
+       2. CABEÇALHO
+       ======================================================= */
+    header {
+      margin-bottom: 24px;
+    }
+
+    .header-top {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid var(--vault-header);
+      padding-bottom: 12px;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background-color: var(--vault-header);
+      color: #ffffff;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    }
+
+    .header-title {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--vault-header);
+    }
+
+    /* =======================================================
+       3. ESTRUTURA DO TESTE DE PERÍCIA (2D20)
+       ======================================================= */
+    .dice-container {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .card-purple {
+      border: 2px solid #581c87;
+      border-radius: 8px;
+      background-color: #ebdff2;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .card-header {
+      background-color: #3b0764;
+      color: #ffffff;
+      padding: 10px 16px;
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .purple-cell {
+      background-color: #debde8;
+      border: 2px solid #581c87;
+      border-radius: 6px;
+      padding: 12px;
+    }
+
+    .purple-cell-btn {
+      width: 32px;
+      height: 32px;
+      border: 2px solid #581c87;
+      border-radius: 4px;
+      background-color: #ebdff2;
+      font-weight: 700;
+      color: #3b0764;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .purple-cell-btn:hover { background-color: #e9d5ff; }
+    .purple-cell-btn:active { transform: scale(0.95); }
+
+    .purple-input-readonly {
+      width: 100%;
+      text-align: center;
+      padding: 6px;
+      border: 2px solid #581c87;
+      border-radius: 4px;
+      background: #f7f0fb;
+      color: #3b0764;
+      font-size: 1rem;
+      cursor: default;
+    }
+
+    .input-num-styled {
+      text-align: center;
+      padding: 6px 10px;
+      border: 2px solid #581c87;
+      border-radius: 4px;
+      background: #f7f0fb;
+      color: #3b0764;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .toggle-group {
+      display: inline-flex;
+      border: 2px solid #581c87;
+      border-radius: 6px;
+      padding: 2px;
+      gap: 4px;
+    }
+
+    .toggle-group label {
+      cursor: pointer;
+    }
+
+    .toggle-group input[type=radio] {
+      display: none;
+    }
+
+    .toggle-pill {
+      padding: 6px 14px;
+      border-radius: 4px;
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: block;
+      color: #3b0764;
+    }
+
+    .toggle-group-purple input[type=radio]:checked + .toggle-pill {
+      background-color: #6b21a8;
+      color: #ffffff;
+    }
+
+    .btn-roll-dice {
+      width: 100%;
+      padding: 14px 24px;
+      background-color: #6b21a8;
+      color: #ffffff;
+      font-family: var(--font-display);
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border: 2px solid #3b0764;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+      transition: background-color 0.15s;
+    }
+
+    .btn-roll-dice:hover { background-color: #581c87; }
+    .btn-roll-dice:active { transform: scale(0.99); }
+
+    .btn-sort-pool {
+      padding: 4px 10px;
+      font-size: 0.72rem;
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      border-radius: 4px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s;
+    }
+
+    .btn-sort-d20 {
+      border: 1.5px solid #d8b4fe;
+      background-color: #3b0764;
+      color: #f3e8ff;
+    }
+    .btn-sort-d20:hover:not(:disabled) {
+      background-color: #581c87;
+      border-color: #ffffff;
+    }
+    .btn-sort-pool:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .d20-shape {
+      clip-path: polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
+    }
+
+    .d20-box {
+      width: 68px;
+      height: 72px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      font-family: var(--font-mono);
+      border: 2px solid #3b0764;
+    }
+
+    @media (min-width: 640px) {
+      .d20-box {
+        width: 76px;
+        height: 80px;
+      }
+    }
+
+    .d20-num {
+      font-size: 1.5rem;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .d20-tag {
+      font-size: 0.52rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    .btn-single-reroll {
+      margin-top: 6px;
+      padding: 3px 8px;
+      font-size: 0.65rem;
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      border: 1.5px solid #581c87;
+      border-radius: 4px;
+      background-color: #ffffff;
+      color: #4c1d95;
+      cursor: pointer;
+      transition: all 0.15s;
+      width: 100%;
+    }
+
+    .btn-single-reroll:hover:not(:disabled) {
+      background-color: #6b21a8;
+      color: #ffffff;
+    }
+
+    .btn-single-reroll:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      border-color: #9ca3af;
+      color: #6b7280;
+      background-color: #e5e7eb;
+    }
+
+    .btn-single-force {
+      margin-top: 3px;
+      padding: 2px 6px;
+      font-size: 0.6rem;
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      border: 1.5px dashed #6b21a8;
+      border-radius: 4px;
+      background-color: #f7f0fb;
+      color: #581c87;
+      cursor: pointer;
+      transition: all 0.15s;
+      width: 100%;
+    }
+
+    .btn-single-force:hover:not(:disabled) {
+      background-color: #debde8;
+      color: #3b0764;
+      border-style: solid;
+    }
+
+    .btn-single-force:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      border-color: #9ca3af;
+      color: #6b7280;
+      background-color: #e5e7eb;
+    }
+
+    @keyframes rollIcosahedron {
+      0% { transform: rotate(0deg) scale(1); }
+      25% { transform: rotate(-18deg) scale(1.08); }
+      50% { transform: rotate(18deg) scale(1.12); }
+      75% { transform: rotate(-10deg) scale(1.04); }
+      100% { transform: rotate(0deg) scale(1); }
+    }
+    .dice-rolling {
+      animation: rollIcosahedron 0.12s infinite linear;
+    }
+
+    .verdict-green {
+      background-color: #d1fae5 !important;
+      border: 2px solid #047857 !important;
+      color: #064e3b !important;
+    }
+    .verdict-yellow {
+      background-color: #fde68a !important;
+      border: 2px solid #d97706 !important;
+      color: #78350f !important;
+    }
+    .verdict-red {
+      background-color: #fee2e2 !important;
+      border: 2px solid #b91c1c !important;
+      color: #7f1d1d !important;
+    }
+    .verdict-burgundy {
+      background-color: #4a1525 !important;
+      border: 2px solid #2e0914 !important;
+      color: #ffffff !important;
+    }
+
+    .forced-face-warning {
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      background-color: #f3e8ff;
+      border: 1.5px solid #a855f7;
+      color: #581c87;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    /* Modal Forçar Face D20 */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(26, 24, 21, 0.65);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      backdrop-filter: blur(2px);
+    }
+
+    .modal-card {
+      background-color: #ebdff2;
+      border: 3px solid #581c87;
+      border-radius: 12px;
+      padding: 20px;
+      max-width: 360px;
+      width: 90%;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.35);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .modal-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+
+    .btn-face-choice {
+      padding: 10px 0;
+      background-color: #ffffff;
+      border: 2px solid #581c87;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: #3b0764;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-face-choice:hover:not(:disabled) {
+      background-color: #6b21a8;
+      color: #ffffff;
+      transform: scale(1.06);
+    }
+
+    .btn-face-choice:disabled {
+      opacity: 0.3 !important;
+      cursor: not-allowed !important;
+      background-color: #d1d5db !important;
+      border-color: #9ca3af !important;
+      color: #6b7280 !important;
+      transform: none !important;
+    }
+
+    footer {
+      margin-top: 32px;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--vault-dim);
+      font-family: var(--font-mono);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-container">
+
+    <!-- Header -->
+    <header>
+      <div class="header-top">
+        <div class="header-brand">
+          <span class="header-icon">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5"></path>
+            </svg>
+          </span>
+          <h1 class="header-title">Pip-Boy &bull; Teste de Perícia (2d20)</h1>
+        </div>
+      </div>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main>
+      <div class="dice-container">
+        
+        <!-- Definições e Parâmetros do Teste -->
+        <div class="card-purple">
+          <div class="card-header">
+            <span>Simulador de Teste de Perícia (Sistema 2d20)</span>
+          </div>
+
+          <div style="padding: 20px; display: flex; flex-direction: column; gap: 20px;">
+            <div style="display: flex; flex-direction: column; gap: 12px; border-bottom: 1px solid #d8b4e2; padding-bottom: 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                <span style="font-family: var(--font-display); text-transform: uppercase; font-size: 0.85rem; font-weight: 700; color: #3b0764;">
+                  (1) Definição do Número Alvo
+                </span>
+                <label style="display: flex; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 700; color: #3b0764; cursor: pointer;">
+                  <input type="checkbox" id="dice-manual-tn-toggle" style="accent-color: #6b21a8; width: 16px; height: 16px;">
+                  <span>Inserir Número-Alvo Manualmente</span>
+                </label>
+              </div>
+
+              <div id="dice-auto-tn-box" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+                <div class="purple-cell">
+                  <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #3b0764; text-transform: uppercase; margin-bottom: 6px;">1. Atributo</label>
+                  <div style="display: flex; gap: 6px;">
+                    <button id="dice-btn-dec-attr" type="button" class="purple-cell-btn">-</button>
+                    <input type="number" id="dice-attr-input" value="5" min="0" readonly tabindex="-1" class="purple-input-readonly">
+                    <button id="dice-btn-inc-attr" type="button" class="purple-cell-btn">+</button>
+                  </div>
+                </div>
+
+                <div class="purple-cell">
+                  <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #3b0764; text-transform: uppercase; margin-bottom: 6px;">2. Perícia</label>
+                  <div style="display: flex; gap: 6px;">
+                    <button id="dice-btn-dec-skill" type="button" class="purple-cell-btn">-</button>
+                    <input type="number" id="dice-skill-input" value="2" min="0" readonly tabindex="-1" class="purple-input-readonly">
+                    <button id="dice-btn-inc-skill" type="button" class="purple-cell-btn">+</button>
+                  </div>
+                </div>
+
+                <div class="purple-cell" style="display: flex; flex-direction: column; justify-content: space-between;">
+                  <span style="display: block; font-size: 0.75rem; font-weight: 700; color: #3b0764; text-transform: uppercase; margin-bottom: 6px;">3. É Tag Skill?</span>
+                  <div class="toggle-group toggle-group-purple" style="background: #ebdff2;">
+                    <label style="flex: 1; text-align: center;">
+                      <input type="radio" name="dice-radio-tag" value="sim">
+                      <span class="toggle-pill">Sim</span>
+                    </label>
+                    <label style="flex: 1; text-align: center;">
+                      <input type="radio" name="dice-radio-tag" value="nao" checked>
+                      <span class="toggle-pill">Não</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div id="dice-manual-tn-box" class="hidden purple-cell">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                  <div>
+                    <label for="dice-manual-tn-input" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #3b0764; display: block;">Número-Alvo Manual:</label>
+                    <span style="font-size: 0.7rem; color: #581c87;">Insira diretamente o valor final do alvo.</span>
+                  </div>
+                  <input type="number" id="dice-manual-tn-input" value="" min="1" step="1" placeholder="7" class="input-num-styled" style="width: 110px;">
+                </div>
+              </div>
+
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding: 12px; background-color: #d5aee2; border: 2px solid #6b21a8; border-radius: 6px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; font-family: var(--font-display); color: #3b0764;">Número-Alvo do Teste:</span>
+                  <span id="dice-target-number-badge" style="font-family: var(--font-mono); font-size: 1.25rem; font-weight: 900; color: #3b0764; background: #ebdff2; padding: 2px 12px; border-radius: 4px; border: 1px solid #581c87;">7</span>
+                </div>
+                <div id="dice-target-warning" class="hidden" style="font-size: 0.75rem; font-weight: 700; color: #78350f; background: #fde68a; border: 1px solid #d97706; padding: 4px 8px; border-radius: 4px;">
+                  Aviso: Número-alvo superior a 20! (Rolagem máxima no d20 é 20).
+                </div>
+              </div>
+            </div>
+
+            <!-- Parâmetros D20 -->
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              <span style="font-family: var(--font-display); text-transform: uppercase; font-size: 0.85rem; font-weight: 700; color: #3b0764;">
+                (2) Parâmetros do Teste
+              </span>
+
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                <div class="purple-cell">
+                  <label for="dice-qty-input" style="display: block; font-size: 0.75rem; font-weight: 700; color: #3b0764; text-transform: uppercase; margin-bottom: 6px;">1. Quantidade de Dados</label>
+                  <div>
+                    <input type="number" id="dice-qty-input" value="" min="1" max="50" step="1" placeholder="2" class="input-num-styled" style="width: 80px;">
+                  </div>
+                </div>
+
+                <div class="purple-cell">
+                  <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #3b0764; text-transform: uppercase; margin-bottom: 6px;">2. Dificuldade</label>
+                  <div style="display: flex; gap: 6px;">
+                    <button id="dice-btn-dec-diff" type="button" class="purple-cell-btn">-</button>
+                    <input type="number" id="dice-diff-input" value="1" min="0" readonly tabindex="-1" class="purple-input-readonly">
+                    <button id="dice-btn-inc-diff" type="button" class="purple-cell-btn">+</button>
+                  </div>
+                </div>
+
+                <div class="purple-cell">
+                  <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #3b0764; text-transform: uppercase; margin-bottom: 6px;">3. Alcance Complicação</label>
+                  <div style="display: flex; gap: 6px;">
+                    <button id="dice-btn-dec-comp" type="button" class="purple-cell-btn">-</button>
+                    <input type="number" id="dice-complication-input" value="20" min="1" max="20" readonly tabindex="-1" class="purple-input-readonly">
+                    <button id="dice-btn-inc-comp" type="button" class="purple-cell-btn">+</button>
+                  </div>
+                  <span style="font-size: 0.65rem; color: #4c1d95; font-weight: 700; display: block; margin-top: 4px; text-align: center;"></span>
+                </div>
+              </div>
+
+              <div id="dice-crit-range-container" class="purple-cell">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                  <div>
+                    <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #3b0764; display: block;">4. Alcance de Crítico (1 a 20):</label>
+                    <span id="dice-crit-explanation" style="font-size: 0.7rem; color: #4c1d95;">D20 &le; a este valor concede 2 sucessos. Não excede o Número-Alvo.</span>
+                  </div>
+                  <div style="display: flex; gap: 6px; align-items: center;">
+                    <button id="dice-btn-dec-crit" type="button" class="purple-cell-btn">-</button>
+                    <input type="number" id="dice-crit-input" value="1" min="1" max="20" readonly tabindex="-1" class="purple-input-readonly" style="width: 60px;">
+                    <button id="dice-btn-inc-crit" type="button" class="purple-cell-btn">+</button>
+                  </div>
+                </div>
+              </div>
+
+              <div style="padding-top: 8px;">
+                <button id="dice-btn-roll" type="button" class="btn-roll-dice">
+                  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5"></path>
+                  </svg>
+                  Confirmar &amp; Rolar Dados
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mesa de Rolagem D20 -->
+        <div class="card-purple">
+          <div class="card-header">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span>Mesa de Rolagem</span>
+              <button id="dice-btn-sort" type="button" class="btn-sort-pool btn-sort-d20" disabled>
+                ↕ Ordenar Dados (Crescente)
+              </button>
+            </div>
+            <span id="dice-roll-status-tag" style="font-size: 0.75rem; font-family: var(--font-mono); color: #d8b4fe;">Pronto para rolar</span>
+          </div>
+          <div style="padding: 24px; background-color: #ebdff2;">
+            <div id="dice-pool-display" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; min-height: 110px; align-items: flex-start;">
+              <span style="font-size: 0.875rem; font-style: italic; color: #4c1d95; font-weight: 600;">Pressione "Confirmar &amp; Rolar Dados" para iniciar o teste.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resultado do Teste -->
+        <div class="card-purple">
+          <div class="card-header">
+            <span>Resultado do Teste</span>
+            <span style="font-size: 0.75rem; color: #e9d5ff;"></span>
+          </div>
+          <div style="padding: 20px; display: flex; flex-direction: column; gap: 16px;">
+            <div id="dice-verdict-banner" class="verdict-green" style="padding: 16px; border-radius: 8px; text-align: center;">
+              <span id="dice-verdict-text" style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; display: block;">Aguardando Rolagem</span>
+              <span id="dice-verdict-subtext" style="font-size: 0.75rem; font-family: var(--font-mono); display: block; margin-top: 4px; font-weight: 600;">Defina os parâmetros e confirme o teste</span>
+              <div id="dice-forced-warning-box" class="hidden">
+                <span class="forced-face-warning">
+                  ⚠️ <span id="dice-forced-warning-text">0 face(s) forçada(s) manualmente</span>
+                </span>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; text-align: center; font-family: var(--font-mono);">
+              <div class="purple-cell">
+                <span style="font-size: 0.65rem; font-weight: 700; color: #4c1d95; text-transform: uppercase; display: block; margin-bottom: 2px;">Total Sucessos</span>
+                <span id="dice-res-successes" style="font-size: 1.25rem; font-weight: 900; color: #3b0764;">0</span>
+              </div>
+              <div class="purple-cell">
+                <span style="font-size: 0.65rem; font-weight: 700; color: #4c1d95; text-transform: uppercase; display: block; margin-bottom: 2px;">Dificuldade</span>
+                <span id="dice-res-diff" style="font-size: 1.25rem; font-weight: 900; color: #1c1917;">1</span>
+              </div>
+              <div class="purple-cell">
+                <span style="font-size: 0.65rem; font-weight: 700; color: #4c1d95; text-transform: uppercase; display: block; margin-bottom: 2px;">Críticos (2x)</span>
+                <span id="dice-res-crits" style="font-size: 1.25rem; font-weight: 900; color: #78350f;">0</span>
+              </div>
+              <div class="purple-cell">
+                <span style="font-size: 0.65rem; font-weight: 700; color: #4c1d95; text-transform: uppercase; display: block; margin-bottom: 2px;">Complicações</span>
+                <span id="dice-res-complications" style="font-size: 1.25rem; font-weight: 900; color: #7f1d1d;">0</span>
+              </div>
+              <div class="purple-cell">
+                <span style="font-size: 0.65rem; font-weight: 700; color: #4c1d95; text-transform: uppercase; display: block; margin-bottom: 2px;">Rerolls Usados</span>
+                <span id="dice-res-rerolls" style="font-size: 1.25rem; font-weight: 900; color: #581c87;">0</span>
+              </div>
+              <div class="purple-cell">
+                <span style="font-size: 0.65rem; font-weight: 700; color: #4c1d95; text-transform: uppercase; display: block; margin-bottom: 2px;">Faces Forçadas</span>
+                <span id="dice-res-forced" style="font-size: 1.25rem; font-weight: 900; color: #7e22ce;">0</span>
+              </div>
+              <div class="purple-cell">
+                <span id="dice-res-margin-label" style="font-size: 0.65rem; font-weight: 700; color: #4c1d95; text-transform: uppercase; display: block; margin-bottom: 2px;">Balanço</span>
+                <span id="dice-res-margin-val" style="font-size: 1.25rem; font-weight: 900; color: #3b0764;">0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- Modal Forçar Face D20 -->
+    <div id="modal-force-face" class="modal-overlay hidden">
+      <div class="modal-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #581c87; padding-bottom: 8px;">
+          <span style="font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; text-transform: uppercase; color: #3b0764;">
+            Escolher Face do D20
+          </span>
+          <button id="btn-close-force-modal" type="button" style="background: none; border: none; font-size: 1.2rem; font-weight: 900; color: #581c87; cursor: pointer; line-height: 1;">&times;</button>
+        </div>
+        <div id="modal-dice-grid" class="modal-grid"></div>
+      </div>
+    </div>
+
+    <footer>
+      Terminal Fallout RPG &bull; Módulo Teste de Perícia (2d20)
+    </footer>
+  </div>
+
+  <script>
+    /* =======================================================
+       UTILITÁRIOS DE ENTRADA & PARSE
+       ======================================================= */
+    function parseSafeInt(value, fallbackDefault = 0) {
+      if (value === null || value === undefined || value === "") return fallbackDefault;
+      const strVal = String(value).split(".")[0].split(",")[0].trim();
+      const num = parseInt(strVal, 10);
+      return isNaN(num) ? fallbackDefault : Math.floor(num);
+    }
+
+    function enforceStrictIntegerInput(inputElement, minVal = 0) {
+      inputElement.addEventListener("keydown", (e) => {
+        if (e.key === "-" || e.key === "." || e.key === "," || e.key === "e" || e.key === "E" || e.key === "+") {
+          e.preventDefault();
+        }
+      });
+
+      inputElement.addEventListener("paste", (e) => {
+        e.preventDefault();
+        const text = (e.clipboardData || window.clipboardData).getData("text");
+        const clean = text.replace(/[^0-9]/g, "");
+        const parsed = parseSafeInt(clean, minVal);
+        inputElement.value = parsed === 0 ? "" : parsed;
+        inputElement.dispatchEvent(new Event("input"));
+      });
+    }
+
+    function enforceStrictBoundedInput(inputElement, minVal, maxVal, fallbackDefault, onChangeCallback) {
+      enforceStrictIntegerInput(inputElement, minVal);
+
+      inputElement.addEventListener("input", (e) => {
+        const raw = e.target.value;
+        if (raw === "") {
+          if (onChangeCallback) onChangeCallback(fallbackDefault);
+          return;
+        }
+        let val = parseInt(raw, 10);
+        if (isNaN(val)) val = fallbackDefault;
+        if (val > maxVal) {
+          val = maxVal;
+          inputElement.value = val;
+        }
+        if (onChangeCallback) onChangeCallback(val);
+      });
+
+      inputElement.addEventListener("blur", (e) => {
+        const raw = e.target.value;
+        if (raw === "") {
+          if (onChangeCallback) onChangeCallback(fallbackDefault);
+          return;
+        }
+        let val = parseInt(raw, 10);
+        if (isNaN(val)) val = fallbackDefault;
+        if (val < minVal) val = minVal;
+        if (val > maxVal) val = maxVal;
+        inputElement.value = val;
+        if (onChangeCallback) onChangeCallback(val);
+      });
+    }
+
+    /* =======================================================
+       ELEMENTOS DOM
+       ======================================================= */
+    const diceManualTnToggle = document.getElementById("dice-manual-tn-toggle");
+    const diceAutoTnBox = document.getElementById("dice-auto-tn-box");
+    const diceManualTnBox = document.getElementById("dice-manual-tn-box");
+    const diceAttrInput = document.getElementById("dice-attr-input");
+    const diceSkillInput = document.getElementById("dice-skill-input");
+    const diceRadioTag = document.querySelectorAll('input[name="dice-radio-tag"]');
+    const diceManualTnInput = document.getElementById("dice-manual-tn-input");
+    const diceTargetNumberBadge = document.getElementById("dice-target-number-badge");
+    const diceTargetWarning = document.getElementById("dice-target-warning");
+
+    const diceBtnDecAttr = document.getElementById("dice-btn-dec-attr");
+    const diceBtnIncAttr = document.getElementById("dice-btn-inc-attr");
+    const diceBtnDecSkill = document.getElementById("dice-btn-dec-skill");
+    const diceBtnIncSkill = document.getElementById("dice-btn-inc-skill");
+
+    const diceQtyInput = document.getElementById("dice-qty-input");
+    const diceDiffInput = document.getElementById("dice-diff-input");
+    const diceBtnDecDiff = document.getElementById("dice-btn-dec-diff");
+    const diceBtnIncDiff = document.getElementById("dice-btn-inc-diff");
+
+    const diceComplicationInput = document.getElementById("dice-complication-input");
+    const diceBtnDecComp = document.getElementById("dice-btn-dec-comp");
+    const diceBtnIncComp = document.getElementById("dice-btn-inc-comp");
+
+    const diceCritInput = document.getElementById("dice-crit-input");
+    const diceBtnDecCrit = document.getElementById("dice-btn-dec-crit");
+    const diceBtnIncCrit = document.getElementById("dice-btn-inc-crit");
+    const diceCritRangeContainer = document.getElementById("dice-crit-range-container");
+    const diceCritExplanation = document.getElementById("dice-crit-explanation");
+    const diceBtnRoll = document.getElementById("dice-btn-roll");
+    const diceBtnSort = document.getElementById("dice-btn-sort");
+    const dicePoolDisplay = document.getElementById("dice-pool-display");
+    const diceRollStatusTag = document.getElementById("dice-roll-status-tag");
+
+    const diceVerdictBanner = document.getElementById("dice-verdict-banner");
+    const diceVerdictText = document.getElementById("dice-verdict-text");
+    const diceVerdictSubtext = document.getElementById("dice-verdict-subtext");
+    const diceForcedWarningBox = document.getElementById("dice-forced-warning-box");
+    const diceForcedWarningText = document.getElementById("dice-forced-warning-text");
+
+    const diceResSuccesses = document.getElementById("dice-res-successes");
+    const diceResDiff = document.getElementById("dice-res-diff");
+    const diceResCrits = document.getElementById("dice-res-crits");
+    const diceResComplications = document.getElementById("dice-res-complications");
+    const diceResRerolls = document.getElementById("dice-res-rerolls");
+    const diceResForced = document.getElementById("dice-res-forced");
+    const diceResMarginLabel = document.getElementById("dice-res-margin-label");
+    const diceResMarginVal = document.getElementById("dice-res-margin-val");
+
+    const modalForceFace = document.getElementById("modal-force-face");
+    const btnCloseForceModal = document.getElementById("btn-close-force-modal");
+    const modalDiceGrid = document.getElementById("modal-dice-grid");
+
+    let currentPool = [];
+    let rerollsUsedCount = 0;
+    let forcedFacesCount = 0;
+    let currentlyTargetedDieItem = null;
+    let isRolling = false;
+
+    enforceStrictBoundedInput(diceManualTnInput, 1, 9999, 7, () => { 
+      updateDiceTargetNumber(); 
+    });
+    enforceStrictBoundedInput(diceQtyInput, 1, 50, 2, () => {});
+
+    /* =======================================================
+       LÓGICA DO ALVO & CRÍTICO
+       ======================================================= */
+    function isDiceManualMode() {
+      return diceManualTnToggle.checked;
+    }
+
+    function isDiceTagSkill() {
+      const checkedRadio = document.querySelector('input[name="dice-radio-tag"]:checked');
+      return checkedRadio ? checkedRadio.value === "sim" : false;
+    }
+
+    function getTargetNumber() {
+      if (isDiceManualMode()) {
+        const raw = diceManualTnInput.value;
+        return raw === "" ? 7 : parseSafeInt(raw, 1);
+      }
+      const attr = parseSafeInt(diceAttrInput.value, 0);
+      const skill = parseSafeInt(diceSkillInput.value, 0);
+      return attr + skill;
+    }
+
+    function updateDiceTargetNumber() {
+      const manual = isDiceManualMode();
+      const isTag = isDiceTagSkill();
+      const targetNumber = getTargetNumber();
+
+      if (manual) {
+        diceAutoTnBox.classList.add("hidden");
+        diceManualTnBox.classList.remove("hidden");
+      } else {
+        diceAutoTnBox.classList.remove("hidden");
+        diceManualTnBox.classList.add("hidden");
+      }
+
+      diceTargetNumberBadge.textContent = targetNumber;
+
+      if (targetNumber > 20) {
+        diceTargetWarning.classList.remove("hidden");
+      } else {
+        diceTargetWarning.classList.add("hidden");
+      }
+
+      if (manual) {
+        diceCritRangeContainer.style.opacity = "1";
+        diceBtnDecCrit.disabled = false;
+        diceBtnIncCrit.disabled = false;
+        diceCritExplanation.textContent = "D20 ≤ a este valor concede 2 sucessos. Não excede o Número-Alvo.";
+        
+        const curCrit = parseSafeInt(diceCritInput.value, 1);
+        if (curCrit > targetNumber) {
+          diceCritInput.value = Math.max(1, targetNumber);
+        }
+      } else {
+        diceCritRangeContainer.style.opacity = "0.6";
+        diceBtnDecCrit.disabled = true;
+        diceBtnIncCrit.disabled = true;
+
+        if (isTag) {
+          const skillVal = parseSafeInt(diceSkillInput.value, 0);
+          const autoCrit = Math.min(targetNumber, Math.max(1, skillVal));
+          diceCritInput.value = autoCrit;
+          diceCritExplanation.textContent = `Definido pela Tag Skill (Perícia: ${autoCrit}).`;
+        } else {
+          diceCritInput.value = 1;
+          diceCritExplanation.textContent = "Sem Tag Skill: Alcance de crítico fixo em 1.";
+        }
+      }
+    }
+
+    diceBtnDecAttr.addEventListener("click", () => {
+      diceAttrInput.value = Math.max(0, parseSafeInt(diceAttrInput.value, 0) - 1);
+      updateDiceTargetNumber();
+    });
+    diceBtnIncAttr.addEventListener("click", () => {
+      diceAttrInput.value = parseSafeInt(diceAttrInput.value, 0) + 1;
+      updateDiceTargetNumber();
+    });
+
+    diceBtnDecSkill.addEventListener("click", () => {
+      diceSkillInput.value = Math.max(0, parseSafeInt(diceSkillInput.value, 0) - 1);
+      updateDiceTargetNumber();
+    });
+    diceBtnIncSkill.addEventListener("click", () => {
+      diceSkillInput.value = parseSafeInt(diceSkillInput.value, 0) + 1;
+      updateDiceTargetNumber();
+    });
+
+    diceBtnDecDiff.addEventListener("click", () => {
+      diceDiffInput.value = Math.max(0, parseSafeInt(diceDiffInput.value, 0) - 1);
+    });
+    diceBtnIncDiff.addEventListener("click", () => {
+      diceDiffInput.value = parseSafeInt(diceDiffInput.value, 0) + 1;
+    });
+
+    diceBtnDecComp.addEventListener("click", () => {
+      const cur = parseSafeInt(diceComplicationInput.value, 1);
+      diceComplicationInput.value = Math.max(1, cur - 1);
+    });
+    diceBtnIncComp.addEventListener("click", () => {
+      const cur = parseSafeInt(diceComplicationInput.value, 1);
+      diceComplicationInput.value = Math.min(20, cur + 1);
+    });
+
+    diceBtnDecCrit.addEventListener("click", () => {
+      if (isDiceManualMode()) {
+        const cur = parseSafeInt(diceCritInput.value, 1);
+        diceCritInput.value = Math.max(1, cur - 1);
+      }
+    });
+    diceBtnIncCrit.addEventListener("click", () => {
+      if (isDiceManualMode()) {
+        const tn = getTargetNumber();
+        const cur = parseSafeInt(diceCritInput.value, 1);
+        const limit = Math.min(20, tn);
+        diceCritInput.value = Math.min(limit, cur + 1);
+      }
+    });
+
+    diceManualTnToggle.addEventListener("change", updateDiceTargetNumber);
+    diceRadioTag.forEach(radio => radio.addEventListener("change", updateDiceTargetNumber));
+
+    /* =======================================================
+       ESTILIZAÇÃO DOS DADOS & RESULTADOS
+       ======================================================= */
+    function styleDiceItem(item, critRange, targetNumber, complicationRange) {
+      const val = item.val;
+      let isCrit = false;
+      let isNormalSuccess = false;
+      let isComplication = false;
+
+      if (val <= critRange) {
+        isCrit = true;
+      } else if (val <= targetNumber) {
+        isNormalSuccess = true;
+      }
+
+      if (val >= complicationRange) {
+        isComplication = true;
+      }
+
+      if (isCrit && isComplication) {
+        item.box.style.backgroundColor = "#fde68a";
+        item.box.style.borderColor = "#b91c1c";
+        item.span.style.color = "#78350f";
+        item.tag.textContent = "★ Crítico + Comp";
+        item.tag.style.color = "#991b1b";
+      } else if (isNormalSuccess && isComplication) {
+        item.box.style.backgroundColor = "#e9d5ff";
+        item.box.style.borderColor = "#b91c1c";
+        item.span.style.color = "#3b0764";
+        item.tag.textContent = "Sucesso + Comp";
+        item.tag.style.color = "#991b1b";
+      } else if (isCrit) {
+        item.box.style.backgroundColor = "#fcd34d";
+        item.box.style.borderColor = "#92400e";
+        item.span.style.color = "#78350f";
+        item.tag.textContent = "★ Crítico";
+        item.tag.style.color = "#78350f";
+      } else if (isComplication) {
+        item.box.style.backgroundColor = "#fecaca";
+        item.box.style.borderColor = "#991b1b";
+        item.span.style.color = "#7f1d1d";
+        item.tag.textContent = "▲ Complicação";
+        item.tag.style.color = "#991b1b";
+      } else if (isNormalSuccess) {
+        item.box.style.backgroundColor = "#d8b4fe";
+        item.box.style.borderColor = "#581c87";
+        item.span.style.color = "#3b0764";
+        item.tag.textContent = "✓ Sucesso";
+        item.tag.style.color = "#3b0764";
+      } else {
+        item.box.style.backgroundColor = "#d5aee2";
+        item.box.style.borderColor = "#581c87";
+        item.box.style.opacity = "0.85";
+        item.span.style.color = "#581c87";
+        item.tag.textContent = "Falha";
+        item.tag.style.color = "#581c87";
+      }
+    }
+
+    function recalculatePoolResults() {
+      const targetNumber = getTargetNumber();
+      let critRange = parseSafeInt(diceCritInput.value, 1);
+      if (critRange > targetNumber) critRange = targetNumber;
+      const complicationRange = Math.min(20, Math.max(1, parseSafeInt(diceComplicationInput.value, 1)));
+      const difficulty = parseSafeInt(diceDiffInput.value, 1);
+
+      let totalSuccesses = 0;
+      let totalCrits = 0;
+      let totalComplications = 0;
+
+      currentPool.forEach(item => {
+        if (item.val <= critRange) {
+          totalSuccesses += 2;
+          totalCrits++;
+        } else if (item.val <= targetNumber) {
+          totalSuccesses += 1;
+        }
+
+        if (item.val >= complicationRange) {
+          totalComplications++;
+        }
+      });
+
+      const passed = totalSuccesses >= difficulty;
+      const hasComplications = totalComplications > 0;
+      const complicationText = hasComplications 
+        ? `, com ${totalComplications} ${totalComplications === 1 ? 'complicação' : 'complicações'}` 
+        : "";
+
+      diceVerdictBanner.className = "";
+
+      if (passed && !hasComplications) {
+        diceVerdictText.textContent = `Passou`;
+        diceVerdictBanner.classList.add("verdict-green");
+        diceRollStatusTag.textContent = "Sucesso limpo!";
+        diceRollStatusTag.style.color = "#34d399";
+      } else if (passed && hasComplications) {
+        diceVerdictText.textContent = `Passou${complicationText}`;
+        diceVerdictBanner.classList.add("verdict-yellow");
+        diceRollStatusTag.textContent = "Sucesso com complicação!";
+        diceRollStatusTag.style.color = "#fbbf24";
+      } else if (!passed && !hasComplications) {
+        diceVerdictText.textContent = `Não passou`;
+        diceVerdictBanner.classList.add("verdict-red");
+        diceRollStatusTag.textContent = "Falha!";
+        diceRollStatusTag.style.color = "#f87171";
+      } else {
+        diceVerdictText.textContent = `Não passou${complicationText}`;
+        diceVerdictBanner.classList.add("verdict-burgundy");
+        diceRollStatusTag.textContent = "Falha com complicação!";
+        diceRollStatusTag.style.color = "#fda4af";
+      }
+
+      if (forcedFacesCount > 0) {
+        diceForcedWarningBox.classList.remove("hidden");
+        diceForcedWarningText.textContent = `${forcedFacesCount} face(s) forçada(s) manualmente no teste`;
+      } else {
+        diceForcedWarningBox.classList.add("hidden");
+      }
+
+      const margin = totalSuccesses - difficulty;
+      if (margin > 0) {
+        diceResMarginLabel.textContent = "Sucessos Extras";
+        diceResMarginVal.textContent = `+${margin}`;
+        diceResMarginVal.style.color = "#047857";
+        diceVerdictSubtext.textContent = `Obteve ${totalSuccesses} sucessos contra Dificuldade ${difficulty} (+${margin} extra).`;
+      } else if (margin < 0) {
+        diceResMarginLabel.textContent = "Sucessos Faltantes";
+        diceResMarginVal.textContent = `${Math.abs(margin)}`;
+        diceResMarginVal.style.color = "#b91c1c";
+        diceVerdictSubtext.textContent = `Obteve ${totalSuccesses} de ${difficulty} sucessos necessários (faltaram ${Math.abs(margin)}).`;
+      } else {
+        diceResMarginLabel.textContent = "Balanço Exato";
+        diceResMarginVal.textContent = "0";
+        diceResMarginVal.style.color = "#3b0764";
+        diceVerdictSubtext.textContent = `Atingiu exatamente a dificuldade necessária (${difficulty}).`;
+      }
+
+      diceResSuccesses.textContent = totalSuccesses;
+      diceResDiff.textContent = difficulty;
+      diceResCrits.textContent = totalCrits;
+      diceResComplications.textContent = totalComplications;
+      diceResRerolls.textContent = rerollsUsedCount;
+      diceResForced.textContent = forcedFacesCount;
+    }
+
+    function rerollSingleDie(item) {
+      if (isRolling || item.hasRerolled) return;
+
+      item.btnReroll.disabled = true;
+      item.btnReroll.textContent = "...";
+      item.box.classList.add("dice-rolling");
+
+      let ticks = 8;
+      const tInterval = setInterval(() => {
+        item.span.textContent = Math.floor(Math.random() * 20) + 1;
+        ticks--;
+
+        if (ticks <= 0) {
+          clearInterval(tInterval);
+          item.box.classList.remove("dice-rolling");
+          item.val = Math.floor(Math.random() * 20) + 1;
+          item.span.textContent = item.val;
+          item.hasRerolled = true;
+          item.btnReroll.textContent = "Usado";
+          item.btnReroll.disabled = true;
+
+          rerollsUsedCount++;
+
+          const targetNumber = getTargetNumber();
+          let critRange = parseSafeInt(diceCritInput.value, 1);
+          if (critRange > targetNumber) critRange = targetNumber;
+          const complicationRange = Math.min(20, Math.max(1, parseSafeInt(diceComplicationInput.value, 1)));
+
+          styleDiceItem(item, critRange, targetNumber, complicationRange);
+          recalculatePoolResults();
+        }
+      }, 60);
+    }
+
+    function openForceFaceModal(item) {
+      if (isRolling || item.hasForced) return;
+      currentlyTargetedDieItem = item;
+      buildForceModalGrid(item.val);
+      modalForceFace.classList.remove("hidden");
+    }
+
+    function closeForceFaceModal() {
+      modalForceFace.classList.add("hidden");
+      currentlyTargetedDieItem = null;
+    }
+
+    btnCloseForceModal.addEventListener("click", closeForceFaceModal);
+    modalForceFace.addEventListener("click", (e) => {
+      if (e.target === modalForceFace) closeForceFaceModal();
+    });
+
+    function buildForceModalGrid(currentVal) {
+      modalDiceGrid.innerHTML = "";
+      for (let i = 1; i <= 20; i++) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "btn-face-choice";
+        btn.textContent = i;
+
+        if (i === currentVal) {
+          btn.disabled = true;
+        } else {
+          const faceVal = i;
+          btn.addEventListener("click", () => {
+            if (currentlyTargetedDieItem && !currentlyTargetedDieItem.hasForced) {
+              currentlyTargetedDieItem.val = faceVal;
+              currentlyTargetedDieItem.span.textContent = faceVal;
+              currentlyTargetedDieItem.hasForced = true;
+              currentlyTargetedDieItem.btnForce.textContent = "Forçado";
+              currentlyTargetedDieItem.btnForce.disabled = true;
+
+              forcedFacesCount++;
+
+              const targetNumber = getTargetNumber();
+              let critRange = parseSafeInt(diceCritInput.value, 1);
+              if (critRange > targetNumber) critRange = targetNumber;
+              const complicationRange = Math.min(20, Math.max(1, parseSafeInt(diceComplicationInput.value, 1)));
+
+              styleDiceItem(currentlyTargetedDieItem, critRange, targetNumber, complicationRange);
+              recalculatePoolResults();
+            }
+            closeForceFaceModal();
+          });
+        }
+        modalDiceGrid.appendChild(btn);
+      }
+    }
+
+    diceBtnSort.addEventListener("click", () => {
+      if (isRolling || currentPool.length === 0) return;
+      currentPool.sort((a, b) => a.val - b.val);
+      dicePoolDisplay.innerHTML = "";
+      currentPool.forEach(item => dicePoolDisplay.appendChild(item.wrapper));
+    });
+
+    diceBtnRoll.addEventListener("click", () => {
+      if (isRolling) return;
+
+      const rawDice = diceQtyInput.value;
+      const numDice = rawDice === "" ? 2 : Math.min(50, Math.max(1, parseSafeInt(rawDice, 2)));
+      const targetNumber = getTargetNumber();
+      let critRange = parseSafeInt(diceCritInput.value, 1);
+      if (critRange > targetNumber) critRange = targetNumber;
+
+      const complicationRange = Math.min(20, Math.max(1, parseSafeInt(diceComplicationInput.value, 1)));
+
+      isRolling = true;
+      diceBtnRoll.disabled = true;
+      diceBtnSort.disabled = true;
+      diceBtnRoll.style.opacity = "0.75";
+      diceBtnRoll.style.cursor = "not-allowed";
+      diceRollStatusTag.textContent = `Rolando ${numDice} d20s...`;
+      diceRollStatusTag.style.color = "#fde68a";
+
+      dicePoolDisplay.innerHTML = "";
+      currentPool = [];
+      rerollsUsedCount = 0;
+      forcedFacesCount = 0;
+      diceForcedWarningBox.classList.add("hidden");
+
+      for (let i = 0; i < numDice; i++) {
+        const dWrapper = document.createElement("div");
+        dWrapper.style.position = "relative";
+        dWrapper.style.display = "flex";
+        dWrapper.style.flexDirection = "column";
+        dWrapper.style.alignItems = "center";
+        dWrapper.style.filter = "drop-shadow(0 2px 3px rgba(0,0,0,0.15))";
+        dWrapper.style.width = "76px";
+
+        const dBox = document.createElement("div");
+        dBox.className = "d20-shape d20-box dice-rolling";
+        dBox.style.backgroundColor = "#c492d6";
+        dBox.style.borderColor = "#3b0764";
+        
+        const numSpan = document.createElement("span");
+        numSpan.className = "d20-num";
+        numSpan.style.color = "#3b0764";
+        numSpan.textContent = Math.floor(Math.random() * 20) + 1;
+        
+        const tagSpan = document.createElement("span");
+        tagSpan.className = "d20-tag";
+        tagSpan.style.color = "#3b0764";
+        tagSpan.textContent = "d20";
+
+        const btnReroll = document.createElement("button");
+        btnReroll.type = "button";
+        btnReroll.className = "btn-single-reroll";
+        btnReroll.textContent = "Reroll";
+        btnReroll.disabled = true;
+
+        const btnForce = document.createElement("button");
+        btnForce.type = "button";
+        btnForce.className = "btn-single-force";
+        btnForce.textContent = "Forçar Face";
+        btnForce.disabled = true;
+
+        const dieObj = {
+          val: 0,
+          hasRerolled: false,
+          hasForced: false,
+          wrapper: dWrapper,
+          box: dBox,
+          span: numSpan,
+          tag: tagSpan,
+          btnReroll: btnReroll,
+          btnForce: btnForce
+        };
+
+        btnReroll.addEventListener("click", () => rerollSingleDie(dieObj));
+        btnForce.addEventListener("click", () => openForceFaceModal(dieObj));
+
+        dBox.appendChild(numSpan);
+        dBox.appendChild(tagSpan);
+        dWrapper.appendChild(dBox);
+        dWrapper.appendChild(btnReroll);
+        dWrapper.appendChild(btnForce);
+        dicePoolDisplay.appendChild(dWrapper);
+
+        currentPool.push(dieObj);
+      }
+
+      let rollsRemaining = 12;
+      const interval = setInterval(() => {
+        currentPool.forEach(d => {
+          d.span.textContent = Math.floor(Math.random() * 20) + 1;
+        });
+        rollsRemaining--;
+
+        if (rollsRemaining <= 0) {
+          clearInterval(interval);
+
+          currentPool.forEach(item => {
+            item.box.classList.remove("dice-rolling");
+            item.val = Math.floor(Math.random() * 20) + 1;
+            item.span.textContent = item.val;
+            item.btnReroll.disabled = false;
+            item.btnForce.disabled = false;
+
+            styleDiceItem(item, critRange, targetNumber, complicationRange);
+          });
+
+          recalculatePoolResults();
+
+          isRolling = false;
+          diceBtnRoll.disabled = false;
+          diceBtnSort.disabled = false;
+          diceBtnRoll.style.opacity = "1";
+          diceBtnRoll.style.cursor = "pointer";
+        }
+      }, 70);
+    });
+
+    // Inicialização do Número-Alvo
+    updateDiceTargetNumber();
+  </script>
+</body>
+</html>
