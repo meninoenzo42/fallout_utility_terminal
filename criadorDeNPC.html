@@ -499,7 +499,7 @@
               <span style="font-size: 0.7rem; color: var(--vault-dim);">Separe por vírgulas ou selecione atalhos</span>
             </div>
             <input type="text" id="input-npc-keywords" value="Mutated, Insect" class="input-styled" placeholder="Ex: Human, Raider, Brotherhood, Mutated...">
-            <div style="display: flex; flex-wrap: wrap; gap: 6px; padding-top: 4px;">
+            <div style="flex-wrap: wrap; gap: 6px; padding-top: 4px; display: flex;">
               <button type="button" class="btn-keyword-tag btn-action-small" data-kw="Human">Human</button>
               <button type="button" class="btn-keyword-tag btn-action-small" data-kw="Raider">Raider</button>
               <button type="button" class="btn-keyword-tag btn-action-small" data-kw="Brotherhood">Brotherhood</button>
@@ -800,60 +800,43 @@
 
   <script>
     /* =======================================================
-       1. EXTENSÃO DA CLASSE ARMA BASEADA EM ITEMCLASS
+       1. FÁBRICA DE ITENS DE ARMA (USA A CLASSE ITEM DIRETAMENTE)
        ======================================================= */
-    class Arma extends Item {
-      constructor({
-        nome = "Arma Desconhecida",
-        peso = 0.0,
-        raridade = 0,
-        valor = 0,
-        tipoAtaque = "Melee / Melee Weapons",
-        dice = 2,
-        tiposDano = [TipoDeDano.FISICO],
-        qualidades = ""
-      } = {}) {
-        super(nome, peso, raridade, valor);
-        this._tipoAtaque = tipoAtaque;
-        this._dice = Math.max(1, parseInt(dice, 10) || 1);
-        this._tiposDano = Array.isArray(tiposDano) && tiposDano.length > 0 
-          ? [...tiposDano] 
-          : [TipoDeDano.FISICO];
-        this._qualidades = qualidades;
-      }
+    function criarItemArma({
+      nome = "Novo Ataque",
+      peso = 0.0,
+      raridade = 0,
+      valor = 0,
+      tipoAtaque = "Melee / Melee Weapons",
+      dice = 2,
+      tiposDano = [(typeof TipoDeDano !== "undefined" && TipoDeDano.FISICO) ? TipoDeDano.FISICO : "Físico"],
+      qualidades = ""
+    } = {}) {
+      const armaItem = (typeof Item !== "undefined")
+        ? new Item(nome, peso, raridade, valor)
+        : { _nome: nome, _peso: peso, _raridade: raridade, _valor: valor, get nome() { return this._nome; }, set nome(v) { this._nome = v; } };
 
-      get tipoAtaque() { return this._tipoAtaque; }
-      set tipoAtaque(v) { this._tipoAtaque = v; }
+      armaItem.tipoAtaque = tipoAtaque;
+      armaItem.dice = Math.max(1, parseInt(dice, 10) || 1);
+      armaItem.tiposDano = Array.isArray(tiposDano) && tiposDano.length > 0 
+        ? [...tiposDano] 
+        : ["Físico"];
+      armaItem.qualidades = qualidades;
 
-      get dice() { return this._dice; }
-      set dice(v) { this._dice = Math.max(1, parseInt(v, 10) || 1); }
-
-      get tiposDano() { return this._tiposDano; }
-      set tiposDano(arr) {
-        if (Array.isArray(arr) && arr.length > 0) {
-          this._tiposDano = [...arr];
-        }
-      }
-
-      get qualidades() { return this._qualidades; }
-      set qualidades(v) { this._qualidades = v; }
-
-      obterDescricao() {
-        return `${super.obterDescricao()} | Tipo: ${this.tipoAtaque} | DC: ${this.dice} | Dano: ${this.tiposDano.join(', ')}`;
-      }
-
-      toJSON() {
+      armaItem.toJSON = function() {
         return {
           nome: this.nome,
-          peso: this.peso,
-          raridade: this.raridade,
-          valor: this.valor,
+          peso: this.peso || 0.0,
+          raridade: this.raridade || 0,
+          valor: this.valor || 0,
           tipoAtaque: this.tipoAtaque,
           dice: this.dice,
           tiposDano: this.tiposDano,
           qualidades: this.qualidades
         };
-      }
+      };
+
+      return armaItem;
     }
 
     /* =======================================================
@@ -878,20 +861,20 @@
     ];
 
     const DAMAGE_TYPE_CHECKBOXES = [
-      { key: "fisico", label: TipoDeDano.FISICO },
-      { key: "energia", label: TipoDeDano.ENERGIA },
-      { key: "radiacao", label: TipoDeDano.RADIACAO },
-      { key: "veneno", label: TipoDeDano.VENENO },
-      { key: "outro", label: TipoDeDano.OUTRO }
+      { key: "fisico", label: (typeof TipoDeDano !== "undefined" && TipoDeDano.FISICO) ? TipoDeDano.FISICO : "Físico" },
+      { key: "energia", label: (typeof TipoDeDano !== "undefined" && TipoDeDano.ENERGIA) ? TipoDeDano.ENERGIA : "Energia" },
+      { key: "radiacao", label: (typeof TipoDeDano !== "undefined" && TipoDeDano.RADIACAO) ? TipoDeDano.RADIACAO : "Radiação" },
+      { key: "veneno", label: (typeof TipoDeDano !== "undefined" && TipoDeDano.VENENO) ? TipoDeDano.VENENO : "Veneno" },
+      { key: "outro", label: (typeof TipoDeDano !== "undefined" && TipoDeDano.OUTRO) ? TipoDeDano.OUTRO : "Outro" }
     ];
 
     const state = {
-      nature: "creature", // creature | character
+      nature: "creature",
       name: "Radroach Mutante",
       level: 1,
-      type: "normal", // normal, mighty, legendary para criaturas | normal, notable, major para personagens
+      type: "normal",
       keywords: "Mutated, Insect",
-      size: "normal", // normal, big, little
+      size: "normal",
       dr: { physical: 1, energy: 0, radiation: 0 },
       creature: {
         body: 5,
@@ -905,14 +888,11 @@
         skills: {}
       },
       attacks: [
-        new Arma({
+        criarItemArma({
           nome: "Mordida",
-          peso: 0.0,
-          raridade: 0,
-          valor: 0,
           tipoAtaque: "Melee / Melee Weapons",
           dice: 2,
-          tiposDano: [TipoDeDano.FISICO],
+          tiposDano: [(typeof TipoDeDano !== "undefined" && TipoDeDano.FISICO) ? TipoDeDano.FISICO : "Físico"],
           qualidades: "Vicious"
         })
       ],
@@ -920,7 +900,6 @@
       inventory: "Butchery: 1x Carne de Radroach"
     };
 
-    // Inicializa perícias de personagem
     CHARACTER_SKILLS.forEach(sk => {
       state.character.skills[sk] = { rank: 0, isTag: false };
     });
@@ -1027,7 +1006,9 @@
       const level = Math.max(1, parseInt(state.level, 10) || 1);
       const isCreature = state.nature === "creature";
 
-      const xp = window.SpecialDerived.calcularXpNpc(level, state.nature, state.type);
+      const xp = (window.SpecialDerived && window.SpecialDerived.calcularXpNpc)
+        ? window.SpecialDerived.calcularXpNpc(level, state.nature, state.type)
+        : (10 + (7 * (level - 1)));
       badgeXp.textContent = `XP: ${xp}`;
 
       if (isCreature) {
@@ -1035,18 +1016,42 @@
         const mind = parseInt(state.creature.mind, 10) || 4;
         const totalAttr = body + mind;
 
-        const derivadasCriatura = window.SpecialDerived.calcularDerivadasCriatura({
-          body,
-          mind,
-          level,
-          type: state.type,
-          size: state.size,
-          skills: {
-            melee: parseInt(state.creature.melee, 10) || 0,
-            guns: parseInt(state.creature.guns, 10) || 0,
-            other: parseInt(state.creature.other, 10) || 0
-          }
-        });
+        let derivadasCriatura;
+        if (window.SpecialDerived && window.SpecialDerived.calcularDerivadasCriatura) {
+          derivadasCriatura = window.SpecialDerived.calcularDerivadasCriatura({
+            body,
+            mind,
+            level,
+            type: state.type,
+            size: state.size,
+            skills: {
+              melee: parseInt(state.creature.melee, 10) || 0,
+              guns: parseInt(state.creature.guns, 10) || 0,
+              other: parseInt(state.creature.other, 10) || 0
+            }
+          });
+        } else {
+          let budget = 8 + Math.ceil(level / 2);
+          if (state.type === "mighty") budget += 2;
+          else if (state.type === "legendary") budget += 4;
+          let hp = body + level;
+          if (state.size === "big") hp += 4;
+          else if (state.size === "little") hp = Math.max(1, hp - 2);
+          if (state.type === "mighty") hp *= 2;
+          else if (state.type === "legendary") hp *= 3;
+          derivadasCriatura = {
+            orcamentoAtributos: budget,
+            hp,
+            iniciativa: body + mind,
+            defesa: state.size === "little" ? 2 : 1,
+            bonusMelee: { label: "+0 DC" },
+            tns: {
+              melee: body + (parseInt(state.creature.melee, 10) || 0),
+              guns: body + (parseInt(state.creature.guns, 10) || 0),
+              other: mind + (parseInt(state.creature.other, 10) || 0)
+            }
+          };
+        }
 
         const targetBudget = derivadasCriatura.orcamentoAtributos;
         badgeAttrBudget.textContent = `Total: ${totalAttr} / ${targetBudget}`;
@@ -1081,23 +1086,35 @@
         if (state.type === "notable") multLckHp = 1;
         else if (state.type === "major") multLckHp = 2;
 
-        const hpResult = window.SpecialDerived.calcularHpBase({
-          endurance: sp.E,
-          luck: sp.L,
-          level: level,
-          multMode: multLckHp > 0 ? "lck" : "none",
-          multEnd: 1,
-          multLck: multLckHp
-        });
-        calcDispHp.textContent = hpResult.totalHp;
+        if (window.SpecialDerived && window.SpecialDerived.calcularHpBase) {
+          const hpResult = window.SpecialDerived.calcularHpBase({
+            endurance: sp.E,
+            luck: sp.L,
+            level: level,
+            multMode: multLckHp > 0 ? "lck" : "none",
+            multEnd: 1,
+            multLck: multLckHp
+          });
+          calcDispHp.textContent = hpResult.totalHp;
+        } else {
+          calcDispHp.textContent = sp.E + level + (multLckHp * sp.L);
+        }
 
         let bonusInit = 0;
         if (state.type === "notable") bonusInit = 2;
         else if (state.type === "major") bonusInit = 4;
-        calcDispInitiative.textContent = window.SpecialDerived.calcularIniciativa(sp.P, sp.A, bonusInit);
 
-        calcDispDefense.textContent = window.SpecialDerived.calcularDefesa(sp.A);
-        calcDispMelee.textContent = window.SpecialDerived.calcularBonusMelee(sp.S).label;
+        calcDispInitiative.textContent = (window.SpecialDerived && window.SpecialDerived.calcularIniciativa)
+          ? window.SpecialDerived.calcularIniciativa(sp.P, sp.A, bonusInit)
+          : sp.P + sp.A + bonusInit;
+
+        calcDispDefense.textContent = (window.SpecialDerived && window.SpecialDerived.calcularDefesa)
+          ? window.SpecialDerived.calcularDefesa(sp.A)
+          : (sp.A >= 9 ? 2 : 1);
+
+        calcDispMelee.textContent = (window.SpecialDerived && window.SpecialDerived.calcularBonusMelee)
+          ? window.SpecialDerived.calcularBonusMelee(sp.S).label
+          : "+0 DC";
 
         boxCharLuckPoints.classList.remove("hidden");
         let luckPts = 0;
@@ -1229,7 +1246,9 @@
         const dmgContainer = document.createElement("div");
         dmgContainer.className = "damage-types-container";
 
-        const isOutroActive = arma.tiposDano.includes(TipoDeDano.OUTRO);
+        const outroLabel = (typeof TipoDeDano !== "undefined" && TipoDeDano.OUTRO) ? TipoDeDano.OUTRO : "Outro";
+        const fisicoLabel = (typeof TipoDeDano !== "undefined" && TipoDeDano.FISICO) ? TipoDeDano.FISICO : "Físico";
+        const isOutroActive = arma.tiposDano.includes(outroLabel);
 
         DAMAGE_TYPE_CHECKBOXES.forEach(dt => {
           const lbl = document.createElement("label");
@@ -1240,32 +1259,27 @@
           chk.value = dt.label;
           chk.checked = arma.tiposDano.includes(dt.label);
 
-          if (dt.label !== TipoDeDano.OUTRO && isOutroActive) {
+          if (dt.label !== outroLabel && isOutroActive) {
             chk.disabled = true;
           }
 
           chk.addEventListener("change", (e) => {
             const targetVal = e.target.value;
 
-            if (targetVal === TipoDeDano.OUTRO) {
+            if (targetVal === outroLabel) {
               if (e.target.checked) {
-                // "Outro" marcado: torna-se a única opção ativa e bloqueia as demais
-                arma.tiposDano = [TipoDeDano.OUTRO];
+                arma.tiposDano = [outroLabel];
               } else {
-                // Impede deixar tudo desmarcado: volta para Físico como fallback padrão
-                arma.tiposDano = [TipoDeDano.FISICO];
+                arma.tiposDano = [fisicoLabel];
               }
             } else {
               if (e.target.checked) {
-                // Adiciona o novo tipo e remove "Outro" se estivesse ativo
-                const currentSet = new Set(arma.tiposDano.filter(v => v !== TipoDeDano.OUTRO));
+                const currentSet = new Set(arma.tiposDano.filter(v => v !== outroLabel));
                 currentSet.add(targetVal);
                 arma.tiposDano = Array.from(currentSet);
               } else {
-                // Tentativa de desmarcar: verificar se é o último ativo
                 const remaining = arma.tiposDano.filter(v => v !== targetVal);
                 if (remaining.length === 0) {
-                  // Reverte marcação: é obrigatório ter pelo menos 1 ativa
                   e.target.checked = true;
                   return;
                 }
@@ -1416,13 +1430,13 @@
     textAbilities.addEventListener("input", (e) => state.specialAbilities = e.target.value);
     textInventory.addEventListener("input", (e) => state.inventory = e.target.value);
 
-    // Adicionar Ataque instanciando Arma (ItemClass)
+    // Adicionar Ataque instanciando Item diretamente via fábrica
     btnAddAttack.addEventListener("click", () => {
-      state.attacks.push(new Arma({
+      state.attacks.push(criarItemArma({
         nome: "Novo Ataque",
         tipoAtaque: "Melee / Melee Weapons",
         dice: 2,
-        tiposDano: [TipoDeDano.FISICO],
+        tiposDano: [(typeof TipoDeDano !== "undefined" && TipoDeDano.FISICO) ? TipoDeDano.FISICO : "Físico"],
         qualidades: ""
       }));
       renderAttacksTable();
@@ -1432,7 +1446,7 @@
     btnExportJson.addEventListener("click", () => {
       const exportData = {
         ...state,
-        attacks: state.attacks.map(atk => atk.toJSON())
+        attacks: state.attacks.map(atk => atk.toJSON ? atk.toJSON() : atk)
       };
       const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
@@ -1456,16 +1470,16 @@
           const parsed = JSON.parse(evt.target.result);
           Object.assign(state, parsed);
 
-          // Re-instancia ataques como instâncias da classe Arma
+          // Re-instancia ataques como instâncias da classe Item com propriedades anexadas
           if (Array.isArray(parsed.attacks)) {
-            state.attacks = parsed.attacks.map(atkData => new Arma({
+            state.attacks = parsed.attacks.map(atkData => criarItemArma({
               nome: atkData.nome || atkData.name || "Ataque",
               peso: atkData.peso || 0.0,
               raridade: atkData.raridade || 0,
               valor: atkData.valor || 0,
               tipoAtaque: atkData.tipoAtaque || atkData.type || "Melee / Melee Weapons",
               dice: atkData.dice || 2,
-              tiposDano: Array.isArray(atkData.tiposDano) ? atkData.tiposDano : [atkData.damageType || TipoDeDano.FISICO],
+              tiposDano: Array.isArray(atkData.tiposDano) ? atkData.tiposDano : [atkData.damageType || "Físico"],
               qualidades: atkData.qualidades || atkData.qualities || ""
             }));
           }
