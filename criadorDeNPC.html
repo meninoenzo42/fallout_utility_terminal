@@ -1739,7 +1739,7 @@
   <table>
     <thead><tr><th>Arma</th><th>Tipo</th><th>DC</th><th>Tipo Dano</th><th>Efeitos</th><th>Qualidades</th></tr></thead>
     <tbody>
-      ${(npcData.attacks || []).map(a => `<tr><td>${a.nome}</td><td>${a.tipoAtaque}</td><td>${a.dice}</td><td>${(a.tiposDano || []).join(', ')}</td><td>${a.effects \vert{}\vert{} '-'}</td><td>${a.qualidades || '-'}</td></tr>`).join('')}
+      ${(npcData.attacks || []).map(a => `<tr><td>${a.nome}</td><td>${a.tipoAtaque}</td><td>${a.dice}</td><td>${(a.tiposDano || []).join(', ')}</td><td>${a.effects || '-'}</td><td>${a.qualidades || '-'}</td></tr>`).join('')}
     </tbody>
   </table>
 
