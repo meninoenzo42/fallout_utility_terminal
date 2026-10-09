@@ -254,30 +254,46 @@
       color: #ffffff;
     }
 
-    /* Botões */
-    .btn-action {
-      padding: 8px 14px;
+    /* Botões estilo Gerenciador de Peso */
+    .btn-pipboy-action {
+      padding: 6px 14px;
       font-family: var(--font-display);
-      font-size: 0.78rem;
+      font-size: 0.75rem;
       text-transform: uppercase;
       letter-spacing: 0.05em;
       font-weight: 800;
-      color: #ffffff;
-      background-color: var(--vault-header);
-      border: 2px solid var(--vault-border);
+      color: #000000;
+      background-color: #ffffff;
+      border: 2px solid #000000;
       border-radius: 6px;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      transition: background 0.15s, transform 0.05s;
+    }
+    .btn-pipboy-action:hover {
+      background-color: #dcfce7;
+    }
+    .btn-pipboy-action:active {
+      transform: scale(0.96);
+    }
+
+    .btn-action-small {
+      padding: 4px 8px;
+      font-family: var(--font-display);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: #ffffff;
+      background-color: var(--vault-header);
+      border: 1.5px solid var(--vault-border);
+      border-radius: 4px;
+      cursor: pointer;
       transition: all 0.15s;
     }
-    .btn-action:hover {
+    .btn-action-small:hover {
       background-color: var(--vault-green);
-      border-color: var(--vault-green);
-    }
-    .btn-action:active {
-      transform: scale(0.97);
     }
 
     .btn-remove {
@@ -375,6 +391,33 @@
       border-radius: 4px;
     }
 
+    .damage-types-container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 4px 8px;
+      font-size: 0.72rem;
+      font-family: var(--font-sans);
+      user-select: none;
+    }
+
+    .damage-checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      color: var(--vault-text);
+      font-weight: 600;
+    }
+
+    .damage-checkbox-label input[type="checkbox"] {
+      cursor: pointer;
+    }
+
+    .damage-checkbox-label input[type="checkbox"]:disabled + span {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
     footer {
       margin-top: 32px;
       text-align: center;
@@ -398,13 +441,6 @@
             </svg>
           </span>
           <h1 class="header-title">Pip-Boy &bull; Criador de NPC</h1>
-        </div>
-        <div style="display: flex; gap: 8px;">
-          <button id="btn-export-npc-json" type="button" class="btn-action">Exportar JSON</button>
-          <label class="btn-action" style="cursor: pointer; margin-bottom: 0;">
-            Importar JSON
-            <input type="file" id="input-import-npc-json" accept=".json" style="display: none;">
-          </label>
         </div>
       </div>
     </header>
@@ -464,16 +500,16 @@
             </div>
             <input type="text" id="input-npc-keywords" value="Mutated, Insect" class="input-styled" placeholder="Ex: Human, Raider, Brotherhood, Mutated...">
             <div style="display: flex; flex-wrap: wrap; gap: 6px; padding-top: 4px;">
-              <button type="button" class="btn-keyword-tag btn-action" style="padding: 2px 6px; font-size: 0.65rem;" data-kw="Human">Human</button>
-              <button type="button" class="btn-keyword-tag btn-action" style="padding: 2px 6px; font-size: 0.65rem;" data-kw="Raider">Raider</button>
-              <button type="button" class="btn-keyword-tag btn-action" style="padding: 2px 6px; font-size: 0.65rem;" data-kw="Brotherhood">Brotherhood</button>
-              <button type="button" class="btn-keyword-tag btn-action" style="padding: 2px 6px; font-size: 0.65rem;" data-kw="Ghoul">Ghoul</button>
-              <button type="button" class="btn-keyword-tag btn-action" style="padding: 2px 6px; font-size: 0.65rem;" data-kw="Super Mutant">Super Mutant</button>
-              <button type="button" class="btn-keyword-tag btn-action" style="padding: 2px 6px; font-size: 0.65rem;" data-kw="Robot">Robot</button>
-              <button type="button" class="btn-keyword-tag btn-action" style="padding: 2px 6px; font-size: 0.65rem;" data-kw="Mutated">Mutated</button>
-              <button type="button" class="btn-keyword-tag btn-action" style="padding: 2px 6px; font-size: 0.65rem;" data-kw="Mammal">Mammal</button>
-              <button type="button" class="btn-keyword-tag btn-action" style="padding: 2px 6px; font-size: 0.65rem;" data-kw="Insect">Insect</button>
-              <button type="button" class="btn-keyword-tag btn-action" style="padding: 2px 6px; font-size: 0.65rem;" data-kw="Lizard">Lizard</button>
+              <button type="button" class="btn-keyword-tag btn-action-small" data-kw="Human">Human</button>
+              <button type="button" class="btn-keyword-tag btn-action-small" data-kw="Raider">Raider</button>
+              <button type="button" class="btn-keyword-tag btn-action-small" data-kw="Brotherhood">Brotherhood</button>
+              <button type="button" class="btn-keyword-tag btn-action-small" data-kw="Ghoul">Ghoul</button>
+              <button type="button" class="btn-keyword-tag btn-action-small" data-kw="Super Mutant">Super Mutant</button>
+              <button type="button" class="btn-keyword-tag btn-action-small" data-kw="Robot">Robot</button>
+              <button type="button" class="btn-keyword-tag btn-action-small" data-kw="Mutated">Mutated</button>
+              <button type="button" class="btn-keyword-tag btn-action-small" data-kw="Mammal">Mammal</button>
+              <button type="button" class="btn-keyword-tag btn-action-small" data-kw="Insect">Insect</button>
+              <button type="button" class="btn-keyword-tag btn-action-small" data-kw="Lizard">Lizard</button>
             </div>
           </div>
 
@@ -682,22 +718,22 @@
         </div>
       </section>
 
-      <!-- ==================== CARD 5: ATAQUES ==================== -->
+      <!-- ==================== CARD 5: ATAQUES & ARMAS ==================== -->
       <section class="card">
         <div class="card-header">
-          <span>Ataques &amp; Armamentos</span>
-          <button id="btn-add-attack" type="button" class="btn-action" style="padding: 2px 8px; font-size: 0.7rem;">+ Adicionar Ataque</button>
+          <span>Ataques &amp; Armamentos (ItemClass / Arma)</span>
+          <button id="btn-add-attack" type="button" class="btn-action-small">+ Adicionar Ataque</button>
         </div>
         <div class="card-body">
           <div class="custom-scrollbar" style="overflow-x: auto;">
             <table class="compact-table">
               <thead>
                 <tr>
-                  <th style="width: 25%;">Nome</th>
-                  <th style="width: 15%; text-align: center;">Tipo</th>
-                  <th style="width: 15%; text-align: center;">Dano (DC)</th>
-                  <th style="width: 15%; text-align: center;">Tipo Dano</th>
-                  <th style="width: 20%;">Efeitos / Qualidades</th>
+                  <th style="width: 20%;">Nome</th>
+                  <th style="width: 17%; text-align: center;">Tipo de ataque</th>
+                  <th style="width: 10%; text-align: center;">Dano (DC)</th>
+                  <th style="width: 25%; text-align: center;">Tipo de dano</th>
+                  <th style="width: 18%;">Efeitos / Qualidades</th>
                   <th style="width: 10%; text-align: center;">Ações</th>
                 </tr>
               </thead>
@@ -733,6 +769,23 @@
         </div>
       </section>
 
+      <!-- ==================== BARRA INFERIOR DE IMPORTAR/EXPORTAR JSON ==================== -->
+      <div style="display: flex; gap: 10px; align-items: center; justify-content: flex-start; padding: 12px 16px; background-color: var(--vault-card); border: 2px solid var(--vault-border); border-radius: 8px; flex-wrap: wrap;">
+        <button id="btn-export-npc-json" type="button" class="btn-pipboy-action">
+          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+          </svg>
+          Exportar JSON
+        </button>
+        <label class="btn-pipboy-action" style="cursor: pointer; margin-bottom: 0;">
+          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l4-4m0 0l4 4m-4-4v12"></path>
+          </svg>
+          Importar JSON
+          <input type="file" id="input-import-npc-json" accept=".json" style="display: none;">
+        </label>
+      </div>
+
     </main>
 
     <footer>
@@ -740,10 +793,69 @@
     </footer>
   </div>
 
-  <!-- Importação da biblioteca compartilhada de estatísticas derivadas -->
+  <!-- Importações Compartilhadas das Bibliotecas Externas -->
   <script src="lib_scripts/estastisticasDerivadas.js"></script>
+  <script src="lib_scripts/ItemClass.js"></script>
+  <script src="lib_scripts/generalUtil.js"></script>
 
   <script>
+    /* =======================================================
+       1. EXTENSÃO DA CLASSE ARMA BASEADA EM ITEMCLASS
+       ======================================================= */
+    class Arma extends Item {
+      constructor({
+        nome = "Arma Desconhecida",
+        peso = 0.0,
+        raridade = 0,
+        valor = 0,
+        tipoAtaque = "Melee / Melee Weapons",
+        dice = 2,
+        tiposDano = [TipoDeDano.FISICO],
+        qualidades = ""
+      } = {}) {
+        super(nome, peso, raridade, valor);
+        this._tipoAtaque = tipoAtaque;
+        this._dice = Math.max(1, parseInt(dice, 10) || 1);
+        this._tiposDano = Array.isArray(tiposDano) && tiposDano.length > 0 
+          ? [...tiposDano] 
+          : [TipoDeDano.FISICO];
+        this._qualidades = qualidades;
+      }
+
+      get tipoAtaque() { return this._tipoAtaque; }
+      set tipoAtaque(v) { this._tipoAtaque = v; }
+
+      get dice() { return this._dice; }
+      set dice(v) { this._dice = Math.max(1, parseInt(v, 10) || 1); }
+
+      get tiposDano() { return this._tiposDano; }
+      set tiposDano(arr) {
+        if (Array.isArray(arr) && arr.length > 0) {
+          this._tiposDano = [...arr];
+        }
+      }
+
+      get qualidades() { return this._qualidades; }
+      set qualidades(v) { this._qualidades = v; }
+
+      obterDescricao() {
+        return `${super.obterDescricao()} | Tipo: ${this.tipoAtaque} | DC: ${this.dice} | Dano: ${this.tiposDano.join(', ')}`;
+      }
+
+      toJSON() {
+        return {
+          nome: this.nome,
+          peso: this.peso,
+          raridade: this.raridade,
+          valor: this.valor,
+          tipoAtaque: this.tipoAtaque,
+          dice: this.dice,
+          tiposDano: this.tiposDano,
+          qualidades: this.qualidades
+        };
+      }
+    }
+
     /* =======================================================
        ESTADO E CONSTANTES
        ======================================================= */
@@ -751,6 +863,26 @@
       "Athletics", "Barter", "Big Guns", "Energy Weapons", "Explosives",
       "Lockpick", "Medicine", "Melee Weapons", "Pilot", "Repair",
       "Science", "Small Guns", "Sneak", "Speech", "Survival", "Throwing", "Unarmed"
+    ];
+
+    const ATTACK_TYPE_OPTIONS = [
+      "Unarmed",
+      "Melee / Melee Weapons",
+      "Big Guns",
+      "Bows",
+      "Small guns",
+      "Energy Weapons",
+      "Explosives",
+      "Throwing",
+      "Guns"
+    ];
+
+    const DAMAGE_TYPE_CHECKBOXES = [
+      { key: "fisico", label: TipoDeDano.FISICO },
+      { key: "energia", label: TipoDeDano.ENERGIA },
+      { key: "radiacao", label: TipoDeDano.RADIACAO },
+      { key: "veneno", label: TipoDeDano.VENENO },
+      { key: "outro", label: TipoDeDano.OUTRO }
     ];
 
     const state = {
@@ -770,10 +902,19 @@
       },
       character: {
         special: { S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 },
-        skills: {} // { skillName: { rank: 0, isTag: false } }
+        skills: {}
       },
       attacks: [
-        { name: "Mordida", type: "Melee", dice: 2, damageType: "Físico", qualities: "Vicious" }
+        new Arma({
+          nome: "Mordida",
+          peso: 0.0,
+          raridade: 0,
+          valor: 0,
+          tipoAtaque: "Melee / Melee Weapons",
+          dice: 2,
+          tiposDano: [TipoDeDano.FISICO],
+          qualidades: "Vicious"
+        })
       ],
       specialAbilities: "Imune a Radiação.",
       inventory: "Butchery: 1x Carne de Radroach"
@@ -886,12 +1027,10 @@
       const level = Math.max(1, parseInt(state.level, 10) || 1);
       const isCreature = state.nature === "creature";
 
-      // Recompensa de XP calculada pela biblioteca
       const xp = window.SpecialDerived.calcularXpNpc(level, state.nature, state.type);
       badgeXp.textContent = `XP: ${xp}`;
 
       if (isCreature) {
-        // --- CÁLCULO DE CRIATURA VIA SPECIALDERIVED ---
         const body = parseInt(state.creature.body, 10) || 4;
         const mind = parseInt(state.creature.mind, 10) || 4;
         const totalAttr = body + mind;
@@ -926,7 +1065,6 @@
         tnCrOther.textContent = derivadasCriatura.tns.other;
 
       } else {
-        // --- CÁLCULO DE PERSONAGEM VIA SPECIALDERIVED ---
         const sp = state.character.special;
         const sumSpecial = sp.S + sp.P + sp.E + sp.C + sp.I + sp.A + sp.L;
 
@@ -939,7 +1077,6 @@
         badgeAttrBudget.className = sumSpecial === targetBudget ? "badge-pill-budget budget-ok" : "badge-pill-budget budget-alert";
         attrFormulaHint.textContent = `Orçamento: ${baseSpecialBudget} + teto(Nível / 2). Faixa 4 a 10 por atributo.`;
 
-        // Bônus de HP baseado na categoria
         let multLckHp = 0;
         if (state.type === "notable") multLckHp = 1;
         else if (state.type === "major") multLckHp = 2;
@@ -954,24 +1091,20 @@
         });
         calcDispHp.textContent = hpResult.totalHp;
 
-        // Bônus de Iniciativa baseado na categoria (+2 Notable, +4 Major)
         let bonusInit = 0;
         if (state.type === "notable") bonusInit = 2;
         else if (state.type === "major") bonusInit = 4;
         calcDispInitiative.textContent = window.SpecialDerived.calcularIniciativa(sp.P, sp.A, bonusInit);
 
-        // Defesa e Melee calculados pela biblioteca
         calcDispDefense.textContent = window.SpecialDerived.calcularDefesa(sp.A);
         calcDispMelee.textContent = window.SpecialDerived.calcularBonusMelee(sp.S).label;
 
-        // Pontos de Sorte (Luck Points)
         boxCharLuckPoints.classList.remove("hidden");
         let luckPts = 0;
         if (state.type === "notable") luckPts = Math.ceil(sp.L / 2);
         else if (state.type === "major") luckPts = sp.L;
         calcDispLuckPoints.textContent = luckPts;
 
-        // Tags permitidas e pontos de perícia
         let maxTags = 2;
         if (state.type === "notable") maxTags = 3;
         else if (state.type === "major") maxTags = 4;
@@ -1038,7 +1171,7 @@
 
     function renderAttacksTable() {
       tbodyAttacks.innerHTML = "";
-      state.attacks.forEach((atk, index) => {
+      state.attacks.forEach((arma, index) => {
         const tr = document.createElement("tr");
         tr.className = index % 2 === 0 ? "row-odd" : "row-even";
 
@@ -1046,24 +1179,36 @@
         const tdName = document.createElement("td");
         const inName = document.createElement("input");
         inName.type = "text";
-        inName.value = atk.name;
+        inName.value = arma.nome;
         inName.className = "input-styled";
         inName.style.width = "100%";
-        inName.addEventListener("input", (e) => atk.name = e.target.value);
+        inName.addEventListener("input", (e) => arma.nome = e.target.value);
         tdName.appendChild(inName);
 
-        // Tipo
+        // Tipo de ataque
         const tdType = document.createElement("td");
         tdType.style.textAlign = "center";
         const selType = document.createElement("select");
         selType.className = "input-styled";
-        selType.innerHTML = `
-          <option value="Melee" ${atk.type === 'Melee' ? 'selected' : ''}>Melee</option>
-          <option value="Guns" ${atk.type === 'Guns' ? 'selected' : ''}>Guns</option>
-          <option value="Unarmed" ${atk.type === 'Unarmed' ? 'selected' : ''}>Unarmed</option>
-          <option value="Energy" ${atk.type === 'Energy' ? 'selected' : ''}>Energy</option>
-        `;
-        selType.addEventListener("change", (e) => atk.type = e.target.value);
+        selType.style.width = "100%";
+        
+        ATTACK_TYPE_OPTIONS.forEach(optVal => {
+          const opt = document.createElement("option");
+          opt.value = optVal;
+          opt.textContent = optVal;
+          if (arma.tipoAtaque === optVal) opt.selected = true;
+          selType.appendChild(opt);
+        });
+
+        if (!ATTACK_TYPE_OPTIONS.includes(arma.tipoAtaque) && arma.tipoAtaque) {
+          const customOpt = document.createElement("option");
+          customOpt.value = arma.tipoAtaque;
+          customOpt.textContent = arma.tipoAtaque;
+          customOpt.selected = true;
+          selType.appendChild(customOpt);
+        }
+
+        selType.addEventListener("change", (e) => arma.tipoAtaque = e.target.value);
         tdType.appendChild(selType);
 
         // Dano (DC)
@@ -1071,33 +1216,84 @@
         tdDice.style.textAlign = "center";
         const inDice = document.createElement("input");
         inDice.type = "number";
-        inDice.value = atk.dice;
+        inDice.value = arma.dice;
         inDice.min = "1";
         inDice.max = "30";
         inDice.className = "input-styled input-num";
-        inDice.style.width = "60px";
-        inDice.addEventListener("input", (e) => atk.dice = Math.max(1, parseInt(e.target.value, 10) || 1));
+        inDice.style.width = "55px";
+        inDice.addEventListener("input", (e) => arma.dice = Math.max(1, parseInt(e.target.value, 10) || 1));
         tdDice.appendChild(inDice);
 
-        // Tipo Dano
+        // Tipo de dano (5 Checkmarks com exclusão mútua de Outro e mínimo 1 ativo)
         const tdDmgType = document.createElement("td");
-        tdDmgType.style.textAlign = "center";
-        const inDmgType = document.createElement("input");
-        inDmgType.type = "text";
-        inDmgType.value = atk.damageType;
-        inDmgType.className = "input-styled";
-        inDmgType.style.width = "100%";
-        inDmgType.addEventListener("input", (e) => atk.damageType = e.target.value);
-        tdDmgType.appendChild(inDmgType);
+        const dmgContainer = document.createElement("div");
+        dmgContainer.className = "damage-types-container";
+
+        const isOutroActive = arma.tiposDano.includes(TipoDeDano.OUTRO);
+
+        DAMAGE_TYPE_CHECKBOXES.forEach(dt => {
+          const lbl = document.createElement("label");
+          lbl.className = "damage-checkbox-label";
+
+          const chk = document.createElement("input");
+          chk.type = "checkbox";
+          chk.value = dt.label;
+          chk.checked = arma.tiposDano.includes(dt.label);
+
+          if (dt.label !== TipoDeDano.OUTRO && isOutroActive) {
+            chk.disabled = true;
+          }
+
+          chk.addEventListener("change", (e) => {
+            const targetVal = e.target.value;
+
+            if (targetVal === TipoDeDano.OUTRO) {
+              if (e.target.checked) {
+                // "Outro" marcado: torna-se a única opção ativa e bloqueia as demais
+                arma.tiposDano = [TipoDeDano.OUTRO];
+              } else {
+                // Impede deixar tudo desmarcado: volta para Físico como fallback padrão
+                arma.tiposDano = [TipoDeDano.FISICO];
+              }
+            } else {
+              if (e.target.checked) {
+                // Adiciona o novo tipo e remove "Outro" se estivesse ativo
+                const currentSet = new Set(arma.tiposDano.filter(v => v !== TipoDeDano.OUTRO));
+                currentSet.add(targetVal);
+                arma.tiposDano = Array.from(currentSet);
+              } else {
+                // Tentativa de desmarcar: verificar se é o último ativo
+                const remaining = arma.tiposDano.filter(v => v !== targetVal);
+                if (remaining.length === 0) {
+                  // Reverte marcação: é obrigatório ter pelo menos 1 ativa
+                  e.target.checked = true;
+                  return;
+                }
+                arma.tiposDano = remaining;
+              }
+            }
+            renderAttacksTable();
+          });
+
+          const spanText = document.createElement("span");
+          spanText.textContent = dt.label;
+
+          lbl.appendChild(chk);
+          lbl.appendChild(spanText);
+          dmgContainer.appendChild(lbl);
+        });
+
+        tdDmgType.appendChild(dmgContainer);
 
         // Qualidades
         const tdQual = document.createElement("td");
         const inQual = document.createElement("input");
         inQual.type = "text";
-        inQual.value = atk.qualities;
+        inQual.value = arma.qualidades;
+        inQual.placeholder = "Piercing 1, Vicious...";
         inQual.className = "input-styled";
         inQual.style.width = "100%";
-        inQual.addEventListener("input", (e) => atk.qualities = e.target.value);
+        inQual.addEventListener("input", (e) => arma.qualidades = e.target.value);
         tdQual.appendChild(inQual);
 
         // Ações
@@ -1220,15 +1416,24 @@
     textAbilities.addEventListener("input", (e) => state.specialAbilities = e.target.value);
     textInventory.addEventListener("input", (e) => state.inventory = e.target.value);
 
-    // Adicionar Ataque
+    // Adicionar Ataque instanciando Arma (ItemClass)
     btnAddAttack.addEventListener("click", () => {
-      state.attacks.push({ name: "Novo Ataque", type: "Melee", dice: 2, damageType: "Físico", qualities: "" });
+      state.attacks.push(new Arma({
+        nome: "Novo Ataque",
+        tipoAtaque: "Melee / Melee Weapons",
+        dice: 2,
+        tiposDano: [TipoDeDano.FISICO],
+        qualidades: ""
+      }));
       renderAttacksTable();
     });
 
     // Exportar JSON
     btnExportJson.addEventListener("click", () => {
-      const exportData = { ...state };
+      const exportData = {
+        ...state,
+        attacks: state.attacks.map(atk => atk.toJSON())
+      };
       const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -1250,6 +1455,20 @@
         try {
           const parsed = JSON.parse(evt.target.result);
           Object.assign(state, parsed);
+
+          // Re-instancia ataques como instâncias da classe Arma
+          if (Array.isArray(parsed.attacks)) {
+            state.attacks = parsed.attacks.map(atkData => new Arma({
+              nome: atkData.nome || atkData.name || "Ataque",
+              peso: atkData.peso || 0.0,
+              raridade: atkData.raridade || 0,
+              valor: atkData.valor || 0,
+              tipoAtaque: atkData.tipoAtaque || atkData.type || "Melee / Melee Weapons",
+              dice: atkData.dice || 2,
+              tiposDano: Array.isArray(atkData.tiposDano) ? atkData.tiposDano : [atkData.damageType || TipoDeDano.FISICO],
+              qualidades: atkData.qualidades || atkData.qualities || ""
+            }));
+          }
 
           // Atualiza Interface
           inputName.value = state.name || "";
