@@ -813,7 +813,6 @@
       <!-- ==================== BARRA INFERIOR MULTI-FORMATO ==================== -->
       <div style="display: flex; gap: 12px; align-items: center; justify-content: flex-start; padding: 14px 18px; background-color: var(--vault-card); border: 2px solid var(--vault-border); border-radius: 8px; flex-wrap: wrap;">
         
-        <!-- Grupo de Exportação -->
         <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
           <span style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase;">Exportar:</span>
           <select id="select-export-format" class="input-styled" style="padding: 4px 8px; font-size: 0.75rem;">
@@ -832,7 +831,6 @@
 
         <div style="height: 24px; width: 1.5px; background: var(--vault-border); margin: 0 4px;"></div>
 
-        <!-- Grupo de Importação Universal -->
         <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
           <label class="btn-pipboy-action" style="cursor: pointer; margin-bottom: 0;">
             <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1622,6 +1620,7 @@
         tr.appendChild(tdDmgType);
         tr.appendChild(tdEffects);
         tr.appendChild(tdQual);
+        tdAct.style.textAlign = "center";
         tr.appendChild(tdAct);
         tbodyAttacks.appendChild(tr);
       });
@@ -1802,7 +1801,6 @@
     }
 
     function extrairObjetoNpcDeTexto(rawText) {
-      // 1. Prioridade máxima: Tenta parsear JSON diretamente
       try {
         const directJson = JSON.parse(rawText);
         if (directJson && typeof directJson === 'object' && (directJson.name || directJson.nature)) {
@@ -1810,7 +1808,6 @@
         }
       } catch (e) {}
 
-      // 2. Busca payload JSON embutido em HTML (<script type="application/json">)
       const htmlJsonMatch = rawText.match(/<script[^>]*id=["']npc-json-data["'][^>]*>([\s\S]*?)<\/script>/i);
       if (htmlJsonMatch && htmlJsonMatch[1]) {
         try {
@@ -1818,7 +1815,6 @@
         } catch (e) {}
       }
 
-      // 3. Busca payload JSON embutido em comentários Markdown (JSON_PAYLOAD_START ... JSON_PAYLOAD_END)
       const mdJsonMatch = rawText.match(/JSON_PAYLOAD_START\s*([\s\S]*?)\s*JSON_PAYLOAD_END/);
       if (mdJsonMatch && mdJsonMatch[1]) {
         try {
@@ -1826,7 +1822,6 @@
         } catch (e) {}
       }
 
-      // 4. Busca JSON embutido em metadata plain text
       const txtJsonMatch = rawText.match(/--- METADADOS JSON[^-]*---\s*(\{[\s\S]*\})/);
       if (txtJsonMatch && txtJsonMatch[1]) {
         try {
@@ -1834,7 +1829,6 @@
         } catch (e) {}
       }
 
-      // 5. Fallback estrutural: parse por linhas caso o arquivo seja um texto customizado
       const parsedFallback = {};
       const lines = rawText.split(/\r?\n/);
       lines.forEach(l => {
@@ -2042,10 +2036,8 @@
       renderAttacksTable();
     });
 
-    // Disparo da Exportação
     btnExportNpc.addEventListener("click", exportarNpcMultiFormato);
 
-    // Disparo da Importação Universal
     inputImportNpcUniversal.addEventListener("change", (e) => {
       const file = e.target.files[0];
       if (!file) return;
