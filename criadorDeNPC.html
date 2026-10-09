@@ -254,7 +254,7 @@
       color: #ffffff;
     }
 
-    /* Botões estilo Gerenciador de Peso */
+    /* Botões estilo Pip-Boy */
     .btn-pipboy-action {
       padding: 6px 14px;
       font-family: var(--font-display);
@@ -419,6 +419,57 @@
     .damage-checkbox-label input[type="checkbox"]:disabled + span {
       opacity: 0.45;
       cursor: not-allowed;
+    }
+
+    /* Modal / Popup de Exportação */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 31, 21, 0.75);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 16px;
+    }
+
+    .modal-dialog {
+      background: var(--vault-card);
+      border: 2px solid var(--vault-border);
+      border-radius: 8px;
+      max-width: 580px;
+      width: 100%;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+
+    .modal-export-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: #ffffff;
+      border: 1.5px solid var(--vault-border);
+      border-radius: 6px;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .modal-export-label {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .modal-export-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
     footer {
@@ -607,7 +658,7 @@
           <!-- Modificador de Tamanho -->
           <div style="border-top: 1px dashed var(--vault-border); padding-top: 10px; display: flex; flex-direction: column; gap: 6px;">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-              <div style="display: flex; align-items: center; gap: 8px;">
+              <div style="display: align-items: center; gap: 8px; display: flex;">
                 <label for="select-npc-size" style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase;">Habilidade de Tamanho:</label>
                 <select id="select-npc-size" class="input-styled" style="padding: 4px 8px; font-size: 0.8rem;">
                   <option value="normal" selected>Normal (Sem modificadores de porte)</option>
@@ -691,7 +742,7 @@
           
           <div id="panel-skills-creature">
             <div style="margin-bottom: 8px; font-size: 0.72rem; color: var(--vault-dim);">
-              Todas as perícias de criatura são tratadas automaticamente como <strong>Tag Skills</strong>[cite: 8].
+              Todas as perícias de criatura são tratadas automaticamente como <strong>Tag Skills</strong>.
             </div>
             <div class="custom-scrollbar" style="overflow-x: auto;">
               <table class="compact-table">
@@ -730,7 +781,7 @@
           <div id="panel-skills-character" class="hidden">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
               <span style="font-size: 0.72rem; color: var(--vault-dim);">
-                Tags permitidas: <strong id="disp-tags-max">2</strong> | Pontos adicionais (INT + Nível): <strong id="disp-extra-skill-pts">6</strong>[cite: 8]
+                Tags permitidas: <strong id="disp-tags-max">2</strong> | Pontos adicionais (INT + Nível): <strong id="disp-extra-skill-pts">6</strong>
               </span>
               <span id="disp-tag-counter" style="font-size: 0.72rem; font-weight: 800; font-family: var(--font-mono);">Tags: 0 / 2</span>
             </div>
@@ -810,24 +861,15 @@
         </div>
       </section>
 
-      <!-- ==================== BARRA INFERIOR MULTI-FORMATO ==================== -->
+      <!-- ==================== BARRA INFERIOR COM BOTÃO ÚNICO DE EXPORTAR ==================== -->
       <div style="display: flex; gap: 12px; align-items: center; justify-content: flex-start; padding: 14px 18px; background-color: var(--vault-card); border: 2px solid var(--vault-border); border-radius: 8px; flex-wrap: wrap;">
         
-        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-          <span style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase;">Exportar:</span>
-          <select id="select-export-format" class="input-styled" style="padding: 4px 8px; font-size: 0.75rem;">
-            <option value="json" selected>JSON (.json)</option>
-            <option value="txt">Plain Text (.txt)</option>
-            <option value="html">HTML (.html)</option>
-            <option value="md">Markdown (.md)</option>
-          </select>
-          <button id="btn-export-npc" type="button" class="btn-pipboy-action">
-            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-            </svg>
-            Exportar
-          </button>
-        </div>
+        <button id="btn-open-export-modal" type="button" class="btn-pipboy-action">
+          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+          </svg>
+          Exportar
+        </button>
 
         <div style="height: 24px; width: 1.5px; background: var(--vault-border); margin: 0 4px;"></div>
 
@@ -841,6 +883,53 @@
           </label>
         </div>
 
+      </div>
+
+      <!-- ==================== MODAL DE EXPORTAÇÃO ==================== -->
+      <div id="export-modal" class="modal-overlay hidden">
+        <div class="modal-dialog">
+          <div class="card-header">
+            <span>Opções de Exportação</span>
+            <button id="btn-close-export-modal" type="button" class="btn-remove" style="background:#fff; color:#000; border-color:#000; font-size:0.8rem; cursor:pointer;">Fechar &times;</button>
+          </div>
+          <div class="card-body" style="gap: 10px;">
+            <!-- Linha JSON -->
+            <div class="modal-export-row">
+              <span class="modal-export-label">JSON</span>
+              <div class="modal-export-actions">
+                <button type="button" class="btn-pipboy-action" onclick="executarExportacao('json', 'download')">Baixar arquivo</button>
+                <button type="button" class="btn-pipboy-action" onclick="executarExportacao('json', 'copy')">Copiar para área de transferência</button>
+              </div>
+            </div>
+
+            <!-- Linha HTML -->
+            <div class="modal-export-row">
+              <span class="modal-export-label">HTML</span>
+              <div class="modal-export-actions">
+                <button type="button" class="btn-pipboy-action" onclick="executarExportacao('html', 'download')">Baixar arquivo</button>
+                <button type="button" class="btn-pipboy-action" onclick="executarExportacao('html', 'copy')">Copiar para área de transferência</button>
+              </div>
+            </div>
+
+            <!-- Linha Markdown -->
+            <div class="modal-export-row">
+              <span class="modal-export-label">Markdown</span>
+              <div class="modal-export-actions">
+                <button type="button" class="btn-pipboy-action" onclick="executarExportacao('md', 'download')">Baixar arquivo</button>
+                <button type="button" class="btn-pipboy-action" onclick="executarExportacao('md', 'copy')">Copiar para área de transferência</button>
+              </div>
+            </div>
+
+            <!-- Linha Texto Puro -->
+            <div class="modal-export-row">
+              <span class="modal-export-label">Texto Puro</span>
+              <div class="modal-export-actions">
+                <button type="button" class="btn-pipboy-action" onclick="executarExportacao('txt', 'download')">Baixar arquivo</button>
+                <button type="button" class="btn-pipboy-action" onclick="executarExportacao('txt', 'copy')">Copiar para área de transferência</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
     </main>
@@ -1044,8 +1133,6 @@
     const textAbilities = document.getElementById("text-npc-abilities");
     const textInventory = document.getElementById("text-npc-inventory");
 
-    const selectExportFormat = document.getElementById("select-export-format");
-    const btnExportNpc = document.getElementById("btn-export-npc");
     const inputImportNpcUniversal = document.getElementById("input-import-npc-universal");
 
     /* =======================================================
@@ -1627,7 +1714,7 @@
     }
 
     /* =======================================================
-       EXPORTAÇÃO & IMPORTAÇÃO MULTI-FORMATO (PRIORIDADE JSON)
+       EXPORTAÇÃO & IMPORTAÇÃO MULTI-FORMATO COM TRATAMENTO DE METADADOS
        ======================================================= */
     function obterObjetoJsonBase() {
       return {
@@ -1636,7 +1723,8 @@
       };
     }
 
-    function converterJsonParaPlainText(npcData) {
+    // Texto Puro (omite o bloco de metadados JSON se includeMetadata for false)
+    function converterJsonParaPlainText(npcData, includeMetadata = true) {
       let txt = `=== FICHA DE NPC: ${npcData.name.toUpperCase()} ===\n`;
       txt += `Natureza: ${npcData.nature === 'creature' ? 'Criatura' : 'Personagem'} | Nível: ${npcData.level} | Categoria: ${npcData.type}\n`;
       txt += `Keywords: ${npcData.keywords || 'Nenhuma'}\n`;
@@ -1665,12 +1753,15 @@
       txt += `\n--- HABILIDADES ESPECIAIS ---\n${npcData.specialAbilities || 'Nenhuma'}\n`;
       txt += `\n--- INVENTÁRIO & LOOT ---\n${npcData.inventory || 'Nenhum'}\n`;
 
-      txt += `\n\n--- METADADOS JSON (DO NOT EDIT) ---\n`;
-      txt += JSON.stringify(npcData);
+      if (includeMetadata) {
+        txt += `\n\n--- METADADOS JSON (DO NOT EDIT) ---\n`;
+        txt += JSON.stringify(npcData);
+      }
       return txt;
     }
 
-    function converterJsonParaMarkdown(npcData) {
+    // Markdown (omite o bloco JSON_PAYLOAD_START se includeMetadata for false)
+    function converterJsonParaMarkdown(npcData, includeMetadata = true) {
       let md = `# ${npcData.name}\n\n`;
       md += `* **Natureza:** ${npcData.nature === 'creature' ? 'Criatura' : 'Personagem'}\n`;
       md += `* **Nível:** ${npcData.level} | **Categoria:** ${npcData.type}\n`;
@@ -1704,11 +1795,18 @@
       md += `\n## Habilidades Especiais\n\n${npcData.specialAbilities || 'Nenhuma'}\n\n`;
       md += `## Inventário & Espólio\n\n${npcData.inventory || 'Nenhum'}\n\n`;
 
-      md += `<!-- JSON_PAYLOAD_START\n${JSON.stringify(npcData, null, 2)}\nJSON_PAYLOAD_END -->\n`;
+      if (includeMetadata) {
+        md += `<!-- JSON_PAYLOAD_START\n${JSON.stringify(npcData, null, 2)}\nJSON_PAYLOAD_END -->\n`;
+      }
       return md;
     }
 
-   function converterJsonParaHtml(npcData) {
+    // HTML (omite o script JSON interno se includeMetadata for false)
+    function converterJsonParaHtml(npcData, includeMetadata = true) {
+      const scriptTag = includeMetadata 
+        ? `\n  <script id="npc-json-data" type="application/json">\n    ${JSON.stringify(npcData)}\n  <\/script>` 
+        : "";
+
       return `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1739,7 +1837,7 @@
   <table>
     <thead><tr><th>Arma</th><th>Tipo</th><th>DC</th><th>Tipo Dano</th><th>Efeitos</th><th>Qualidades</th></tr></thead>
     <tbody>
-      ${(npcData.attacks || []).map(a => `<tr><td>${a.nome}</td><td>${a.tipoAtaque}</td><td>${a.dice}</td><td>${(a.tiposDano || []).join(', ')}</td><td>${a.effects || '-'}</td><td>${a.qualidades || '-'}</td></tr>`).join('')}
+      ${(npcData.attacks || []).map(a => `<tr><td>${a.nome}</td><td>${a.tipoAtaque}</td><td>${a.dice}</td><td>${(a.tiposDano || []).join(', ')}</td><td>${a.effects \vert{}\vert{} '-'}</td><td>${a.qualidades || '-'}</td></tr>`).join('')}
     </tbody>
   </table>
 
@@ -1747,19 +1845,17 @@
   <pre>${npcData.specialAbilities || 'Nenhuma'}</pre>
 
   <h2>Inventário</h2>
-  <pre>${npcData.inventory || 'Nenhum'}</pre>
-
-  <script id="npc-json-data" type="application/json">
-    ${JSON.stringify(npcData)}
-  <\/script>
+  <pre>${npcData.inventory || 'Nenhum'}</pre>${scriptTag}
 </body>
 </html>`;
     }
 
-    function exportarNpcMultiFormato() {
-      const format = selectExportFormat.value;
+    // Execução unificada de download ou cópia com/sem metadados
+    function executarExportacao(format, action) {
       const baseJsonObj = obterObjetoJsonBase();
       const safeFileName = (baseJsonObj.name || 'npc').toLowerCase().replace(/\s+/g, '_');
+      const isCopy = action === "copy";
+      const includeMetadata = !isCopy; // Ao copiar para a área de transferência, omite os metadados
 
       let content = "";
       let mimeType = "text/plain";
@@ -1772,32 +1868,52 @@
           extension = "json";
           break;
         case "txt":
-          content = converterJsonParaPlainText(baseJsonObj);
+          content = converterJsonParaPlainText(baseJsonObj, includeMetadata);
           mimeType = "text/plain";
           extension = "txt";
           break;
         case "md":
-          content = converterJsonParaMarkdown(baseJsonObj);
+          content = converterJsonParaMarkdown(baseJsonObj, includeMetadata);
           mimeType = "text/markdown";
           extension = "md";
           break;
         case "html":
-          content = converterJsonParaHtml(baseJsonObj);
+          content = converterJsonParaHtml(baseJsonObj, includeMetadata);
           mimeType = "text/html";
           extension = "html";
           break;
       }
 
-      const blob = new Blob([content], { type: `${mimeType};charset=utf-8;` });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${safeFileName}.${extension}`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      hasUnsavedChanges = false;
+      if (action === "download") {
+        const blob = new Blob([content], { type: `${mimeType};charset=utf-8;` });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${safeFileName}.${extension}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        hasUnsavedChanges = false;
+      } else if (action === "copy") {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(content).then(() => {
+            alert(`Conteúdo ${format.toUpperCase()} copiado para a área de transferência (sem metadados)!`);
+          }).catch(() => fallbackCopy(content, format));
+        } else {
+          fallbackCopy(content, format);
+        }
+      }
+    }
+
+    function fallbackCopy(content, format) {
+      const tArea = document.createElement("textarea");
+      tArea.value = content;
+      document.body.appendChild(tArea);
+      tArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(tArea);
+      alert(`Conteúdo ${format.toUpperCase()} copiado para a área de transferência (sem metadados)!`);
     }
 
     function extrairObjetoNpcDeTexto(rawText) {
@@ -2036,8 +2152,6 @@
       renderAttacksTable();
     });
 
-    btnExportNpc.addEventListener("click", exportarNpcMultiFormato);
-
     inputImportNpcUniversal.addEventListener("change", (e) => {
       const file = e.target.files[0];
       if (!file) return;
@@ -2055,6 +2169,31 @@
         inputImportNpcUniversal.value = "";
       };
       reader.readAsText(file);
+    });
+
+    /* =======================================================
+       CONTROLE DO MODAL DE EXPORTAÇÃO
+       ======================================================= */
+    const exportModal = document.getElementById("export-modal");
+    const btnOpenExportModal = document.getElementById("btn-open-export-modal");
+    const btnCloseExportModal = document.getElementById("btn-close-export-modal");
+
+    if (btnOpenExportModal) {
+      btnOpenExportModal.addEventListener("click", () => {
+        exportModal.classList.remove("hidden");
+      });
+    }
+
+    if (btnCloseExportModal) {
+      btnCloseExportModal.addEventListener("click", () => {
+        exportModal.classList.add("hidden");
+      });
+    }
+
+    window.addEventListener("click", (e) => {
+      if (e.target === exportModal) {
+        exportModal.classList.add("hidden");
+      }
     });
 
     // Inicialização
