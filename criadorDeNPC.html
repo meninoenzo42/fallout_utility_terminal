@@ -604,18 +604,24 @@
             </div>
           </div>
 
-          <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--vault-border); padding-top: 10px; flex-wrap: wrap; gap: 10px;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase;">Habilidade de Tamanho:</span>
-              <select id="select-npc-size" class="input-styled" style="padding: 4px 8px; font-size: 0.8rem;">
-                <option value="normal" selected>Normal (Padrão)</option>
-                <option value="big">Big (+HP / Bônus Especial)</option>
-                <option value="little">Little (-HP / Bônus Especial)</option>
-              </select>
+          <!-- Modificador de Tamanho -->
+          <div style="border-top: 1px dashed var(--vault-border); padding-top: 10px; display: flex; flex-direction: column; gap: 6px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <label for="select-npc-size" style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase;">Habilidade de Tamanho:</label>
+                <select id="select-npc-size" class="input-styled" style="padding: 4px 8px; font-size: 0.8rem;">
+                  <option value="normal" selected>Normal (Sem modificadores de porte)</option>
+                  <option value="big">Big (+4 HP Base em criaturas &bull; Vantagens de porte pesado)</option>
+                  <option value="little">Little (-2 HP Base &bull; +1 Defesa base por silhueta pequena)</option>
+                </select>
+              </div>
+              <div id="box-char-luck-points" class="hidden" style="font-family: var(--font-mono); font-size: 0.8rem; font-weight: 800;">
+                Pontos de Sorte (Luck): <span id="calc-disp-luck-points" style="color: var(--vault-green);">0</span>
+              </div>
             </div>
-            <div id="box-char-luck-points" class="hidden" style="font-family: var(--font-mono); font-size: 0.8rem; font-weight: 800;">
-              Pontos de Sorte (Luck): <span id="calc-disp-luck-points" style="color: var(--vault-green);">0</span>
-            </div>
+            <span id="size-effect-desc" style="font-size: 0.7rem; color: var(--vault-dim); font-style: italic;">
+              Porte Normal: HP e Defesa calculados pelos padrões oficiais de nível e agilidade.
+            </span>
           </div>
         </div>
       </section>
@@ -627,6 +633,24 @@
           <span style="font-size: 0.7rem; font-family: var(--font-mono);">Acerto no d20 &bull; DR Específica</span>
         </div>
         <div class="card-body">
+          
+          <!-- DR Global de Veneno -->
+          <div class="cell-box" style="background-color: #f0fdf4; border: 1.5px solid var(--vault-accent); margin-bottom: 4px;">
+            <div>
+              <label for="input-dr-poison-global" style="font-size: 0.78rem; font-weight: 800; text-transform: uppercase; color: var(--vault-green); display: block;">
+                Resistência a Veneno Global (Poison DR):
+              </label>
+              <span style="font-size: 0.68rem; color: var(--vault-dim);">
+                Resistência única e compartilhada: o veneno afeta a fisiologia do alvo como um todo, independentemente da parte atingida.
+              </span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <input type="number" id="input-dr-poison-global" value="0" min="0" max="99" class="input-styled input-num" style="width: 65px; border-color: var(--vault-accent);">
+              <span style="font-family: var(--font-mono); font-weight: 800; font-size: 0.75rem;">DR</span>
+            </div>
+          </div>
+
+          <!-- Tabela de Partes do Corpo com DRs Locais -->
           <div class="custom-scrollbar" style="overflow-x: auto;">
             <table class="compact-table">
               <thead>
@@ -667,7 +691,7 @@
           
           <div id="panel-skills-creature">
             <div style="margin-bottom: 8px; font-size: 0.72rem; color: var(--vault-dim);">
-              Todas as perícias de criatura são tratadas automaticamente como <strong>Tag Skills</strong>.
+              Todas as perícias de criatura são tratadas automaticamente como <strong>Tag Skills</strong>[cite: 8].
             </div>
             <div class="custom-scrollbar" style="overflow-x: auto;">
               <table class="compact-table">
@@ -706,7 +730,7 @@
           <div id="panel-skills-character" class="hidden">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
               <span style="font-size: 0.72rem; color: var(--vault-dim);">
-                Tags permitidas: <strong id="disp-tags-max">2</strong> | Pontos adicionais (INT + Nível): <strong id="disp-extra-skill-pts">6</strong>
+                Tags permitidas: <strong id="disp-tags-max">2</strong> | Pontos adicionais (INT + Nível): <strong id="disp-extra-skill-pts">6</strong>[cite: 8]
               </span>
               <span id="disp-tag-counter" style="font-size: 0.72rem; font-weight: 800; font-family: var(--font-mono);">Tags: 0 / 2</span>
             </div>
@@ -751,7 +775,6 @@
             </table>
           </div>
 
-          <!-- Botão de adicionar ataque abaixo da tabela -->
           <div style="padding-top: 4px;">
             <button id="btn-add-attack" type="button" class="btn-pipboy-action">
               <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -787,21 +810,39 @@
         </div>
       </section>
 
-      <!-- ==================== BARRA INFERIOR DE IMPORTAR/EXPORTAR JSON ==================== -->
-      <div style="display: flex; gap: 10px; align-items: center; justify-content: flex-start; padding: 12px 16px; background-color: var(--vault-card); border: 2px solid var(--vault-border); border-radius: 8px; flex-wrap: wrap;">
-        <button id="btn-export-npc-json" type="button" class="btn-pipboy-action">
-          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-          </svg>
-          Exportar JSON
-        </button>
-        <label class="btn-pipboy-action" style="cursor: pointer; margin-bottom: 0;">
-          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l4-4m0 0l4 4m-4-4v12"></path>
-          </svg>
-          Importar JSON
-          <input type="file" id="input-import-npc-json" accept=".json" style="display: none;">
-        </label>
+      <!-- ==================== BARRA INFERIOR MULTI-FORMATO ==================== -->
+      <div style="display: flex; gap: 12px; align-items: center; justify-content: flex-start; padding: 14px 18px; background-color: var(--vault-card); border: 2px solid var(--vault-border); border-radius: 8px; flex-wrap: wrap;">
+        
+        <!-- Grupo de Exportação -->
+        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+          <span style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase;">Exportar:</span>
+          <select id="select-export-format" class="input-styled" style="padding: 4px 8px; font-size: 0.75rem;">
+            <option value="json" selected>JSON (.json)</option>
+            <option value="txt">Plain Text (.txt)</option>
+            <option value="html">HTML (.html)</option>
+            <option value="md">Markdown (.md)</option>
+          </select>
+          <button id="btn-export-npc" type="button" class="btn-pipboy-action">
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+            </svg>
+            Exportar
+          </button>
+        </div>
+
+        <div style="height: 24px; width: 1.5px; background: var(--vault-border); margin: 0 4px;"></div>
+
+        <!-- Grupo de Importação Universal -->
+        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+          <label class="btn-pipboy-action" style="cursor: pointer; margin-bottom: 0;">
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l4-4m0 0l4 4m-4-4v12"></path>
+            </svg>
+            Importar Arquivo (.json, .txt, .html, .md)
+            <input type="file" id="input-import-npc-universal" accept=".json,.txt,.html,.htm,.md" style="display: none;">
+          </label>
+        </div>
+
       </div>
 
     </main>
@@ -817,6 +858,21 @@
   <script src="lib_scripts/generalUtil.js"></script>
 
   <script>
+    /* =======================================================
+       CONTROLE DE DADOS NÃO SALVOS (CONFIRMAÇÃO AO SAIR/RECARREGAR)
+       ======================================================= */
+    let hasUnsavedChanges = false;
+    function markUnsaved() {
+      hasUnsavedChanges = true;
+    }
+
+    window.addEventListener("beforeunload", (e) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    });
+
     /* =======================================================
        1. FÁBRICA DE ITENS DE ARMA VIA ITEMCLASS
        ======================================================= */
@@ -905,6 +961,7 @@
       type: "normal",
       keywords: "Mutated, Insect",
       size: "normal",
+      drPoisonGlobal: 0,
       bodyParts: JSON.parse(JSON.stringify(DEFAULT_BODY_PARTS)),
       creature: {
         body: 5,
@@ -944,6 +1001,7 @@
     const selectType = document.getElementById("select-npc-type");
     const inputKeywords = document.getElementById("input-npc-keywords");
     const selectSize = document.getElementById("select-npc-size");
+    const sizeEffectDesc = document.getElementById("size-effect-desc");
     const badgeXp = document.getElementById("badge-xp-reward");
 
     const labelAttrHeaderTitle = document.getElementById("label-attr-header-title");
@@ -962,6 +1020,7 @@
     const boxCharLuckPoints = document.getElementById("box-char-luck-points");
     const calcDispLuckPoints = document.getElementById("calc-disp-luck-points");
 
+    const inputDrPoisonGlobal = document.getElementById("input-dr-poison-global");
     const tbodyBodyParts = document.getElementById("tbody-body-parts");
     const btnAddBodyPart = document.getElementById("btn-add-body-part");
     const btnPresetHumanParts = document.getElementById("btn-preset-human-parts");
@@ -987,8 +1046,9 @@
     const textAbilities = document.getElementById("text-npc-abilities");
     const textInventory = document.getElementById("text-npc-inventory");
 
-    const btnExportJson = document.getElementById("btn-export-npc-json");
-    const inputImportJson = document.getElementById("input-import-npc-json");
+    const selectExportFormat = document.getElementById("select-export-format");
+    const btnExportNpc = document.getElementById("btn-export-npc");
+    const inputImportNpcUniversal = document.getElementById("input-import-npc-universal");
 
     /* =======================================================
        OPÇÕES DE CATEGORIA POR NATUREZA DO NPC
@@ -1041,6 +1101,14 @@
         ? window.SpecialDerived.calcularXpNpc(level, state.nature, state.type)
         : (10 + (7 * (level - 1)));
       badgeXp.textContent = `XP: ${xp}`;
+
+      if (state.size === "big") {
+        sizeEffectDesc.textContent = "Porte Big Ativo: +4 Pontos de Vida (HP) concedidos à base da criatura.";
+      } else if (state.size === "little") {
+        sizeEffectDesc.textContent = "Porte Little Ativo: -2 Pontos de Vida (HP) e +1 Defesa (dificuldade de acerto contra o alvo sobe para 2).";
+      } else {
+        sizeEffectDesc.textContent = "Porte Normal: HP e Defesa calculados pelos padrões oficiais de nível e agilidade.";
+      }
 
       if (isCreature) {
         const body = parseInt(state.creature.body, 10) || 4;
@@ -1126,9 +1194,15 @@
             multEnd: 1,
             multLck: multLckHp
           });
-          calcDispHp.textContent = hpResult.totalHp;
+          let finalHp = hpResult.totalHp;
+          if (state.size === "big") finalHp += 4;
+          else if (state.size === "little") finalHp = Math.max(1, finalHp - 2);
+          calcDispHp.textContent = finalHp;
         } else {
-          calcDispHp.textContent = sp.E + level + (multLckHp * sp.L);
+          let finalHp = sp.E + level + (multLckHp * sp.L);
+          if (state.size === "big") finalHp += 4;
+          else if (state.size === "little") finalHp = Math.max(1, finalHp - 2);
+          calcDispHp.textContent = finalHp;
         }
 
         let bonusInit = 0;
@@ -1139,9 +1213,11 @@
           ? window.SpecialDerived.calcularIniciativa(sp.P, sp.A, bonusInit)
           : sp.P + sp.A + bonusInit;
 
-        calcDispDefense.textContent = (window.SpecialDerived && window.SpecialDerived.calcularDefesa)
+        let baseDef = (window.SpecialDerived && window.SpecialDerived.calcularDefesa)
           ? window.SpecialDerived.calcularDefesa(sp.A)
           : (sp.A >= 9 ? 2 : 1);
+        if (state.size === "little") baseDef = Math.max(baseDef, 2);
+        calcDispDefense.textContent = baseDef;
 
         calcDispMelee.textContent = (window.SpecialDerived && window.SpecialDerived.calcularBonusMelee)
           ? window.SpecialDerived.calcularBonusMelee(sp.S).label
@@ -1186,7 +1262,10 @@
         inName.value = part.name;
         inName.className = "input-styled";
         inName.style.width = "100%";
-        inName.addEventListener("input", (e) => part.name = e.target.value);
+        inName.addEventListener("input", (e) => {
+          markUnsaved();
+          part.name = e.target.value;
+        });
         tdName.appendChild(inName);
 
         // Alcance no d20
@@ -1200,7 +1279,10 @@
         inRange.style.width = "85px";
         inRange.style.textAlign = "center";
         inRange.style.fontFamily = "var(--font-mono)";
-        inRange.addEventListener("input", (e) => part.range = e.target.value);
+        inRange.addEventListener("input", (e) => {
+          markUnsaved();
+          part.range = e.target.value;
+        });
         tdRange.appendChild(inRange);
 
         // DR Físico
@@ -1213,7 +1295,10 @@
         inDrP.value = part.drPhysical;
         inDrP.className = "input-styled input-num";
         inDrP.style.width = "55px";
-        inDrP.addEventListener("input", (e) => part.drPhysical = Math.max(0, parseInt(e.target.value, 10) || 0));
+        inDrP.addEventListener("input", (e) => {
+          markUnsaved();
+          part.drPhysical = Math.max(0, parseInt(e.target.value, 10) || 0);
+        });
         tdDrP.appendChild(inDrP);
 
         // DR Energia
@@ -1226,7 +1311,10 @@
         inDrE.value = part.drEnergy;
         inDrE.className = "input-styled input-num";
         inDrE.style.width = "55px";
-        inDrE.addEventListener("input", (e) => part.drEnergy = Math.max(0, parseInt(e.target.value, 10) || 0));
+        inDrE.addEventListener("input", (e) => {
+          markUnsaved();
+          part.drEnergy = Math.max(0, parseInt(e.target.value, 10) || 0);
+        });
         tdDrE.appendChild(inDrE);
 
         // DR Radiação
@@ -1239,20 +1327,46 @@
         inDrR.value = part.drRadiation;
         inDrR.className = "input-styled input-num";
         inDrR.style.width = "55px";
-        inDrR.addEventListener("input", (e) => part.drRadiation = Math.max(0, parseInt(e.target.value, 10) || 0));
+        inDrR.addEventListener("input", (e) => {
+          markUnsaved();
+          part.drRadiation = Math.max(0, parseInt(e.target.value, 10) || 0);
+        });
         tdDrR.appendChild(inDrR);
 
-        // Ações
+        // Ações: Duplicar e Excluir
         const tdAct = document.createElement("td");
         tdAct.style.textAlign = "center";
+        tdAct.style.whiteSpace = "nowrap";
+
+        const btnDup = document.createElement("button");
+        btnDup.type = "button";
+        btnDup.className = "btn-row-action btn-row-duplicate";
+        btnDup.textContent = "Duplicar";
+        btnDup.title = "Clonar esta parte do corpo";
+        btnDup.addEventListener("click", () => {
+          markUnsaved();
+          const clonePart = {
+            name: part.name,
+            range: part.range,
+            drPhysical: part.drPhysical,
+            drEnergy: part.drEnergy,
+            drRadiation: part.drRadiation
+          };
+          state.bodyParts.splice(index + 1, 0, clonePart);
+          renderBodyPartsTable();
+        });
+
         const btnDel = document.createElement("button");
         btnDel.type = "button";
         btnDel.className = "btn-remove";
         btnDel.textContent = "Excluir";
         btnDel.addEventListener("click", () => {
+          markUnsaved();
           state.bodyParts.splice(index, 1);
           renderBodyPartsTable();
         });
+
+        tdAct.appendChild(btnDup);
         tdAct.appendChild(btnDel);
 
         tr.appendChild(tdName);
@@ -1284,6 +1398,7 @@
         inputR.className = "input-styled input-num";
         inputR.style.width = "60px";
         inputR.addEventListener("input", (e) => {
+          markUnsaved();
           state.character.skills[sk].rank = Math.max(0, Math.min(5, parseInt(e.target.value, 10) || 0));
         });
         tdRank.appendChild(inputR);
@@ -1297,6 +1412,7 @@
         chkTag.style.height = "18px";
         chkTag.style.cursor = "pointer";
         chkTag.addEventListener("change", (e) => {
+          markUnsaved();
           state.character.skills[sk].isTag = e.target.checked;
           calculateDerived();
         });
@@ -1322,7 +1438,10 @@
         inName.value = arma.nome;
         inName.className = "input-styled";
         inName.style.width = "100%";
-        inName.addEventListener("input", (e) => arma.nome = e.target.value);
+        inName.addEventListener("input", (e) => {
+          markUnsaved();
+          arma.nome = e.target.value;
+        });
         tdName.appendChild(inName);
 
         // Tipo de ataque
@@ -1348,7 +1467,10 @@
           selType.appendChild(customOpt);
         }
 
-        selType.addEventListener("change", (e) => arma.tipoAtaque = e.target.value);
+        selType.addEventListener("change", (e) => {
+          markUnsaved();
+          arma.tipoAtaque = e.target.value;
+        });
         tdType.appendChild(selType);
 
         // Dano (DC)
@@ -1361,7 +1483,10 @@
         inDice.max = "30";
         inDice.className = "input-styled input-num";
         inDice.style.width = "55px";
-        inDice.addEventListener("input", (e) => arma.dice = Math.max(1, parseInt(e.target.value, 10) || 1));
+        inDice.addEventListener("input", (e) => {
+          markUnsaved();
+          arma.dice = Math.max(1, parseInt(e.target.value, 10) || 1);
+        });
         tdDice.appendChild(inDice);
 
         // Tipo de dano
@@ -1387,6 +1512,7 @@
           }
 
           chk.addEventListener("change", (e) => {
+            markUnsaved();
             const targetVal = e.target.value;
 
             if (targetVal === outroLabel) {
@@ -1422,7 +1548,7 @@
 
         tdDmgType.appendChild(dmgContainer);
 
-        // Efeitos (Coluna Separada)
+        // Efeitos
         const tdEffects = document.createElement("td");
         const inEffects = document.createElement("input");
         inEffects.type = "text";
@@ -1430,10 +1556,13 @@
         inEffects.placeholder = "Burst, Stun, Spread...";
         inEffects.className = "input-styled";
         inEffects.style.width = "100%";
-        inEffects.addEventListener("input", (e) => arma.effects = e.target.value);
+        inEffects.addEventListener("input", (e) => {
+          markUnsaved();
+          arma.effects = e.target.value;
+        });
         tdEffects.appendChild(inEffects);
 
-        // Qualidades (Coluna Separada)
+        // Qualidades
         const tdQual = document.createElement("td");
         const inQual = document.createElement("input");
         inQual.type = "text";
@@ -1441,7 +1570,10 @@
         inQual.placeholder = "Piercing 1, Vicious...";
         inQual.className = "input-styled";
         inQual.style.width = "100%";
-        inQual.addEventListener("input", (e) => arma.qualidades = e.target.value);
+        inQual.addEventListener("input", (e) => {
+          markUnsaved();
+          arma.qualidades = e.target.value;
+        });
         tdQual.appendChild(inQual);
 
         // Ações: Duplicar e Remover
@@ -1455,6 +1587,7 @@
         btnDup.textContent = "Duplicar";
         btnDup.title = "Clonar este ataque";
         btnDup.addEventListener("click", () => {
+          markUnsaved();
           const cloneAtk = criarItemArma({
             nome: arma.nome,
             peso: arma.peso,
@@ -1475,6 +1608,7 @@
         btnDel.className = "btn-remove";
         btnDel.textContent = "Remover";
         btnDel.addEventListener("click", () => {
+          markUnsaved();
           state.attacks.splice(index, 1);
           renderAttacksTable();
         });
@@ -1494,10 +1628,297 @@
     }
 
     /* =======================================================
+       EXPORTAÇÃO & IMPORTAÇÃO MULTI-FORMATO (PRIORIDADE JSON)
+       ======================================================= */
+    function obterObjetoJsonBase() {
+      return {
+        ...state,
+        attacks: state.attacks.map(atk => atk.toJSON ? atk.toJSON() : atk)
+      };
+    }
+
+    function converterJsonParaPlainText(npcData) {
+      let txt = `=== FICHA DE NPC: ${npcData.name.toUpperCase()} ===\n`;
+      txt += `Natureza: ${npcData.nature === 'creature' ? 'Criatura' : 'Personagem'} | Nível: ${npcData.level} | Categoria: ${npcData.type}\n`;
+      txt += `Keywords: ${npcData.keywords || 'Nenhuma'}\n`;
+      txt += `Tamanho: ${npcData.size}\n`;
+      txt += `Resistência a Veneno Global: ${npcData.drPoisonGlobal || 0} DR\n\n`;
+
+      txt += `--- ATRIBUTOS ---\n`;
+      if (npcData.nature === 'creature') {
+        txt += `Body: ${npcData.creature.body} | Mind: ${npcData.creature.mind}\n`;
+        txt += `Perícias: Melee (${npcData.creature.melee}), Guns (${npcData.creature.guns}), Other (${npcData.creature.other})\n`;
+      } else {
+        const sp = npcData.character.special;
+        txt += `S:${sp.S} P:${sp.P} E:${sp.E} C:${sp.C} I:${sp.I} A:${sp.A} L:${sp.L}\n`;
+      }
+
+      txt += `\n--- PARTES DO CORPO & RESISTÊNCIAS ---\n`;
+      (npcData.bodyParts || []).forEach(p => {
+        txt += `* ${p.name} (d20: ${p.range}) -> Físico: ${p.drPhysical} DR | Energia: ${p.drEnergy} DR | Radiação: ${p.drRadiation} DR\n`;
+      });
+
+      txt += `\n--- ATAQUES ---\n`;
+      (npcData.attacks || []).forEach(a => {
+        txt += `* ${a.nome} [${a.tipoAtaque}] - ${a.dice} DC (${(a.tiposDano || []).join(', ')}) | Efeitos: ${a.effects || '-'} | Qualidades: ${a.qualidades || '-'}\n`;
+      });
+
+      txt += `\n--- HABILIDADES ESPECIAIS ---\n${npcData.specialAbilities || 'Nenhuma'}\n`;
+      txt += `\n--- INVENTÁRIO & LOOT ---\n${npcData.inventory || 'Nenhum'}\n`;
+
+      txt += `\n\n--- METADADOS JSON (DO NOT EDIT) ---\n`;
+      txt += JSON.stringify(npcData);
+      return txt;
+    }
+
+    function converterJsonParaMarkdown(npcData) {
+      let md = `# ${npcData.name}\n\n`;
+      md += `* **Natureza:** ${npcData.nature === 'creature' ? 'Criatura' : 'Personagem'}\n`;
+      md += `* **Nível:** ${npcData.level} | **Categoria:** ${npcData.type}\n`;
+      md += `* **Keywords:** ${npcData.keywords || 'Nenhuma'}\n`;
+      md += `* **Tamanho:** ${npcData.size}\n`;
+      md += `* **DR Veneno Global:** ${npcData.drPoisonGlobal || 0}\n\n`;
+
+      md += `## Atributos\n\n`;
+      if (npcData.nature === 'creature') {
+        md += `* **Body:** ${npcData.creature.body}\n* **Mind:** ${npcData.creature.mind}\n`;
+      } else {
+        const sp = npcData.character.special;
+        md += `| S | P | E | C | I | A | L |\n|---|---|---|---|---|---|---|\n`;
+        md += `| ${sp.S} | ${sp.P} | ${sp.E} | ${sp.C} | ${sp.I} | ${sp.A} | ${sp.L} |\n\n`;
+      }
+
+      md += `## Partes do Corpo\n\n`;
+      md += `| Localização | d20 | DR Físico | DR Energia | DR Radiação |\n`;
+      md += `|---|:---:|:---:|:---:|:---:|\n`;
+      (npcData.bodyParts || []).forEach(p => {
+        md += `| ${p.name} | ${p.range} | ${p.drPhysical} | ${p.drEnergy} | ${p.drRadiation} |\n`;
+      });
+
+      md += `\n## Ataques & Armas\n\n`;
+      md += `| Nome | Tipo | DC | Dano | Efeitos | Qualidades |\n`;
+      md += `|---|:---:|:---:|---|---|---|\n`;
+      (npcData.attacks || []).forEach(a => {
+        md += `| ${a.nome} | ${a.tipoAtaque} | ${a.dice} | ${(a.tiposDano || []).join(', ')} | ${a.effects || '-'} | ${a.qualidades || '-'} |\n`;
+      });
+
+      md += `\n## Habilidades Especiais\n\n${npcData.specialAbilities || 'Nenhuma'}\n\n`;
+      md += `## Inventário & Espólio\n\n${npcData.inventory || 'Nenhum'}\n\n`;
+
+      md += `<!-- JSON_PAYLOAD_START\n${JSON.stringify(npcData, null, 2)}\nJSON_PAYLOAD_END -->\n`;
+      return md;
+    }
+
+    function converterJsonParaHtml(npcData) {
+      return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>${npcData.name} - Ficha Pip-Boy</title>
+  <style>
+    body { font-family: sans-serif; background: #eaf0ec; color: #0f1f15; padding: 24px; }
+    h1, h2 { text-transform: uppercase; border-bottom: 2px solid #0f1f15; padding-bottom: 4px; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; background: #fff; }
+    th, td { border: 1px solid #0f1f15; padding: 8px 12px; text-align: left; }
+    th { background: #0f1f15; color: #fff; }
+  </style>
+</head>
+<body>
+  <h1>${npcData.name} (Nível ${npcData.level} - ${npcData.nature === 'creature' ? 'Criatura' : 'Personagem'})</h1>
+  <p><strong>Categoria:</strong> ${npcData.type} | <strong>Keywords:</strong> ${npcData.keywords || 'Nenhuma'} | <strong>Tamanho:</strong> ${npcData.size}</p>
+  <p><strong>DR Veneno Global:</strong> ${npcData.drPoisonGlobal || 0} DR</p>
+
+  <h2>Partes do Corpo</h2>
+  <table>
+    <thead><tr><th>Localização</th><th>Alcance d20</th><th>DR Físico</th><th>DR Energia</th><th>DR Radiação</th></tr></thead>
+    <tbody>
+      ${(npcData.bodyParts || []).map(p => `<tr><td>${p.name}</td><td>${p.range}</td><td>${p.drPhysical}</td><td>${p.drEnergy}</td><td>${p.drRadiation}</td></tr>`).join('')}
+    </tbody>
+  </table>
+
+  <h2>Ataques</h2>
+  <table>
+    <thead><tr><th>Arma</th><th>Tipo</th><th>DC</th><th>Tipo Dano</th><th>Efeitos</th><th>Qualidades</th></tr></thead>
+    <tbody>
+      ${(npcData.attacks || []).map(a => `<tr><td>${a.nome}</td><td>${a.tipoAtaque}</td><td>${a.dice}</td><td>${(a.tiposDano || []).join(', ')}</td><td>${a.effects \vert{}\vert{} '-'}</td><td>${a.qualidades || '-'}</td></tr>`).join('')}
+    </tbody>
+  </table>
+
+  <h2>Habilidades</h2>
+  <pre>${npcData.specialAbilities || 'Nenhuma'}</pre>
+
+  <h2>Inventário</h2>
+  <pre>${npcData.inventory || 'Nenhum'}</pre>
+
+  <script id="npc-json-data" type="application/json">
+    ${JSON.stringify(npcData)}
+  <\/script>
+</body>
+</html>`;
+    }
+
+    function exportarNpcMultiFormato() {
+      const format = selectExportFormat.value;
+      const baseJsonObj = obterObjetoJsonBase();
+      const safeFileName = (baseJsonObj.name || 'npc').toLowerCase().replace(/\s+/g, '_');
+
+      let content = "";
+      let mimeType = "text/plain";
+      let extension = "txt";
+
+      switch (format) {
+        case "json":
+          content = JSON.stringify(baseJsonObj, null, 2);
+          mimeType = "application/json";
+          extension = "json";
+          break;
+        case "txt":
+          content = converterJsonParaPlainText(baseJsonObj);
+          mimeType = "text/plain";
+          extension = "txt";
+          break;
+        case "md":
+          content = converterJsonParaMarkdown(baseJsonObj);
+          mimeType = "text/markdown";
+          extension = "md";
+          break;
+        case "html":
+          content = converterJsonParaHtml(baseJsonObj);
+          mimeType = "text/html";
+          extension = "html";
+          break;
+      }
+
+      const blob = new Blob([content], { type: `${mimeType};charset=utf-8;` });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${safeFileName}.${extension}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      hasUnsavedChanges = false;
+    }
+
+    function extrairObjetoNpcDeTexto(rawText) {
+      // 1. Prioridade máxima: Tenta parsear JSON diretamente
+      try {
+        const directJson = JSON.parse(rawText);
+        if (directJson && typeof directJson === 'object' && (directJson.name || directJson.nature)) {
+          return directJson;
+        }
+      } catch (e) {}
+
+      // 2. Busca payload JSON embutido em HTML (<script type="application/json">)
+      const htmlJsonMatch = rawText.match(/<script[^>]*id=["']npc-json-data["'][^>]*>([\s\S]*?)<\/script>/i);
+      if (htmlJsonMatch && htmlJsonMatch[1]) {
+        try {
+          return JSON.parse(htmlJsonMatch[1].trim());
+        } catch (e) {}
+      }
+
+      // 3. Busca payload JSON embutido em comentários Markdown (JSON_PAYLOAD_START ... JSON_PAYLOAD_END)
+      const mdJsonMatch = rawText.match(/JSON_PAYLOAD_START\s*([\s\S]*?)\s*JSON_PAYLOAD_END/);
+      if (mdJsonMatch && mdJsonMatch[1]) {
+        try {
+          return JSON.parse(mdJsonMatch[1].trim());
+        } catch (e) {}
+      }
+
+      // 4. Busca JSON embutido em metadata plain text
+      const txtJsonMatch = rawText.match(/--- METADADOS JSON[^-]*---\s*(\{[\s\S]*\})/);
+      if (txtJsonMatch && txtJsonMatch[1]) {
+        try {
+          return JSON.parse(txtJsonMatch[1].trim());
+        } catch (e) {}
+      }
+
+      // 5. Fallback estrutural: parse por linhas caso o arquivo seja um texto customizado
+      const parsedFallback = {};
+      const lines = rawText.split(/\r?\n/);
+      lines.forEach(l => {
+        const line = l.trim();
+        if (line.startsWith("Nome:")) parsedFallback.name = line.replace("Nome:", "").trim();
+        if (line.startsWith("Nível:")) parsedFallback.level = parseInt(line.replace("Nível:", "").trim(), 10) || 1;
+        if (line.startsWith("Keywords:")) parsedFallback.keywords = line.replace("Keywords:", "").trim();
+        if (line.startsWith("Tamanho:")) parsedFallback.size = line.replace("Tamanho:", "").trim().toLowerCase();
+        if (line.includes("Criatura")) parsedFallback.nature = "creature";
+        if (line.includes("Personagem")) parsedFallback.nature = "character";
+      });
+
+      if (parsedFallback.name || parsedFallback.nature) {
+        return parsedFallback;
+      }
+
+      throw new Error("Não foi possível identificar dados válidos do NPC neste arquivo.");
+    }
+
+    function aplicarObjetoNpcNoEstado(npcData) {
+      Object.assign(state, npcData);
+
+      if (Array.isArray(npcData.attacks)) {
+        state.attacks = npcData.attacks.map(atkData => criarItemArma({
+          nome: atkData.nome || atkData.name || "Ataque",
+          peso: atkData.peso || 0.0,
+          raridade: atkData.raridade || 0,
+          valor: atkData.valor || 0,
+          tipoAtaque: atkData.tipoAtaque || atkData.type || "Melee / Melee Weapons",
+          dice: atkData.dice || 2,
+          tiposDano: Array.isArray(atkData.tiposDano) ? atkData.tiposDano : [atkData.damageType || "Físico"],
+          effects: atkData.effects || "",
+          qualidades: atkData.qualidades || atkData.qualities || ""
+        }));
+      }
+
+      if (Array.isArray(npcData.bodyParts)) {
+        state.bodyParts = npcData.bodyParts;
+      }
+
+      if (npcData.drPoisonGlobal !== undefined) {
+        state.drPoisonGlobal = npcData.drPoisonGlobal;
+        inputDrPoisonGlobal.value = state.drPoisonGlobal;
+      }
+
+      inputName.value = state.name || "";
+      inputLevel.value = state.level || 1;
+      inputKeywords.value = state.keywords || "";
+      selectSize.value = state.size || "normal";
+      textAbilities.value = state.specialAbilities || "";
+      textInventory.value = state.inventory || "";
+
+      document.querySelector(`input[name="npc-nature"][value="${state.nature}"]`).checked = true;
+      document.querySelector(`input[name="npc-nature"][value="${state.nature}"]`).dispatchEvent(new Event("change"));
+
+      inputCreatureBody.value = state.creature.body || 5;
+      inputCreatureMind.value = state.creature.mind || 4;
+      skillCrMelee.value = state.creature.melee || 1;
+      skillCrGuns.value = state.creature.guns || 0;
+      skillCrOther.value = state.creature.other || 1;
+
+      ["S","P","E","C","I","A","L"].forEach(letter => {
+        const el = document.getElementById(`char-attr-${letter}`);
+        if (el && state.character.special[letter]) {
+          el.value = state.character.special[letter];
+        }
+      });
+
+      updateTypeDropdownOptions();
+      selectType.value = state.type || "normal";
+
+      renderBodyPartsTable();
+      renderCharacterSkillsTable();
+      renderAttacksTable();
+      calculateDerived();
+      hasUnsavedChanges = false;
+    }
+
+    /* =======================================================
        LISTENERS & ATUALIZAÇÕES
        ======================================================= */
     npcNatureRadios.forEach(r => {
       r.addEventListener("change", (e) => {
+        markUnsaved();
         state.nature = e.target.value;
         if (state.nature === "creature") {
           labelAttrHeaderTitle.textContent = "Atributos da Criatura (Body & Mind)";
@@ -1519,24 +1940,27 @@
       });
     });
 
-    inputName.addEventListener("input", (e) => state.name = e.target.value);
+    inputName.addEventListener("input", (e) => { markUnsaved(); state.name = e.target.value; });
     inputLevel.addEventListener("input", (e) => {
+      markUnsaved();
       state.level = Math.max(1, parseInt(e.target.value, 10) || 1);
       calculateDerived();
     });
     selectType.addEventListener("change", (e) => {
+      markUnsaved();
       state.type = e.target.value;
       calculateDerived();
     });
-    inputKeywords.addEventListener("input", (e) => state.keywords = e.target.value);
+    inputKeywords.addEventListener("input", (e) => { markUnsaved(); state.keywords = e.target.value; });
     selectSize.addEventListener("change", (e) => {
+      markUnsaved();
       state.size = e.target.value;
       calculateDerived();
     });
 
-    // Keywords quick buttons
     document.querySelectorAll(".btn-keyword-tag").forEach(b => {
       b.addEventListener("click", () => {
+        markUnsaved();
         const kw = b.getAttribute("data-kw");
         const cur = inputKeywords.value.split(",").map(s => s.trim()).filter(Boolean);
         if (!cur.includes(kw)) {
@@ -1547,57 +1971,66 @@
       });
     });
 
-    // Inputs Criatura
     inputCreatureBody.addEventListener("input", (e) => {
+      markUnsaved();
       state.creature.body = parseInt(e.target.value, 10) || 4;
       calculateDerived();
     });
     inputCreatureMind.addEventListener("input", (e) => {
+      markUnsaved();
       state.creature.mind = parseInt(e.target.value, 10) || 4;
       calculateDerived();
     });
 
     skillCrMelee.addEventListener("input", (e) => {
+      markUnsaved();
       state.creature.melee = parseInt(e.target.value, 10) || 0;
       calculateDerived();
     });
     skillCrGuns.addEventListener("input", (e) => {
+      markUnsaved();
       state.creature.guns = parseInt(e.target.value, 10) || 0;
       calculateDerived();
     });
     skillCrOther.addEventListener("input", (e) => {
+      markUnsaved();
       state.creature.other = parseInt(e.target.value, 10) || 0;
       calculateDerived();
     });
 
-    // Inputs SPECIAL
     ["S","P","E","C","I","A","L"].forEach(letter => {
       const el = document.getElementById(`char-attr-${letter}`);
       if (el) {
         el.addEventListener("input", (e) => {
+          markUnsaved();
           state.character.special[letter] = parseInt(e.target.value, 10) || 4;
           calculateDerived();
         });
       }
     });
 
-    // Partes do Corpo
+    inputDrPoisonGlobal.addEventListener("input", (e) => {
+      markUnsaved();
+      state.drPoisonGlobal = Math.max(0, parseInt(e.target.value, 10) || 0);
+    });
+
     btnAddBodyPart.addEventListener("click", () => {
+      markUnsaved();
       state.bodyParts.push({ name: "Nova Parte", range: "1-20", drPhysical: 0, drEnergy: 0, drRadiation: 0 });
       renderBodyPartsTable();
     });
 
     btnPresetHumanParts.addEventListener("click", () => {
+      markUnsaved();
       state.bodyParts = JSON.parse(JSON.stringify(DEFAULT_BODY_PARTS));
       renderBodyPartsTable();
     });
 
-    // Habilidades e Inventário
-    textAbilities.addEventListener("input", (e) => state.specialAbilities = e.target.value);
-    textInventory.addEventListener("input", (e) => state.inventory = e.target.value);
+    textAbilities.addEventListener("input", (e) => { markUnsaved(); state.specialAbilities = e.target.value; });
+    textInventory.addEventListener("input", (e) => { markUnsaved(); state.inventory = e.target.value; });
 
-    // Adicionar Ataque
     btnAddAttack.addEventListener("click", () => {
+      markUnsaved();
       state.attacks.push(criarItemArma({
         nome: "Novo Ataque",
         tipoAtaque: "Melee / Melee Weapons",
@@ -1609,88 +2042,25 @@
       renderAttacksTable();
     });
 
-    // Exportar JSON
-    btnExportJson.addEventListener("click", () => {
-      const exportData = {
-        ...state,
-        attacks: state.attacks.map(atk => atk.toJSON ? atk.toJSON() : atk)
-      };
-      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${(state.name || 'npc').toLowerCase().replace(/\s+/g, '_')}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    });
+    // Disparo da Exportação
+    btnExportNpc.addEventListener("click", exportarNpcMultiFormato);
 
-    // Importar JSON
-    inputImportJson.addEventListener("change", (e) => {
+    // Disparo da Importação Universal
+    inputImportNpcUniversal.addEventListener("change", (e) => {
       const file = e.target.files[0];
       if (!file) return;
 
       const reader = new FileReader();
       reader.onload = (evt) => {
         try {
-          const parsed = JSON.parse(evt.target.result);
-          Object.assign(state, parsed);
-
-          if (Array.isArray(parsed.attacks)) {
-            state.attacks = parsed.attacks.map(atkData => criarItemArma({
-              nome: atkData.nome || atkData.name || "Ataque",
-              peso: atkData.peso || 0.0,
-              raridade: atkData.raridade || 0,
-              valor: atkData.valor || 0,
-              tipoAtaque: atkData.tipoAtaque || atkData.type || "Melee / Melee Weapons",
-              dice: atkData.dice || 2,
-              tiposDano: Array.isArray(atkData.tiposDano) ? atkData.tiposDano : [atkData.damageType || "Físico"],
-              effects: atkData.effects || "",
-              qualidades: atkData.qualidades || atkData.qualities || ""
-            }));
-          }
-
-          if (Array.isArray(parsed.bodyParts)) {
-            state.bodyParts = parsed.bodyParts;
-          }
-
-          inputName.value = state.name || "";
-          inputLevel.value = state.level || 1;
-          inputKeywords.value = state.keywords || "";
-          selectSize.value = state.size || "normal";
-          textAbilities.value = state.specialAbilities || "";
-          textInventory.value = state.inventory || "";
-
-          document.querySelector(`input[name="npc-nature"][value="${state.nature}"]`).checked = true;
-          document.querySelector(`input[name="npc-nature"][value="${state.nature}"]`).dispatchEvent(new Event("change"));
-
-          inputCreatureBody.value = state.creature.body || 5;
-          inputCreatureMind.value = state.creature.mind || 4;
-          skillCrMelee.value = state.creature.melee || 1;
-          skillCrGuns.value = state.creature.guns || 0;
-          skillCrOther.value = state.creature.other || 1;
-
-          ["S","P","E","C","I","A","L"].forEach(letter => {
-            const el = document.getElementById(`char-attr-${letter}`);
-            if (el && state.character.special[letter]) {
-              el.value = state.character.special[letter];
-            }
-          });
-
-          updateTypeDropdownOptions();
-          selectType.value = state.type || "normal";
-
-          renderBodyPartsTable();
-          renderCharacterSkillsTable();
-          renderAttacksTable();
-          calculateDerived();
-
-          alert("NPC importado com sucesso!");
+          const rawText = evt.target.result;
+          const parsedObject = extrairObjetoNpcDeTexto(rawText);
+          aplicarObjetoNpcNoEstado(parsedObject);
+          alert(`Ficha de "${state.name}" importada com sucesso!`);
         } catch (err) {
-          alert("Erro ao importar o arquivo JSON: formato inválido.");
+          alert(`Erro ao importar o arquivo: ${err.message || "Formato incompatível."}`);
         }
-        inputImportJson.value = "";
+        inputImportNpcUniversal.value = "";
       };
       reader.readAsText(file);
     });
