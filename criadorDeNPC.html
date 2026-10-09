@@ -279,21 +279,24 @@
       transform: scale(0.96);
     }
 
-    .btn-action-small {
+    .btn-row-action {
       padding: 4px 8px;
-      font-family: var(--font-display);
+      font-family: var(--font-mono);
       font-size: 0.72rem;
-      text-transform: uppercase;
       font-weight: 800;
-      color: #ffffff;
-      background-color: var(--vault-header);
-      border: 1.5px solid var(--vault-border);
       border-radius: 4px;
       cursor: pointer;
       transition: all 0.15s;
+      margin-right: 4px;
     }
-    .btn-action-small:hover {
-      background-color: var(--vault-green);
+
+    .btn-row-duplicate {
+      color: #000000;
+      background: #e0f2fe;
+      border: 1.5px solid #0284c7;
+    }
+    .btn-row-duplicate:hover {
+      background: #bae6fd;
     }
 
     .btn-remove {
@@ -357,7 +360,7 @@
     .budget-ok { background: #dcfce7; color: #166534; border: 1px solid #16a34a; }
     .budget-alert { background: #fee2e2; color: #991b1b; border: 1px solid #dc2626; }
 
-    /* Tabelas de perícias e ataques */
+    /* Tabelas */
     .compact-table {
       width: 100%;
       border-collapse: collapse;
@@ -455,7 +458,6 @@
         </div>
         <div class="card-body">
           
-          <!-- Seletor Criatura vs Personagem -->
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
             <span style="font-size: 0.82rem; font-weight: 800; text-transform: uppercase;">Divisão do NPC:</span>
             <div class="toggle-group">
@@ -471,28 +473,22 @@
           </div>
 
           <div class="form-grid-3">
-            <!-- Nome -->
             <div class="cell-box">
               <label for="input-npc-name" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Nome:</label>
               <input type="text" id="input-npc-name" value="Radroach Mutante" class="input-styled" style="flex: 1;">
             </div>
 
-            <!-- Nível -->
             <div class="cell-box">
               <label for="input-npc-level" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Nível:</label>
               <input type="number" id="input-npc-level" value="1" min="1" max="99" step="1" class="input-styled input-num">
             </div>
 
-            <!-- Categoria/Tier -->
             <div class="cell-box">
               <label for="select-npc-type" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Categoria:</label>
-              <select id="select-npc-type" class="input-styled" style="flex: 1;">
-                <!-- Dinâmico via JS com base em Criatura/Personagem -->
-              </select>
+              <select id="select-npc-type" class="input-styled" style="flex: 1;"></select>
             </div>
           </div>
 
-          <!-- Palavras-chave (Keywords) -->
           <div class="cell-box" style="flex-direction: column; align-items: stretch; gap: 8px;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <span style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase;">Palavras-Chave (Keywords):</span>
@@ -500,23 +496,23 @@
             </div>
             <input type="text" id="input-npc-keywords" value="Mutated, Insect" class="input-styled" placeholder="Ex: Human, Raider, Brotherhood, Mutated...">
             <div style="flex-wrap: wrap; gap: 6px; padding-top: 4px; display: flex;">
-              <button type="button" class="btn-keyword-tag btn-action-small" data-kw="Human">Human</button>
-              <button type="button" class="btn-keyword-tag btn-action-small" data-kw="Raider">Raider</button>
-              <button type="button" class="btn-keyword-tag btn-action-small" data-kw="Brotherhood">Brotherhood</button>
-              <button type="button" class="btn-keyword-tag btn-action-small" data-kw="Ghoul">Ghoul</button>
-              <button type="button" class="btn-keyword-tag btn-action-small" data-kw="Super Mutant">Super Mutant</button>
-              <button type="button" class="btn-keyword-tag btn-action-small" data-kw="Robot">Robot</button>
-              <button type="button" class="btn-keyword-tag btn-action-small" data-kw="Mutated">Mutated</button>
-              <button type="button" class="btn-keyword-tag btn-action-small" data-kw="Mammal">Mammal</button>
-              <button type="button" class="btn-keyword-tag btn-action-small" data-kw="Insect">Insect</button>
-              <button type="button" class="btn-keyword-tag btn-action-small" data-kw="Lizard">Lizard</button>
+              <button type="button" class="btn-keyword-tag btn-pipboy-action" style="padding: 2px 8px; font-size: 0.65rem;" data-kw="Human">Human</button>
+              <button type="button" class="btn-keyword-tag btn-pipboy-action" style="padding: 2px 8px; font-size: 0.65rem;" data-kw="Raider">Raider</button>
+              <button type="button" class="btn-keyword-tag btn-pipboy-action" style="padding: 2px 8px; font-size: 0.65rem;" data-kw="Brotherhood">Brotherhood</button>
+              <button type="button" class="btn-keyword-tag btn-pipboy-action" style="padding: 2px 8px; font-size: 0.65rem;" data-kw="Ghoul">Ghoul</button>
+              <button type="button" class="btn-keyword-tag btn-pipboy-action" style="padding: 2px 8px; font-size: 0.65rem;" data-kw="Super Mutant">Super Mutant</button>
+              <button type="button" class="btn-keyword-tag btn-pipboy-action" style="padding: 2px 8px; font-size: 0.65rem;" data-kw="Robot">Robot</button>
+              <button type="button" class="btn-keyword-tag btn-pipboy-action" style="padding: 2px 8px; font-size: 0.65rem;" data-kw="Mutated">Mutated</button>
+              <button type="button" class="btn-keyword-tag btn-pipboy-action" style="padding: 2px 8px; font-size: 0.65rem;" data-kw="Mammal">Mammal</button>
+              <button type="button" class="btn-keyword-tag btn-pipboy-action" style="padding: 2px 8px; font-size: 0.65rem;" data-kw="Insect">Insect</button>
+              <button type="button" class="btn-keyword-tag btn-pipboy-action" style="padding: 2px 8px; font-size: 0.65rem;" data-kw="Lizard">Lizard</button>
             </div>
           </div>
 
         </div>
       </section>
 
-      <!-- ==================== CARD 2: ATRIBUTOS (BODY/MIND OU SPECIAL) ==================== -->
+      <!-- ==================== CARD 2: ATRIBUTOS ==================== -->
       <section class="card">
         <div class="card-header">
           <span id="label-attr-header-title">Atributos da Criatura (Body &amp; Mind)</span>
@@ -524,7 +520,6 @@
         </div>
         <div class="card-body">
 
-          <!-- Painel Criatura: Body & Mind -->
           <div id="panel-attr-creature" class="form-grid-2">
             <div class="cell-box">
               <div>
@@ -543,7 +538,6 @@
             </div>
           </div>
 
-          <!-- Painel Personagem: S.P.E.C.I.A.L. -->
           <div id="panel-attr-character" class="hidden">
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px;">
               <div class="cell-box" style="flex-direction: column; align-items: center; gap: 4px;">
@@ -610,7 +604,6 @@
             </div>
           </div>
 
-          <!-- Modificadores adicionais de criatura/tamanho -->
           <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--vault-border); padding-top: 10px; flex-wrap: wrap; gap: 10px;">
             <div style="display: flex; align-items: center; gap: 8px;">
               <span style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase;">Habilidade de Tamanho:</span>
@@ -624,29 +617,47 @@
               Pontos de Sorte (Luck): <span id="calc-disp-luck-points" style="color: var(--vault-green);">0</span>
             </div>
           </div>
+        </div>
+      </section>
 
-          <!-- Resistências a Dano -->
-          <div style="border-top: 1px dashed var(--vault-border); padding-top: 10px; display: flex; flex-direction: column; gap: 6px;">
-            <span style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase;">Resistências a Dano (DR Geral):</span>
-            <div class="form-grid-3">
-              <div class="cell-box" style="padding: 6px 10px;">
-                <span style="font-size: 0.72rem; font-weight: 700;">Físico (Physical):</span>
-                <input type="number" id="input-dr-physical" value="1" min="0" max="99" class="input-styled input-num" style="width: 60px;">
-              </div>
-              <div class="cell-box" style="padding: 6px 10px;">
-                <span style="font-size: 0.72rem; font-weight: 700;">Energia (Energy):</span>
-                <input type="number" id="input-dr-energy" value="0" min="0" max="99" class="input-styled input-num" style="width: 60px;">
-              </div>
-              <div class="cell-box" style="padding: 6px 10px;">
-                <span style="font-size: 0.72rem; font-weight: 700;">Radiação (Radiation):</span>
-                <input type="number" id="input-dr-radiation" value="0" min="0" max="99" class="input-styled input-num" style="width: 60px;">
-              </div>
-            </div>
+      <!-- ==================== CARD 4: PARTES DO CORPO & RESISTÊNCIAS ==================== -->
+      <section class="card">
+        <div class="card-header">
+          <span>Partes do Corpo &amp; Resistências a Dano (Localização)</span>
+          <span style="font-size: 0.7rem; font-family: var(--font-mono);">Acerto no d20 &bull; DR Específica</span>
+        </div>
+        <div class="card-body">
+          <div class="custom-scrollbar" style="overflow-x: auto;">
+            <table class="compact-table">
+              <thead>
+                <tr>
+                  <th style="width: 25%;">Parte do Corpo</th>
+                  <th style="width: 20%; text-align: center;">Alcance d20</th>
+                  <th style="width: 14%; text-align: center;">DR Físico</th>
+                  <th style="width: 14%; text-align: center;">DR Energia</th>
+                  <th style="width: 14%; text-align: center;">DR Radiação</th>
+                  <th style="width: 13%; text-align: center;">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-body-parts"></tbody>
+            </table>
+          </div>
+
+          <div style="display: flex; gap: 10px; align-items: center; justify-content: flex-start; padding-top: 4px; flex-wrap: wrap;">
+            <button id="btn-add-body-part" type="button" class="btn-pipboy-action">
+              <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
+              </svg>
+              Adicionar Parte do Corpo
+            </button>
+            <button id="btn-preset-human-parts" type="button" class="btn-pipboy-action" style="background-color: #f7fee7;">
+              Predefinido Humanoide (6 Partes)
+            </button>
           </div>
         </div>
       </section>
 
-      <!-- ==================== CARD 4: PERÍCIAS ==================== -->
+      <!-- ==================== CARD 5: PERÍCIAS ==================== -->
       <section class="card">
         <div class="card-header">
           <span>Perícias do NPC</span>
@@ -654,7 +665,6 @@
         </div>
         <div class="card-body">
           
-          <!-- Perícias de Criatura -->
           <div id="panel-skills-creature">
             <div style="margin-bottom: 8px; font-size: 0.72rem; color: var(--vault-dim);">
               Todas as perícias de criatura são tratadas automaticamente como <strong>Tag Skills</strong>.
@@ -693,7 +703,6 @@
             </div>
           </div>
 
-          <!-- Perícias de Personagem -->
           <div id="panel-skills-character" class="hidden">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
               <span style="font-size: 0.72rem; color: var(--vault-dim);">
@@ -718,39 +727,49 @@
         </div>
       </section>
 
-      <!-- ==================== CARD 5: ATAQUES & ARMAS ==================== -->
+      <!-- ==================== CARD 6: ATAQUES & ARMAS ==================== -->
       <section class="card">
         <div class="card-header">
           <span>Ataques &amp; Armamentos (ItemClass / Arma)</span>
-          <button id="btn-add-attack" type="button" class="btn-action-small">+ Adicionar Ataque</button>
+          <span style="font-size: 0.7rem; font-family: var(--font-mono);">Gestão de Armas</span>
         </div>
         <div class="card-body">
           <div class="custom-scrollbar" style="overflow-x: auto;">
             <table class="compact-table">
               <thead>
                 <tr>
-                  <th style="width: 20%;">Nome</th>
-                  <th style="width: 17%; text-align: center;">Tipo de ataque</th>
-                  <th style="width: 10%; text-align: center;">Dano (DC)</th>
-                  <th style="width: 25%; text-align: center;">Tipo de dano</th>
-                  <th style="width: 18%;">Efeitos / Qualidades</th>
+                  <th style="width: 17%;">Nome</th>
+                  <th style="width: 15%; text-align: center;">Tipo de ataque</th>
+                  <th style="width: 8%; text-align: center;">DC</th>
+                  <th style="width: 22%; text-align: center;">Tipo de dano</th>
+                  <th style="width: 14%;">Efeitos</th>
+                  <th style="width: 14%;">Qualidades</th>
                   <th style="width: 10%; text-align: center;">Ações</th>
                 </tr>
               </thead>
               <tbody id="tbody-attacks"></tbody>
             </table>
           </div>
+
+          <!-- Botão de adicionar ataque abaixo da tabela -->
+          <div style="padding-top: 4px;">
+            <button id="btn-add-attack" type="button" class="btn-pipboy-action">
+              <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
+              </svg>
+              Adicionar Ataque
+            </button>
+          </div>
         </div>
       </section>
 
-      <!-- ==================== CARD 6: HABILIDADES ESPECIAIS & INVENTÁRIO ==================== -->
+      <!-- ==================== CARD 7: HABILIDADES ESPECIAIS & INVENTÁRIO ==================== -->
       <section class="card">
         <div class="card-header">
           <span>Habilidades Especiais &amp; Inventário (Loot)</span>
         </div>
         <div class="card-body">
           <div class="form-grid-2">
-            <!-- Habilidades Especiais -->
             <div style="display: flex; flex-direction: column; gap: 6px;">
               <label for="text-npc-abilities" style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase;">
                 Habilidades Especiais &amp; Perks:
@@ -758,7 +777,6 @@
               <textarea id="text-npc-abilities" rows="4" class="input-styled custom-scrollbar" style="width: 100%; resize: vertical;" placeholder="Ex: Imune a Radiação, Mordida Venenosa (+1 Dano de Veneno)..."></textarea>
             </div>
 
-            <!-- Inventário e Espólio -->
             <div style="display: flex; flex-direction: column; gap: 6px;">
               <label for="text-npc-inventory" style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase;">
                 Inventário / Espólio (Loot &amp; Butchery):
@@ -800,7 +818,7 @@
 
   <script>
     /* =======================================================
-       1. FÁBRICA DE ITENS DE ARMA (USA A CLASSE ITEM DIRETAMENTE)
+       1. FÁBRICA DE ITENS DE ARMA VIA ITEMCLASS
        ======================================================= */
     function criarItemArma({
       nome = "Novo Ataque",
@@ -810,6 +828,7 @@
       tipoAtaque = "Melee / Melee Weapons",
       dice = 2,
       tiposDano = [(typeof TipoDeDano !== "undefined" && TipoDeDano.FISICO) ? TipoDeDano.FISICO : "Físico"],
+      effects = "",
       qualidades = ""
     } = {}) {
       const armaItem = (typeof Item !== "undefined")
@@ -821,6 +840,7 @@
       armaItem.tiposDano = Array.isArray(tiposDano) && tiposDano.length > 0 
         ? [...tiposDano] 
         : ["Físico"];
+      armaItem.effects = effects;
       armaItem.qualidades = qualidades;
 
       armaItem.toJSON = function() {
@@ -832,6 +852,7 @@
           tipoAtaque: this.tipoAtaque,
           dice: this.dice,
           tiposDano: this.tiposDano,
+          effects: this.effects,
           qualidades: this.qualidades
         };
       };
@@ -868,6 +889,15 @@
       { key: "outro", label: (typeof TipoDeDano !== "undefined" && TipoDeDano.OUTRO) ? TipoDeDano.OUTRO : "Outro" }
     ];
 
+    const DEFAULT_BODY_PARTS = [
+      { name: "Cabeça", range: "1-2", drPhysical: 1, drEnergy: 0, drRadiation: 0 },
+      { name: "Torso", range: "3-8", drPhysical: 1, drEnergy: 0, drRadiation: 0 },
+      { name: "Braço Esquerdo", range: "9-11", drPhysical: 1, drEnergy: 0, drRadiation: 0 },
+      { name: "Braço Direito", range: "12-14", drPhysical: 1, drEnergy: 0, drRadiation: 0 },
+      { name: "Perna Esquerda", range: "15-17", drPhysical: 1, drEnergy: 0, drRadiation: 0 },
+      { name: "Perna Direita", range: "18-20", drPhysical: 1, drEnergy: 0, drRadiation: 0 }
+    ];
+
     const state = {
       nature: "creature",
       name: "Radroach Mutante",
@@ -875,7 +905,7 @@
       type: "normal",
       keywords: "Mutated, Insect",
       size: "normal",
-      dr: { physical: 1, energy: 0, radiation: 0 },
+      bodyParts: JSON.parse(JSON.stringify(DEFAULT_BODY_PARTS)),
       creature: {
         body: 5,
         mind: 4,
@@ -893,6 +923,7 @@
           tipoAtaque: "Melee / Melee Weapons",
           dice: 2,
           tiposDano: [(typeof TipoDeDano !== "undefined" && TipoDeDano.FISICO) ? TipoDeDano.FISICO : "Físico"],
+          effects: "",
           qualidades: "Vicious"
         })
       ],
@@ -931,9 +962,9 @@
     const boxCharLuckPoints = document.getElementById("box-char-luck-points");
     const calcDispLuckPoints = document.getElementById("calc-disp-luck-points");
 
-    const inputDrPhysical = document.getElementById("input-dr-physical");
-    const inputDrEnergy = document.getElementById("input-dr-energy");
-    const inputDrRadiation = document.getElementById("input-dr-radiation");
+    const tbodyBodyParts = document.getElementById("tbody-body-parts");
+    const btnAddBodyPart = document.getElementById("btn-add-body-part");
+    const btnPresetHumanParts = document.getElementById("btn-preset-human-parts");
 
     const panelSkillsCreature = document.getElementById("panel-skills-creature");
     const panelSkillsCharacter = document.getElementById("panel-skills-character");
@@ -1142,6 +1173,98 @@
     /* =======================================================
        RENDERIZAÇÃO DE TABELAS
        ======================================================= */
+    function renderBodyPartsTable() {
+      tbodyBodyParts.innerHTML = "";
+      state.bodyParts.forEach((part, index) => {
+        const tr = document.createElement("tr");
+        tr.className = index % 2 === 0 ? "row-odd" : "row-even";
+
+        // Nome da Parte
+        const tdName = document.createElement("td");
+        const inName = document.createElement("input");
+        inName.type = "text";
+        inName.value = part.name;
+        inName.className = "input-styled";
+        inName.style.width = "100%";
+        inName.addEventListener("input", (e) => part.name = e.target.value);
+        tdName.appendChild(inName);
+
+        // Alcance no d20
+        const tdRange = document.createElement("td");
+        tdRange.style.textAlign = "center";
+        const inRange = document.createElement("input");
+        inRange.type = "text";
+        inRange.value = part.range;
+        inRange.placeholder = "Ex: 1-2";
+        inRange.className = "input-styled";
+        inRange.style.width = "85px";
+        inRange.style.textAlign = "center";
+        inRange.style.fontFamily = "var(--font-mono)";
+        inRange.addEventListener("input", (e) => part.range = e.target.value);
+        tdRange.appendChild(inRange);
+
+        // DR Físico
+        const tdDrP = document.createElement("td");
+        tdDrP.style.textAlign = "center";
+        const inDrP = document.createElement("input");
+        inDrP.type = "number";
+        inDrP.min = "0";
+        inDrP.max = "99";
+        inDrP.value = part.drPhysical;
+        inDrP.className = "input-styled input-num";
+        inDrP.style.width = "55px";
+        inDrP.addEventListener("input", (e) => part.drPhysical = Math.max(0, parseInt(e.target.value, 10) || 0));
+        tdDrP.appendChild(inDrP);
+
+        // DR Energia
+        const tdDrE = document.createElement("td");
+        tdDrE.style.textAlign = "center";
+        const inDrE = document.createElement("input");
+        inDrE.type = "number";
+        inDrE.min = "0";
+        inDrE.max = "99";
+        inDrE.value = part.drEnergy;
+        inDrE.className = "input-styled input-num";
+        inDrE.style.width = "55px";
+        inDrE.addEventListener("input", (e) => part.drEnergy = Math.max(0, parseInt(e.target.value, 10) || 0));
+        tdDrE.appendChild(inDrE);
+
+        // DR Radiação
+        const tdDrR = document.createElement("td");
+        tdDrR.style.textAlign = "center";
+        const inDrR = document.createElement("input");
+        inDrR.type = "number";
+        inDrR.min = "0";
+        inDrR.max = "99";
+        inDrR.value = part.drRadiation;
+        inDrR.className = "input-styled input-num";
+        inDrR.style.width = "55px";
+        inDrR.addEventListener("input", (e) => part.drRadiation = Math.max(0, parseInt(e.target.value, 10) || 0));
+        tdDrR.appendChild(inDrR);
+
+        // Ações
+        const tdAct = document.createElement("td");
+        tdAct.style.textAlign = "center";
+        const btnDel = document.createElement("button");
+        btnDel.type = "button";
+        btnDel.className = "btn-remove";
+        btnDel.textContent = "Excluir";
+        btnDel.addEventListener("click", () => {
+          state.bodyParts.splice(index, 1);
+          renderBodyPartsTable();
+        });
+        tdAct.appendChild(btnDel);
+
+        tr.appendChild(tdName);
+        tr.appendChild(tdRange);
+        tr.appendChild(tdDrP);
+        tr.appendChild(tdDrE);
+        tr.appendChild(tdDrR);
+        tr.appendChild(tdAct);
+        tbodyBodyParts.appendChild(tr);
+      });
+    }
+
     function renderCharacterSkillsTable() {
       tbodyCharSkills.innerHTML = "";
       CHARACTER_SKILLS.forEach((sk, idx) => {
@@ -1241,7 +1364,7 @@
         inDice.addEventListener("input", (e) => arma.dice = Math.max(1, parseInt(e.target.value, 10) || 1));
         tdDice.appendChild(inDice);
 
-        // Tipo de dano (5 Checkmarks com exclusão mútua de Outro e mínimo 1 ativo)
+        // Tipo de dano
         const tdDmgType = document.createElement("td");
         const dmgContainer = document.createElement("div");
         dmgContainer.className = "damage-types-container";
@@ -1299,20 +1422,54 @@
 
         tdDmgType.appendChild(dmgContainer);
 
-        // Qualidades
+        // Efeitos (Coluna Separada)
+        const tdEffects = document.createElement("td");
+        const inEffects = document.createElement("input");
+        inEffects.type = "text";
+        inEffects.value = arma.effects || "";
+        inEffects.placeholder = "Burst, Stun, Spread...";
+        inEffects.className = "input-styled";
+        inEffects.style.width = "100%";
+        inEffects.addEventListener("input", (e) => arma.effects = e.target.value);
+        tdEffects.appendChild(inEffects);
+
+        // Qualidades (Coluna Separada)
         const tdQual = document.createElement("td");
         const inQual = document.createElement("input");
         inQual.type = "text";
-        inQual.value = arma.qualidades;
+        inQual.value = arma.qualidades || "";
         inQual.placeholder = "Piercing 1, Vicious...";
         inQual.className = "input-styled";
         inQual.style.width = "100%";
         inQual.addEventListener("input", (e) => arma.qualidades = e.target.value);
         tdQual.appendChild(inQual);
 
-        // Ações
+        // Ações: Duplicar e Remover
         const tdAct = document.createElement("td");
         tdAct.style.textAlign = "center";
+        tdAct.style.whiteSpace = "nowrap";
+
+        const btnDup = document.createElement("button");
+        btnDup.type = "button";
+        btnDup.className = "btn-row-action btn-row-duplicate";
+        btnDup.textContent = "Duplicar";
+        btnDup.title = "Clonar este ataque";
+        btnDup.addEventListener("click", () => {
+          const cloneAtk = criarItemArma({
+            nome: arma.nome,
+            peso: arma.peso,
+            raridade: arma.raridade,
+            valor: arma.valor,
+            tipoAtaque: arma.tipoAtaque,
+            dice: arma.dice,
+            tiposDano: [...arma.tiposDano],
+            effects: arma.effects,
+            qualidades: arma.qualidades
+          });
+          state.attacks.splice(index + 1, 0, cloneAtk);
+          renderAttacksTable();
+        });
+
         const btnDel = document.createElement("button");
         btnDel.type = "button";
         btnDel.className = "btn-remove";
@@ -1321,12 +1478,15 @@
           state.attacks.splice(index, 1);
           renderAttacksTable();
         });
+
+        tdAct.appendChild(btnDup);
         tdAct.appendChild(btnDel);
 
         tr.appendChild(tdName);
         tr.appendChild(tdType);
         tr.appendChild(tdDice);
         tr.appendChild(tdDmgType);
+        tr.appendChild(tdEffects);
         tr.appendChild(tdQual);
         tr.appendChild(tdAct);
         tbodyAttacks.appendChild(tr);
@@ -1421,22 +1581,29 @@
       }
     });
 
-    // DR
-    inputDrPhysical.addEventListener("input", (e) => state.dr.physical = parseInt(e.target.value, 10) || 0);
-    inputDrEnergy.addEventListener("input", (e) => state.dr.energy = parseInt(e.target.value, 10) || 0);
-    inputDrRadiation.addEventListener("input", (e) => state.dr.radiation = parseInt(e.target.value, 10) || 0);
+    // Partes do Corpo
+    btnAddBodyPart.addEventListener("click", () => {
+      state.bodyParts.push({ name: "Nova Parte", range: "1-20", drPhysical: 0, drEnergy: 0, drRadiation: 0 });
+      renderBodyPartsTable();
+    });
+
+    btnPresetHumanParts.addEventListener("click", () => {
+      state.bodyParts = JSON.parse(JSON.stringify(DEFAULT_BODY_PARTS));
+      renderBodyPartsTable();
+    });
 
     // Habilidades e Inventário
     textAbilities.addEventListener("input", (e) => state.specialAbilities = e.target.value);
     textInventory.addEventListener("input", (e) => state.inventory = e.target.value);
 
-    // Adicionar Ataque instanciando Item diretamente via fábrica
+    // Adicionar Ataque
     btnAddAttack.addEventListener("click", () => {
       state.attacks.push(criarItemArma({
         nome: "Novo Ataque",
         tipoAtaque: "Melee / Melee Weapons",
         dice: 2,
         tiposDano: [(typeof TipoDeDano !== "undefined" && TipoDeDano.FISICO) ? TipoDeDano.FISICO : "Físico"],
+        effects: "",
         qualidades: ""
       }));
       renderAttacksTable();
@@ -1470,7 +1637,6 @@
           const parsed = JSON.parse(evt.target.result);
           Object.assign(state, parsed);
 
-          // Re-instancia ataques como instâncias da classe Item com propriedades anexadas
           if (Array.isArray(parsed.attacks)) {
             state.attacks = parsed.attacks.map(atkData => criarItemArma({
               nome: atkData.nome || atkData.name || "Ataque",
@@ -1480,21 +1646,21 @@
               tipoAtaque: atkData.tipoAtaque || atkData.type || "Melee / Melee Weapons",
               dice: atkData.dice || 2,
               tiposDano: Array.isArray(atkData.tiposDano) ? atkData.tiposDano : [atkData.damageType || "Físico"],
+              effects: atkData.effects || "",
               qualidades: atkData.qualidades || atkData.qualities || ""
             }));
           }
 
-          // Atualiza Interface
+          if (Array.isArray(parsed.bodyParts)) {
+            state.bodyParts = parsed.bodyParts;
+          }
+
           inputName.value = state.name || "";
           inputLevel.value = state.level || 1;
           inputKeywords.value = state.keywords || "";
           selectSize.value = state.size || "normal";
           textAbilities.value = state.specialAbilities || "";
           textInventory.value = state.inventory || "";
-
-          inputDrPhysical.value = state.dr.physical || 0;
-          inputDrEnergy.value = state.dr.energy || 0;
-          inputDrRadiation.value = state.dr.radiation || 0;
 
           document.querySelector(`input[name="npc-nature"][value="${state.nature}"]`).checked = true;
           document.querySelector(`input[name="npc-nature"][value="${state.nature}"]`).dispatchEvent(new Event("change"));
@@ -1515,6 +1681,7 @@
           updateTypeDropdownOptions();
           selectType.value = state.type || "normal";
 
+          renderBodyPartsTable();
           renderCharacterSkillsTable();
           renderAttacksTable();
           calculateDerived();
@@ -1530,6 +1697,7 @@
 
     // Inicialização
     updateTypeDropdownOptions();
+    renderBodyPartsTable();
     renderCharacterSkillsTable();
     renderAttacksTable();
     calculateDerived();
