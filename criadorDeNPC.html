@@ -379,6 +379,7 @@
       padding: 8px 10px;
       border-bottom: 1px solid #cbdcd0;
       font-size: 0.85rem;
+      vertical-align: middle;
     }
 
     .row-odd { background-color: #ffffff; }
@@ -394,19 +395,21 @@
       border-radius: 4px;
     }
 
-    .damage-types-container {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 4px 8px;
+    /* Danos em coluna única (um por linha) */
+    .damage-types-column {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
       font-size: 0.72rem;
       font-family: var(--font-sans);
       user-select: none;
+      min-width: 95px;
     }
 
     .damage-checkbox-label {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 5px;
       cursor: pointer;
       color: var(--vault-text);
       font-weight: 600;
@@ -501,7 +504,7 @@
 
     <main class="module-grid">
 
-      <!-- ==================== CARD 1: TIPO, CATEGORIA E IDENTIFICAÇÃO ==================== -->
+      <!-- CARD 1: TIPO, CATEGORIA E IDENTIFICAÇÃO -->
       <section class="card">
         <div class="card-header">
           <span>Identificação Básica &amp; Categoria</span>
@@ -563,7 +566,7 @@
         </div>
       </section>
 
-      <!-- ==================== CARD 2: ATRIBUTOS ==================== -->
+      <!-- CARD 2: ATRIBUTOS -->
       <section class="card">
         <div class="card-header">
           <span id="label-attr-header-title">Atributos da Criatura (Body &amp; Mind)</span>
@@ -629,7 +632,7 @@
         </div>
       </section>
 
-      <!-- ==================== CARD 3: ESTATÍSTICAS DERIVADAS ==================== -->
+      <!-- CARD 3: ESTATÍSTICAS DERIVADAS -->
       <section class="card">
         <div class="card-header">
           <span>Estatísticas Derivadas Calculadas</span>
@@ -655,7 +658,6 @@
             </div>
           </div>
 
-          <!-- Modificador de Tamanho -->
           <div style="border-top: 1px dashed var(--vault-border); padding-top: 10px; display: flex; flex-direction: column; gap: 6px;">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
               <div style="display: align-items: center; gap: 8px; display: flex;">
@@ -677,7 +679,7 @@
         </div>
       </section>
 
-      <!-- ==================== CARD 4: PARTES DO CORPO & RESISTÊNCIAS ==================== -->
+      <!-- CARD 4: PARTES DO CORPO & RESISTÊNCIAS -->
       <section class="card">
         <div class="card-header">
           <span>Partes do Corpo &amp; Resistências a Dano (Localização)</span>
@@ -685,7 +687,6 @@
         </div>
         <div class="card-body">
           
-          <!-- DR Global de Veneno -->
           <div class="cell-box" style="background-color: #f0fdf4; border: 1.5px solid var(--vault-accent); margin-bottom: 4px;">
             <div>
               <label for="input-dr-poison-global" style="font-size: 0.78rem; font-weight: 800; text-transform: uppercase; color: var(--vault-green); display: block;">
@@ -701,7 +702,6 @@
             </div>
           </div>
 
-          <!-- Tabela de Partes do Corpo com DRs Locais -->
           <div class="custom-scrollbar" style="overflow-x: auto;">
             <table class="compact-table">
               <thead>
@@ -732,7 +732,7 @@
         </div>
       </section>
 
-      <!-- ==================== CARD 5: PERÍCIAS ==================== -->
+      <!-- CARD 5: PERÍCIAS -->
       <section class="card">
         <div class="card-header">
           <span>Perícias do NPC</span>
@@ -802,7 +802,7 @@
         </div>
       </section>
 
-      <!-- ==================== CARD 6: ATAQUES & ARMAS ==================== -->
+      <!-- CARD 6: ATAQUES & ARMAS -->
       <section class="card">
         <div class="card-header">
           <span>Ataques &amp; Armamentos (ItemClass / Arma)</span>
@@ -813,13 +813,16 @@
             <table class="compact-table">
               <thead>
                 <tr>
-                  <th style="width: 17%;">Nome</th>
-                  <th style="width: 15%; text-align: center;">Tipo de ataque</th>
-                  <th style="width: 8%; text-align: center;">DC</th>
-                  <th style="width: 22%; text-align: center;">Tipo de dano</th>
-                  <th style="width: 14%;">Efeitos</th>
-                  <th style="width: 14%;">Qualidades</th>
-                  <th style="width: 10%; text-align: center;">Ações</th>
+                  <th style="width: 14%;">Nome</th>
+                  <th style="width: 13%; text-align: center;">Tipo de Ataque</th>
+                  <th style="width: 10%; text-align: center;">Alcance</th>
+                  <th style="width: 6%; text-align: center;">DC</th>
+                  <th style="width: 6%; text-align: center;">Fire Rate</th>
+                  <th style="width: 11%; text-align: left;">Tipo de Dano</th>
+                  <th style="width: 11%;">Efeitos</th>
+                  <th style="width: 11%;">Qualidades</th>
+                  <th style="width: 10%;">Outro</th>
+                  <th style="width: 8%; text-align: center;">Ações</th>
                 </tr>
               </thead>
               <tbody id="tbody-attacks"></tbody>
@@ -837,7 +840,7 @@
         </div>
       </section>
 
-      <!-- ==================== CARD 7: HABILIDADES ESPECIAIS & INVENTÁRIO ==================== -->
+      <!-- CARD 7: HABILIDADES ESPECIAIS & INVENTÁRIO -->
       <section class="card">
         <div class="card-header">
           <span>Habilidades Especiais &amp; Inventário (Loot)</span>
@@ -861,7 +864,7 @@
         </div>
       </section>
 
-      <!-- ==================== BARRA INFERIOR COM BOTÃO ÚNICO DE EXPORTAR ==================== -->
+      <!-- BARRA INFERIOR COM BOTÃO ÚNICO DE EXPORTAR -->
       <div style="display: flex; gap: 12px; align-items: center; justify-content: flex-start; padding: 14px 18px; background-color: var(--vault-card); border: 2px solid var(--vault-border); border-radius: 8px; flex-wrap: wrap;">
         
         <button id="btn-open-export-modal" type="button" class="btn-pipboy-action">
@@ -885,7 +888,7 @@
 
       </div>
 
-      <!-- ==================== MODAL DE EXPORTAÇÃO ==================== -->
+      <!-- MODAL DE EXPORTAÇÃO -->
       <div id="export-modal" class="modal-overlay hidden">
         <div class="modal-dialog">
           <div class="card-header">
@@ -895,7 +898,7 @@
           <div class="card-body" style="gap: 10px;">
             <!-- Linha JSON -->
             <div class="modal-export-row">
-              <span class="modal-export-label">JSON (Recomendado)</span>
+              <span class="modal-export-label">JSON</span>
               <div class="modal-export-actions">
                 <button type="button" class="btn-pipboy-action" onclick="executarExportacao('json', 'download')">Baixar arquivo</button>
                 <button type="button" class="btn-pipboy-action" onclick="executarExportacao('json', 'copy')">Copiar para área de transferência</button>
@@ -969,22 +972,28 @@
       raridade = 0,
       valor = 0,
       tipoAtaque = "Melee / Melee Weapons",
+      alcance = (typeof Alcance !== "undefined" && Alcance.CLOSE) ? Alcance.CLOSE : "Close",
       dice = 2,
+      fireRate = 0,
       tiposDano = [(typeof TipoDeDano !== "undefined" && TipoDeDano.FISICO) ? TipoDeDano.FISICO : "Físico"],
       effects = "",
-      qualidades = ""
+      qualidades = "",
+      outro = ""
     } = {}) {
       const armaItem = (typeof Item !== "undefined")
         ? new Item(nome, peso, raridade, valor)
         : { _nome: nome, _peso: peso, _raridade: raridade, _valor: valor, get nome() { return this._nome; }, set nome(v) { this._nome = v; } };
 
       armaItem.tipoAtaque = tipoAtaque;
+      armaItem.alcance = alcance;
       armaItem.dice = Math.max(1, parseInt(dice, 10) || 1);
+      armaItem.fireRate = Math.max(0, parseInt(fireRate, 10) || 0);
       armaItem.tiposDano = Array.isArray(tiposDano) && tiposDano.length > 0 
         ? [...tiposDano] 
         : ["Físico"];
       armaItem.effects = effects;
       armaItem.qualidades = qualidades;
+      armaItem.outro = outro;
 
       armaItem.toJSON = function() {
         return {
@@ -993,10 +1002,13 @@
           raridade: this.raridade || 0,
           valor: this.valor || 0,
           tipoAtaque: this.tipoAtaque,
+          alcance: this.alcance,
           dice: this.dice,
+          fireRate: this.fireRate,
           tiposDano: this.tiposDano,
           effects: this.effects,
-          qualidades: this.qualidades
+          qualidades: this.qualidades,
+          outro: this.outro
         };
       };
 
@@ -1023,6 +1035,11 @@
       "Throwing",
       "Guns"
     ];
+
+    // Opções de Alcance extraídas de generalUtil.js
+    const ALCANCE_OPTIONS = (typeof Alcance !== "undefined")
+      ? Object.values(Alcance)
+      : ["Reach", "Close", "Medium", "Long", "Extreme"];
 
     const DAMAGE_TYPE_CHECKBOXES = [
       { key: "fisico", label: (typeof TipoDeDano !== "undefined" && TipoDeDano.FISICO) ? TipoDeDano.FISICO : "Físico" },
@@ -1065,10 +1082,13 @@
         criarItemArma({
           nome: "Mordida",
           tipoAtaque: "Melee / Melee Weapons",
+          alcance: (typeof Alcance !== "undefined" && Alcance.REACH) ? Alcance.REACH : "Reach",
           dice: 2,
+          fireRate: 0,
           tiposDano: [(typeof TipoDeDano !== "undefined" && TipoDeDano.FISICO) ? TipoDeDano.FISICO : "Físico"],
           effects: "",
-          qualidades: "Vicious"
+          qualidades: "Vicious",
+          outro: ""
         })
       ],
       specialAbilities: "Imune a Radiação.",
@@ -1178,29 +1198,19 @@
     /* =======================================================
        CÁLCULOS USANDO A BIBLIOTECA COMPARTILHADA
        ======================================================= */
-    function calculateDerived() {
+    function getCalculatedStatsSnapshot() {
       const level = Math.max(1, parseInt(state.level, 10) || 1);
       const isCreature = state.nature === "creature";
 
       const xp = (window.SpecialDerived && window.SpecialDerived.calcularXpNpc)
         ? window.SpecialDerived.calcularXpNpc(level, state.nature, state.type)
         : (10 + (7 * (level - 1)));
-      badgeXp.textContent = `XP: ${xp}`;
-
-      if (state.size === "big") {
-        sizeEffectDesc.textContent = "Porte Big Ativo: +4 Pontos de Vida (HP) concedidos à base da criatura.";
-      } else if (state.size === "little") {
-        sizeEffectDesc.textContent = "Porte Little Ativo: -2 Pontos de Vida (HP) e +1 Defesa (dificuldade de acerto contra o alvo sobe para 2).";
-      } else {
-        sizeEffectDesc.textContent = "Porte Normal: HP e Defesa calculados pelos padrões oficiais de nível e agilidade.";
-      }
 
       if (isCreature) {
         const body = parseInt(state.creature.body, 10) || 4;
         const mind = parseInt(state.creature.mind, 10) || 4;
-        const totalAttr = body + mind;
-
         let derivadasCriatura;
+
         if (window.SpecialDerived && window.SpecialDerived.calcularDerivadasCriatura) {
           derivadasCriatura = window.SpecialDerived.calcularDerivadasCriatura({
             body,
@@ -1237,22 +1247,17 @@
           };
         }
 
-        const targetBudget = derivadasCriatura.orcamentoAtributos;
-        badgeAttrBudget.textContent = `Total: ${totalAttr} / ${targetBudget}`;
-        badgeAttrBudget.className = totalAttr === targetBudget ? "badge-pill-budget budget-ok" : "badge-pill-budget budget-alert";
-        attrFormulaHint.textContent = `Fórmula: 8 + teto(Nível / 2)${state.type === 'mighty' ? ' + 2 (Mighty)' : state.type === 'legendary' ? ' + 4 (Legendary)' : ''}. Mínimo 4 cada.`;
-
-        calcDispHp.textContent = derivadasCriatura.hp;
-        calcDispInitiative.textContent = derivadasCriatura.iniciativa;
-        calcDispDefense.textContent = derivadasCriatura.defesa;
-        calcDispMelee.textContent = derivadasCriatura.bonusMelee.label;
-
-        boxCharLuckPoints.classList.add("hidden");
-
-        tnCrMelee.textContent = derivadasCriatura.tns.melee;
-        tnCrGuns.textContent = derivadasCriatura.tns.guns;
-        tnCrOther.textContent = derivadasCriatura.tns.other;
-
+        return {
+          xp,
+          hp: derivadasCriatura.hp,
+          iniciativa: derivadasCriatura.iniciativa,
+          defesa: derivadasCriatura.defesa,
+          meleeBonus: derivadasCriatura.bonusMelee.label,
+          luckPoints: 0,
+          budget: derivadasCriatura.orcamentoAtributos,
+          currentAttrSum: body + mind,
+          tns: derivadasCriatura.tns
+        };
       } else {
         const sp = state.character.special;
         const sumSpecial = sp.S + sp.P + sp.E + sp.C + sp.I + sp.A + sp.L;
@@ -1262,14 +1267,11 @@
         else if (state.type === "major") baseSpecialBudget = 49;
         const targetBudget = baseSpecialBudget + Math.ceil(level / 2);
 
-        badgeAttrBudget.textContent = `SPECIAL: ${sumSpecial} / ${targetBudget}`;
-        badgeAttrBudget.className = sumSpecial === targetBudget ? "badge-pill-budget budget-ok" : "badge-pill-budget budget-alert";
-        attrFormulaHint.textContent = `Orçamento: ${baseSpecialBudget} + teto(Nível / 2). Faixa 4 a 10 por atributo.`;
-
         let multLckHp = 0;
         if (state.type === "notable") multLckHp = 1;
         else if (state.type === "major") multLckHp = 2;
 
+        let finalHp = 0;
         if (window.SpecialDerived && window.SpecialDerived.calcularHpBase) {
           const hpResult = window.SpecialDerived.calcularHpBase({
             endurance: sp.E,
@@ -1279,48 +1281,89 @@
             multEnd: 1,
             multLck: multLckHp
           });
-          let finalHp = hpResult.totalHp;
-          if (state.size === "big") finalHp += 4;
-          else if (state.size === "little") finalHp = Math.max(1, finalHp - 2);
-          calcDispHp.textContent = finalHp;
+          finalHp = hpResult.totalHp;
         } else {
-          let finalHp = sp.E + level + (multLckHp * sp.L);
-          if (state.size === "big") finalHp += 4;
-          else if (state.size === "little") finalHp = Math.max(1, finalHp - 2);
-          calcDispHp.textContent = finalHp;
+          finalHp = sp.E + level + (multLckHp * sp.L);
         }
+        if (state.size === "big") finalHp += 4;
+        else if (state.size === "little") finalHp = Math.max(1, finalHp - 2);
 
         let bonusInit = 0;
         if (state.type === "notable") bonusInit = 2;
         else if (state.type === "major") bonusInit = 4;
 
-        calcDispInitiative.textContent = (window.SpecialDerived && window.SpecialDerived.calcularIniciativa)
+        const iniciativa = (window.SpecialDerived && window.SpecialDerived.calcularIniciativa)
           ? window.SpecialDerived.calcularIniciativa(sp.P, sp.A, bonusInit)
           : sp.P + sp.A + bonusInit;
 
-        let baseDef = (window.SpecialDerived && window.SpecialDerived.calcularDefesa)
+        let defesa = (window.SpecialDerived && window.SpecialDerived.calcularDefesa)
           ? window.SpecialDerived.calcularDefesa(sp.A)
           : (sp.A >= 9 ? 2 : 1);
-        if (state.size === "little") baseDef = Math.max(baseDef, 2);
-        calcDispDefense.textContent = baseDef;
+        if (state.size === "little") defesa = Math.max(defesa, 2);
 
-        calcDispMelee.textContent = (window.SpecialDerived && window.SpecialDerived.calcularBonusMelee)
+        const meleeBonus = (window.SpecialDerived && window.SpecialDerived.calcularBonusMelee)
           ? window.SpecialDerived.calcularBonusMelee(sp.S).label
           : "+0 DC";
 
+        let luckPoints = 0;
+        if (state.type === "notable") luckPoints = Math.ceil(sp.L / 2);
+        else if (state.type === "major") luckPoints = sp.L;
+
+        return {
+          xp,
+          hp: finalHp,
+          iniciativa,
+          defesa,
+          meleeBonus,
+          luckPoints,
+          budget: targetBudget,
+          currentAttrSum: sumSpecial
+        };
+      }
+    }
+
+    function calculateDerived() {
+      const level = Math.max(1, parseInt(state.level, 10) || 1);
+      const isCreature = state.nature === "creature";
+      const stats = getCalculatedStatsSnapshot();
+
+      badgeXp.textContent = `XP: ${stats.xp}`;
+
+      if (state.size === "big") {
+        sizeEffectDesc.textContent = "Porte Big Ativo: +4 Pontos de Vida (HP) concedidos à base da criatura.";
+      } else if (state.size === "little") {
+        sizeEffectDesc.textContent = "Porte Little Ativo: -2 Pontos de Vida (HP) e +1 Defesa (dificuldade de acerto contra o alvo sobe para 2).";
+      } else {
+        sizeEffectDesc.textContent = "Porte Normal: HP e Defesa calculados pelos padrões oficiais de nível e agilidade.";
+      }
+
+      calcDispHp.textContent = stats.hp;
+      calcDispInitiative.textContent = stats.iniciativa;
+      calcDispDefense.textContent = stats.defesa;
+      calcDispMelee.textContent = stats.meleeBonus;
+
+      if (isCreature) {
+        badgeAttrBudget.textContent = `Total: ${stats.currentAttrSum} / ${stats.budget}`;
+        badgeAttrBudget.className = stats.currentAttrSum === stats.budget ? "badge-pill-budget budget-ok" : "badge-pill-budget budget-alert";
+        attrFormulaHint.textContent = `Fórmula: 8 + teto(Nível / 2)${state.type === 'mighty' ? ' + 2 (Mighty)' : state.type === 'legendary' ? ' + 4 (Legendary)' : ''}. Mínimo 4 cada.`;
+
+        boxCharLuckPoints.classList.add("hidden");
+        tnCrMelee.textContent = stats.tns.melee;
+        tnCrGuns.textContent = stats.tns.guns;
+        tnCrOther.textContent = stats.tns.other;
+      } else {
+        const sp = state.character.special;
+        let baseSpecialBudget = state.type === "notable" ? 42 : state.type === "major" ? 49 : 35;
+        badgeAttrBudget.textContent = `SPECIAL: ${stats.currentAttrSum} / ${stats.budget}`;
+        badgeAttrBudget.className = stats.currentAttrSum === stats.budget ? "badge-pill-budget budget-ok" : "badge-pill-budget budget-alert";
+        attrFormulaHint.textContent = `Orçamento: ${baseSpecialBudget} + teto(Nível / 2). Faixa 4 a 10 por atributo.`;
+
         boxCharLuckPoints.classList.remove("hidden");
-        let luckPts = 0;
-        if (state.type === "notable") luckPts = Math.ceil(sp.L / 2);
-        else if (state.type === "major") luckPts = sp.L;
-        calcDispLuckPoints.textContent = luckPts;
+        calcDispLuckPoints.textContent = stats.luckPoints;
 
-        let maxTags = 2;
-        if (state.type === "notable") maxTags = 3;
-        else if (state.type === "major") maxTags = 4;
+        let maxTags = state.type === "notable" ? 3 : state.type === "major" ? 4 : 2;
         dispTagsMax.textContent = maxTags;
-
-        const extraSkillPoints = sp.I + level;
-        dispExtraSkillPts.textContent = extraSkillPoints;
+        dispExtraSkillPts.textContent = sp.I + level;
 
         let tagsUsed = 0;
         Object.keys(state.character.skills).forEach(k => {
@@ -1340,7 +1383,6 @@
         const tr = document.createElement("tr");
         tr.className = index % 2 === 0 ? "row-odd" : "row-even";
 
-        // Nome da Parte
         const tdName = document.createElement("td");
         const inName = document.createElement("input");
         inName.type = "text";
@@ -1353,7 +1395,6 @@
         });
         tdName.appendChild(inName);
 
-        // Alcance no d20
         const tdRange = document.createElement("td");
         tdRange.style.textAlign = "center";
         const inRange = document.createElement("input");
@@ -1370,7 +1411,6 @@
         });
         tdRange.appendChild(inRange);
 
-        // DR Físico
         const tdDrP = document.createElement("td");
         tdDrP.style.textAlign = "center";
         const inDrP = document.createElement("input");
@@ -1386,7 +1426,6 @@
         });
         tdDrP.appendChild(inDrP);
 
-        // DR Energia
         const tdDrE = document.createElement("td");
         tdDrE.style.textAlign = "center";
         const inDrE = document.createElement("input");
@@ -1402,7 +1441,6 @@
         });
         tdDrE.appendChild(inDrE);
 
-        // DR Radiação
         const tdDrR = document.createElement("td");
         tdDrR.style.textAlign = "center";
         const inDrR = document.createElement("input");
@@ -1418,7 +1456,6 @@
         });
         tdDrR.appendChild(inDrR);
 
-        // Ações: Duplicar e Excluir
         const tdAct = document.createElement("td");
         tdAct.style.textAlign = "center";
         tdAct.style.whiteSpace = "nowrap";
@@ -1516,7 +1553,7 @@
         const tr = document.createElement("tr");
         tr.className = index % 2 === 0 ? "row-odd" : "row-even";
 
-        // Nome
+        // 1. Nome
         const tdName = document.createElement("td");
         const inName = document.createElement("input");
         inName.type = "text";
@@ -1529,7 +1566,7 @@
         });
         tdName.appendChild(inName);
 
-        // Tipo de ataque
+        // 2. Tipo de ataque
         const tdType = document.createElement("td");
         tdType.style.textAlign = "center";
         const selType = document.createElement("select");
@@ -1558,7 +1595,36 @@
         });
         tdType.appendChild(selType);
 
-        // Dano (DC)
+        // 3. Alcance (generalUtil.js)
+        const tdAlcance = document.createElement("td");
+        tdAlcance.style.textAlign = "center";
+        const selAlcance = document.createElement("select");
+        selAlcance.className = "input-styled";
+        selAlcance.style.width = "100%";
+        
+        ALCANCE_OPTIONS.forEach(alcVal => {
+          const opt = document.createElement("option");
+          opt.value = alcVal;
+          opt.textContent = alcVal;
+          if (arma.alcance === alcVal) opt.selected = true;
+          selAlcance.appendChild(opt);
+        });
+
+        if (!ALCANCE_OPTIONS.includes(arma.alcance) && arma.alcance) {
+          const customAlcOpt = document.createElement("option");
+          customAlcOpt.value = arma.alcance;
+          customAlcOpt.textContent = arma.alcance;
+          customAlcOpt.selected = true;
+          selAlcance.appendChild(customAlcOpt);
+        }
+
+        selAlcance.addEventListener("change", (e) => {
+          markUnsaved();
+          arma.alcance = e.target.value;
+        });
+        tdAlcance.appendChild(selAlcance);
+
+        // 4. Dano (DC)
         const tdDice = document.createElement("td");
         tdDice.style.textAlign = "center";
         const inDice = document.createElement("input");
@@ -1567,17 +1633,33 @@
         inDice.min = "1";
         inDice.max = "30";
         inDice.className = "input-styled input-num";
-        inDice.style.width = "55px";
+        inDice.style.width = "50px";
         inDice.addEventListener("input", (e) => {
           markUnsaved();
           arma.dice = Math.max(1, parseInt(e.target.value, 10) || 1);
         });
         tdDice.appendChild(inDice);
 
-        // Tipo de dano
+        // 5. Fire Rate
+        const tdFireRate = document.createElement("td");
+        tdFireRate.style.textAlign = "center";
+        const inFireRate = document.createElement("input");
+        inFireRate.type = "number";
+        inFireRate.value = arma.fireRate !== undefined ? arma.fireRate : 0;
+        inFireRate.min = "0";
+        inFireRate.max = "20";
+        inFireRate.className = "input-styled input-num";
+        inFireRate.style.width = "50px";
+        inFireRate.addEventListener("input", (e) => {
+          markUnsaved();
+          arma.fireRate = Math.max(0, parseInt(e.target.value, 10) || 0);
+        });
+        tdFireRate.appendChild(inFireRate);
+
+        // 6. Tipo de dano (Coluna única: 1 por linha)
         const tdDmgType = document.createElement("td");
         const dmgContainer = document.createElement("div");
-        dmgContainer.className = "damage-types-container";
+        dmgContainer.className = "damage-types-column";
 
         const outroLabel = (typeof TipoDeDano !== "undefined" && TipoDeDano.OUTRO) ? TipoDeDano.OUTRO : "Outro";
         const fisicoLabel = (typeof TipoDeDano !== "undefined" && TipoDeDano.FISICO) ? TipoDeDano.FISICO : "Físico";
@@ -1633,12 +1715,12 @@
 
         tdDmgType.appendChild(dmgContainer);
 
-        // Efeitos
+        // 7. Efeitos
         const tdEffects = document.createElement("td");
         const inEffects = document.createElement("input");
         inEffects.type = "text";
         inEffects.value = arma.effects || "";
-        inEffects.placeholder = "Burst, Stun, Spread...";
+        inEffects.placeholder = "Burst, Stun...";
         inEffects.className = "input-styled";
         inEffects.style.width = "100%";
         inEffects.addEventListener("input", (e) => {
@@ -1647,12 +1729,12 @@
         });
         tdEffects.appendChild(inEffects);
 
-        // Qualidades
+        // 8. Qualidades
         const tdQual = document.createElement("td");
         const inQual = document.createElement("input");
         inQual.type = "text";
         inQual.value = arma.qualidades || "";
-        inQual.placeholder = "Piercing 1, Vicious...";
+        inQual.placeholder = "Piercing 1...";
         inQual.className = "input-styled";
         inQual.style.width = "100%";
         inQual.addEventListener("input", (e) => {
@@ -1661,7 +1743,21 @@
         });
         tdQual.appendChild(inQual);
 
-        // Ações: Duplicar e Remover
+        // 9. Outro (Bloco de texto preenchível opcional)
+        const tdOutro = document.createElement("td");
+        const inOutro = document.createElement("input");
+        inOutro.type = "text";
+        inOutro.value = arma.outro || "";
+        inOutro.placeholder = "Opcional...";
+        inOutro.className = "input-styled";
+        inOutro.style.width = "100%";
+        inOutro.addEventListener("input", (e) => {
+          markUnsaved();
+          arma.outro = e.target.value;
+        });
+        tdOutro.appendChild(inOutro);
+
+        // 10. Ações: Duplicar e Remover
         const tdAct = document.createElement("td");
         tdAct.style.textAlign = "center";
         tdAct.style.whiteSpace = "nowrap";
@@ -1669,7 +1765,7 @@
         const btnDup = document.createElement("button");
         btnDup.type = "button";
         btnDup.className = "btn-row-action btn-row-duplicate";
-        btnDup.textContent = "Duplicar";
+        btnDup.textContent = "Dup";
         btnDup.title = "Clonar este ataque";
         btnDup.addEventListener("click", () => {
           markUnsaved();
@@ -1679,10 +1775,13 @@
             raridade: arma.raridade,
             valor: arma.valor,
             tipoAtaque: arma.tipoAtaque,
+            alcance: arma.alcance,
             dice: arma.dice,
+            fireRate: arma.fireRate,
             tiposDano: [...arma.tiposDano],
             effects: arma.effects,
-            qualidades: arma.qualidades
+            qualidades: arma.qualidades,
+            outro: arma.outro
           });
           state.attacks.splice(index + 1, 0, cloneAtk);
           renderAttacksTable();
@@ -1691,7 +1790,8 @@
         const btnDel = document.createElement("button");
         btnDel.type = "button";
         btnDel.className = "btn-remove";
-        btnDel.textContent = "Remover";
+        btnDel.textContent = "Del";
+        btnDel.title = "Excluir este ataque";
         btnDel.addEventListener("click", () => {
           markUnsaved();
           state.attacks.splice(index, 1);
@@ -1703,11 +1803,13 @@
 
         tr.appendChild(tdName);
         tr.appendChild(tdType);
+        tr.appendChild(tdAlcance);
         tr.appendChild(tdDice);
+        tr.appendChild(tdFireRate);
         tr.appendChild(tdDmgType);
         tr.appendChild(tdEffects);
         tr.appendChild(tdQual);
-        tdAct.style.textAlign = "center";
+        tr.appendChild(tdOutro);
         tr.appendChild(tdAct);
         tbodyAttacks.appendChild(tr);
       });
@@ -1723,18 +1825,27 @@
       };
     }
 
-    // Texto Puro (omite o bloco de metadados JSON se includeMetadata for false)
+    // Texto Puro
     function converterJsonParaPlainText(npcData, includeMetadata = true) {
+      const stats = getCalculatedStatsSnapshot();
       let txt = `=== FICHA DE NPC: ${npcData.name.toUpperCase()} ===\n`;
       txt += `Natureza: ${npcData.nature === 'creature' ? 'Criatura' : 'Personagem'} | Nível: ${npcData.level} | Categoria: ${npcData.type}\n`;
       txt += `Keywords: ${npcData.keywords || 'Nenhuma'}\n`;
       txt += `Tamanho: ${npcData.size}\n`;
+      txt += `XP: ${stats.xp}\n`;
       txt += `Resistência a Veneno Global: ${npcData.drPoisonGlobal || 0} DR\n\n`;
+
+      txt += `--- ESTATÍSTICAS DERIVADAS ---\n`;
+      txt += `HP: ${stats.hp} | Iniciativa: ${stats.iniciativa} | Defesa: ${stats.defesa} | Bônus Melee: ${stats.meleeBonus}`;
+      if (npcData.nature === 'character') {
+        txt += ` | Pontos de Sorte: ${stats.luckPoints}`;
+      }
+      txt += `\n\n`;
 
       txt += `--- ATRIBUTOS ---\n`;
       if (npcData.nature === 'creature') {
         txt += `Body: ${npcData.creature.body} | Mind: ${npcData.creature.mind}\n`;
-        txt += `Perícias: Melee (${npcData.creature.melee}), Guns (${npcData.creature.guns}), Other (${npcData.creature.other})\n`;
+        txt += `Perícias: Melee (${npcData.creature.melee} - TN ${stats.tns ? stats.tns.melee : '-'}), Guns (${npcData.creature.guns} - TN ${stats.tns ? stats.tns.guns : '-'}), Other (${npcData.creature.other} - TN ${stats.tns ? stats.tns.other : '-'})\n`;
       } else {
         const sp = npcData.character.special;
         txt += `S:${sp.S} P:${sp.P} E:${sp.E} C:${sp.C} I:${sp.I} A:${sp.A} L:${sp.L}\n`;
@@ -1747,7 +1858,7 @@
 
       txt += `\n--- ATAQUES ---\n`;
       (npcData.attacks || []).forEach(a => {
-        txt += `* ${a.nome} [${a.tipoAtaque}] - ${a.dice} DC (${(a.tiposDano || []).join(', ')}) | Efeitos: ${a.effects || '-'} | Qualidades: ${a.qualidades || '-'}\n`;
+        txt += `* ${a.nome} [${a.tipoAtaque}] - Alcance: ${a.alcance || 'Close'} | ${a.dice} DC | Fire Rate: ${a.fireRate || 0} | Tipo Dano: ${(a.tiposDano || []).join(', ')} | Efeitos: ${a.effects || '-'} | Qualidades: ${a.qualidades || '-'}${a.outro ? ` | Outro: ${a.outro}` : ''}\n`;
       });
 
       txt += `\n--- HABILIDADES ESPECIAIS ---\n${npcData.specialAbilities || 'Nenhuma'}\n`;
@@ -1760,14 +1871,20 @@
       return txt;
     }
 
-    // Markdown (omite o bloco JSON_PAYLOAD_START se includeMetadata for false)
+    // Markdown
     function converterJsonParaMarkdown(npcData, includeMetadata = true) {
+      const stats = getCalculatedStatsSnapshot();
       let md = `# ${npcData.name}\n\n`;
       md += `* **Natureza:** ${npcData.nature === 'creature' ? 'Criatura' : 'Personagem'}\n`;
       md += `* **Nível:** ${npcData.level} | **Categoria:** ${npcData.type}\n`;
       md += `* **Keywords:** ${npcData.keywords || 'Nenhuma'}\n`;
-      md += `* **Tamanho:** ${npcData.size}\n`;
-      md += `* **DR Veneno Global:** ${npcData.drPoisonGlobal || 0}\n\n`;
+      md += `* **Tamanho:** ${npcData.size} | **XP:** ${stats.xp}\n`;
+      md += `* **DR Veneno Global:** ${npcData.drPoisonGlobal || 0} DR\n\n`;
+
+      md += `## Estatísticas Derivadas\n\n`;
+      md += `| HP | Iniciativa | Defesa | Dano Melee |${npcData.nature === 'character' ? ' Sorte |' : ''}\n`;
+      md += `|:---:|:---:|:---:|:---:|${npcData.nature === 'character' ? ':---:|' : ''}\n`;
+      md += `| ${stats.hp} | ${stats.iniciativa} | ${stats.defesa} | ${stats.meleeBonus} |${npcData.nature === 'character' ? ` ${stats.luckPoints} |` : ''}\n\n`;
 
       md += `## Atributos\n\n`;
       if (npcData.nature === 'creature') {
@@ -1786,10 +1903,10 @@
       });
 
       md += `\n## Ataques & Armas\n\n`;
-      md += `| Nome | Tipo | DC | Dano | Efeitos | Qualidades |\n`;
-      md += `|---|:---:|:---:|---|---|---|\n`;
+      md += `| Nome | Tipo | Alcance | DC | Fire Rate | Dano | Efeitos | Qualidades | Outro |\n`;
+      md += `|---|:---:|:---:|:---:|:---:|---|---|---|---|\n`;
       (npcData.attacks || []).forEach(a => {
-        md += `| ${a.nome} | ${a.tipoAtaque} | ${a.dice} | ${(a.tiposDano || []).join(', ')} | ${a.effects || '-'} | ${a.qualidades || '-'} |\n`;
+        md += `| ${a.nome} | ${a.tipoAtaque} | ${a.alcance || 'Close'} | ${a.dice} | ${a.fireRate || 0} | ${(a.tiposDano || []).join(', ')} | ${a.effects || '-'} | ${a.qualidades || '-'} | ${a.outro || '-'} |\n`;
       });
 
       md += `\n## Habilidades Especiais\n\n${npcData.specialAbilities || 'Nenhuma'}\n\n`;
@@ -1801,8 +1918,9 @@
       return md;
     }
 
-    // HTML (omite o script JSON interno se includeMetadata for false)
+    // HTML
     function converterJsonParaHtml(npcData, includeMetadata = true) {
+      const stats = getCalculatedStatsSnapshot();
       const scriptTag = includeMetadata 
         ? `\n  <script id="npc-json-data" type="application/json">\n    ${JSON.stringify(npcData)}\n  <\/script>` 
         : "";
@@ -1822,8 +1940,22 @@
 </head>
 <body>
   <h1>${npcData.name} (Nível ${npcData.level} - ${npcData.nature === 'creature' ? 'Criatura' : 'Personagem'})</h1>
-  <p><strong>Categoria:</strong> ${npcData.type} | <strong>Keywords:</strong> ${npcData.keywords || 'Nenhuma'} | <strong>Tamanho:</strong> ${npcData.size}</p>
+  <p><strong>Categoria:</strong> ${npcData.type} | <strong>Keywords:</strong> ${npcData.keywords || 'Nenhuma'} | <strong>Tamanho:</strong> ${npcData.size} | <strong>XP:</strong> ${stats.xp}</p>
   <p><strong>DR Veneno Global:</strong> ${npcData.drPoisonGlobal || 0} DR</p>
+
+  <h2>Estatísticas Derivadas</h2>
+  <table>
+    <thead><tr><th>HP</th><th>Iniciativa</th><th>Defesa</th><th>Dano Melee</th>${npcData.nature === 'character' ? '<th>Pontos de Sorte</th>' : ''}</tr></thead>
+    <tbody>
+      <tr>
+        <td>${stats.hp}</td>
+        <td>${stats.iniciativa}</td>
+        <td>${stats.defesa}</td>
+        <td>${stats.meleeBonus}</td>
+        ${npcData.nature === 'character' ? `<td>${stats.luckPoints}</td>` : ''}
+      </tr>
+    </tbody>
+  </table>
 
   <h2>Partes do Corpo</h2>
   <table>
@@ -1833,11 +1965,11 @@
     </tbody>
   </table>
 
-  <h2>Ataques</h2>
+  <h2>Ataques & Armas</h2>
   <table>
-    <thead><tr><th>Arma</th><th>Tipo</th><th>DC</th><th>Tipo Dano</th><th>Efeitos</th><th>Qualidades</th></tr></thead>
+    <thead><tr><th>Arma</th><th>Tipo</th><th>Alcance</th><th>DC</th><th>Fire Rate</th><th>Tipo Dano</th><th>Efeitos</th><th>Qualidades</th><th>Outro</th></tr></thead>
     <tbody>
-${(npcData.attacks || []).map(a => `<tr><td>${a.nome}</td><td>${a.tipoAtaque}</td><td>${a.dice}</td><td>${(a.tiposDano || []).join(', ')}</td><td>${a.effects || '-'}</td><td>${a.qualidades || '-'}</td></tr>`).join('')}
+      ${(npcData.attacks || []).map(a => `<tr><td>${a.nome}</td><td>${a.tipoAtaque}</td><td>${a.alcance || 'Close'}</td><td>${a.dice}</td><td>${a.fireRate || 0}</td><td>${(a.tiposDano \vert{}\vert{} []).join(', ')}</td><td>${a.effects || '-'}</td><td>${a.qualidades \vert{}\vert{} '-'}</td><td>${a.outro || '-'}</td></tr>`).join('')}
     </tbody>
   </table>
 
@@ -1855,7 +1987,7 @@ ${(npcData.attacks || []).map(a => `<tr><td>${a.nome}</td><td>${a.tipoAtaque}</t
       const baseJsonObj = obterObjetoJsonBase();
       const safeFileName = (baseJsonObj.name || 'npc').toLowerCase().replace(/\s+/g, '_');
       const isCopy = action === "copy";
-      const includeMetadata = !isCopy; // Ao copiar para a área de transferência, omite os metadados
+      const includeMetadata = !isCopy;
 
       let content = "";
       let mimeType = "text/plain";
@@ -1974,10 +2106,13 @@ ${(npcData.attacks || []).map(a => `<tr><td>${a.nome}</td><td>${a.tipoAtaque}</t
           raridade: atkData.raridade || 0,
           valor: atkData.valor || 0,
           tipoAtaque: atkData.tipoAtaque || atkData.type || "Melee / Melee Weapons",
+          alcance: atkData.alcance || atkData.range || ((typeof Alcance !== "undefined" && Alcance.CLOSE) ? Alcance.CLOSE : "Close"),
           dice: atkData.dice || 2,
+          fireRate: atkData.fireRate !== undefined ? atkData.fireRate : 0,
           tiposDano: Array.isArray(atkData.tiposDano) ? atkData.tiposDano : [atkData.damageType || "Físico"],
           effects: atkData.effects || "",
-          qualidades: atkData.qualidades || atkData.qualities || ""
+          qualidades: atkData.qualidades || atkData.qualities || "",
+          outro: atkData.outro || ""
         }));
       }
 
@@ -2144,10 +2279,13 @@ ${(npcData.attacks || []).map(a => `<tr><td>${a.nome}</td><td>${a.tipoAtaque}</t
       state.attacks.push(criarItemArma({
         nome: "Novo Ataque",
         tipoAtaque: "Melee / Melee Weapons",
+        alcance: (typeof Alcance !== "undefined" && Alcance.CLOSE) ? Alcance.CLOSE : "Close",
         dice: 2,
+        fireRate: 0,
         tiposDano: [(typeof TipoDeDano !== "undefined" && TipoDeDano.FISICO) ? TipoDeDano.FISICO : "Físico"],
         effects: "",
-        qualidades: ""
+        qualidades: "",
+        outro: ""
       }));
       renderAttacksTable();
     });
