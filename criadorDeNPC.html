@@ -51,7 +51,7 @@
     }
 
     .app-container {
-      max-width: 1200px;
+      max-width: 1240px;
       width: 100%;
       margin: 0 auto;
     }
@@ -200,11 +200,11 @@
     }
 
     .input-styled {
-      padding: 6px 10px;
+      padding: 5px 8px;
       border: 1.5px solid var(--vault-border);
       border-radius: 4px;
       background: #e6e6e6;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       color: var(--vault-text);
       font-weight: 600;
     }
@@ -215,7 +215,7 @@
     }
 
     .input-num {
-      width: 75px;
+      width: 60px;
       text-align: center;
       font-family: var(--font-mono);
       font-weight: 700;
@@ -287,14 +287,14 @@
     }
 
     .btn-row-action {
-      padding: 4px 8px;
+      padding: 4px 6px;
       font-family: var(--font-mono);
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       font-weight: 800;
       border-radius: 4px;
       cursor: pointer;
       transition: all 0.15s;
-      margin-right: 4px;
+      margin: 1px;
     }
 
     .btn-row-duplicate {
@@ -307,15 +307,16 @@
     }
 
     .btn-remove {
-      padding: 4px 8px;
+      padding: 4px 6px;
       font-family: var(--font-mono);
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       font-weight: 800;
       color: #991b1b;
       background: #fecaca;
       border: 1.5px solid #b91c1c;
       border-radius: 4px;
       cursor: pointer;
+      margin: 1px;
     }
     .btn-remove:hover {
       background: #fca5a5;
@@ -327,12 +328,12 @@
       width: 100%;
       max-width: 100%;
       text-align: left;
-      padding: 6px 8px;
+      padding: 5px 6px;
       background: #e6e6e6;
       border: 1.5px solid var(--vault-border);
       border-radius: 4px;
       cursor: pointer;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-family: var(--font-sans);
       color: var(--vault-text);
       white-space: nowrap;
@@ -395,28 +396,26 @@
     .budget-ok { background: #cfd8dc; color: #000000; border: 1px solid #455a64; }
     .budget-alert { background: #fee2e2; color: #991b1b; border: 1px solid #dc2626; }
 
-    /* Tabelas com Layout Fixo para Travar Largura */
+    /* Tabelas */
     .compact-table {
       width: 100%;
       border-collapse: collapse;
       text-align: left;
-    }
-    .table-fixed {
-      table-layout: fixed;
     }
     .compact-table th {
       background-color: var(--vault-header);
       color: #ffffff;
       font-family: var(--font-display);
       text-transform: uppercase;
-      font-size: 0.75rem;
-      letter-spacing: 0.05em;
-      padding: 8px 10px;
+      font-size: 0.72rem;
+      letter-spacing: 0.04em;
+      padding: 6px 8px;
+      white-space: nowrap;
     }
     .compact-table td {
-      padding: 8px 10px;
+      padding: 5px 6px;
       border-bottom: 1px solid #888888;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       vertical-align: middle;
       overflow: hidden;
     }
@@ -438,20 +437,20 @@
     .damage-types-column {
       display: flex;
       flex-direction: column;
-      gap: 4px;
-      font-size: 0.72rem;
+      gap: 2px;
+      font-size: 0.7rem;
       font-family: var(--font-sans);
       user-select: none;
-      min-width: 85px;
     }
 
     .damage-checkbox-label {
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
       cursor: pointer;
       color: var(--vault-text);
       font-weight: 600;
+      white-space: nowrap;
     }
 
     .damage-checkbox-label input[type="checkbox"] {
@@ -784,7 +783,7 @@
           
           <div id="panel-skills-creature">
             <div style="margin-bottom: 8px; font-size: 0.72rem; color: #dcdcdc;">
-              Todas as perícias de criatura são tratadas automaticamente como <strong>Tag Skills</strong>[cite: 9].
+              Todas as perícias de criatura são tratadas automaticamente como <strong>Tag Skills</strong>.
             </div>
             <div class="custom-scrollbar" style="overflow-x: auto;">
               <table class="compact-table">
@@ -823,7 +822,7 @@
           <div id="panel-skills-character" class="hidden">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
               <span style="font-size: 0.72rem; color: #dcdcdc;">
-                Tags permitidas: <strong id="disp-tags-max">2</strong> | Pontos adicionais (INT + Nível): <strong id="disp-extra-skill-pts">6</strong>[cite: 9]
+                Tags permitidas: <strong id="disp-tags-max">2</strong> | Pontos adicionais (INT + Nível): <strong id="disp-extra-skill-pts">6</strong>
               </span>
               <span id="disp-tag-counter" style="font-size: 0.72rem; font-weight: 800; font-family: var(--font-mono);">Tags: 0 / 2</span>
             </div>
@@ -851,21 +850,21 @@
           <span style="font-size: 0.7rem; font-family: var(--font-mono);">Gestão de Armas</span>
         </div>
         <div class="card-body">
-          <div class="custom-scrollbar" style="overflow-x: auto;">
-            <table class="compact-table table-fixed">
+          <div class="custom-scrollbar" style="overflow-x: auto; width: 100%;">
+            <table class="compact-table" style="min-width: 1020px; width: 100%; table-layout: fixed;">
               <thead>
                 <tr>
-                  <th style="width: 14%;">Nome</th>
-                  <th style="width: 12%; text-align: center;">Tipo Ataque</th>
-                  <th style="width: 12%; text-align: center;">Atrib. / Perícia</th>
-                  <th style="width: 9%; text-align: center;">Alcance</th>
-                  <th style="width: 5%; text-align: center;">DC</th>
-                  <th style="width: 5%; text-align: center;">Fire Rate</th>
-                  <th style="width: 11%; text-align: left;">Tipo Dano</th>
-                  <th style="width: 11%;">Efeitos</th>
-                  <th style="width: 11%;">Qualidades</th>
-                  <th style="width: 5%;">Outro</th>
-                  <th style="width: 5%; text-align: center;">Ações</th>
+                  <th style="width: 140px;">Nome</th>
+                  <th style="width: 120px; text-align: center;">Tipo Ataque</th>
+                  <th style="width: 110px; text-align: center;">Atrib. / Perícia</th>
+                  <th style="width: 90px; text-align: center;">Alcance</th>
+                  <th style="width: 50px; text-align: center;">DC</th>
+                  <th style="width: 50px; text-align: center;">FR</th>
+                  <th style="width: 90px; text-align: left;">Tipo Dano</th>
+                  <th style="width: 110px;">Efeitos</th>
+                  <th style="width: 110px;">Qualidades</th>
+                  <th style="width: 75px;">Outro</th>
+                  <th style="width: 75px; text-align: center;">Ações</th>
                 </tr>
               </thead>
               <tbody id="tbody-attacks"></tbody>
@@ -1551,7 +1550,7 @@
         const btnDup = document.createElement("button");
         btnDup.type = "button";
         btnDup.className = "btn-row-action btn-row-duplicate";
-        btnDup.textContent = "Duplicar";
+        btnDup.textContent = "Dup";
         btnDup.addEventListener("click", () => {
           markUnsaved();
           const clonePart = {
@@ -1568,7 +1567,7 @@
         const btnDel = document.createElement("button");
         btnDel.type = "button";
         btnDel.className = "btn-remove";
-        btnDel.textContent = "Excluir";
+        btnDel.textContent = "Del";
         btnDel.addEventListener("click", () => {
           markUnsaved();
           state.bodyParts.splice(index, 1);
@@ -1583,6 +1582,7 @@
         tr.appendChild(tdDrP);
         tr.appendChild(tdDrE);
         tr.appendChild(tdDrR);
+        tdAct.style.textAlign = "center";
         tr.appendChild(tdAct);
         tbodyBodyParts.appendChild(tr);
       });
@@ -1640,7 +1640,7 @@
         const tr = document.createElement("tr");
         tr.className = index % 2 === 0 ? "row-odd" : "row-even";
 
-        // 1. Nome
+        // 1. Nome (140px)
         const tdName = document.createElement("td");
         const inName = document.createElement("input");
         inName.type = "text";
@@ -1653,7 +1653,7 @@
         });
         tdName.appendChild(inName);
 
-        // 2. Tipo de ataque
+        // 2. Tipo de ataque (120px)
         const tdType = document.createElement("td");
         tdType.style.textAlign = "center";
         const selType = document.createElement("select");
@@ -1682,20 +1682,20 @@
         });
         tdType.appendChild(selType);
 
-        // 3. Atributo & Perícia (Dois menus empilhados)
+        // 3. Atributo & Perícia (110px)
         const tdAttrSkill = document.createElement("td");
         tdAttrSkill.style.textAlign = "center";
         const stackContainer = document.createElement("div");
         stackContainer.style.display = "flex";
         stackContainer.style.flexDirection = "column";
-        stackContainer.style.gap = "4px";
+        stackContainer.style.gap = "3px";
 
         // Select Atributo
         const selAttr = document.createElement("select");
         selAttr.className = "input-styled";
         selAttr.style.width = "100%";
-        selAttr.style.padding = "3px 6px";
-        selAttr.style.fontSize = "0.75rem";
+        selAttr.style.padding = "2px 4px";
+        selAttr.style.fontSize = "0.72rem";
 
         ATTACK_ATTR_OPTIONS.forEach(grp => {
           const optGroup = document.createElement("optgroup");
@@ -1719,8 +1719,8 @@
         const selSkill = document.createElement("select");
         selSkill.className = "input-styled";
         selSkill.style.width = "100%";
-        selSkill.style.padding = "3px 6px";
-        selSkill.style.fontSize = "0.75rem";
+        selSkill.style.padding = "2px 4px";
+        selSkill.style.fontSize = "0.72rem";
 
         ATTACK_SKILL_OPTIONS.forEach(grp => {
           const optGroup = document.createElement("optgroup");
@@ -1744,7 +1744,7 @@
         stackContainer.appendChild(selSkill);
         tdAttrSkill.appendChild(stackContainer);
 
-        // 4. Alcance
+        // 4. Alcance (90px)
         const tdAlcance = document.createElement("td");
         tdAlcance.style.textAlign = "center";
         const selAlcance = document.createElement("select");
@@ -1773,7 +1773,7 @@
         });
         tdAlcance.appendChild(selAlcance);
 
-        // 5. Dano (DC)
+        // 5. Dano (DC) (50px)
         const tdDice = document.createElement("td");
         tdDice.style.textAlign = "center";
         const inDice = document.createElement("input");
@@ -1782,14 +1782,14 @@
         inDice.min = "1";
         inDice.max = "30";
         inDice.className = "input-styled input-num";
-        inDice.style.width = "50px";
+        inDice.style.width = "100%";
         inDice.addEventListener("input", (e) => {
           markUnsaved();
           arma.dice = Math.max(1, parseInt(e.target.value, 10) || 1);
         });
         tdDice.appendChild(inDice);
 
-        // 6. Fire Rate
+        // 6. Fire Rate (50px)
         const tdFireRate = document.createElement("td");
         tdFireRate.style.textAlign = "center";
         const inFireRate = document.createElement("input");
@@ -1798,14 +1798,14 @@
         inFireRate.min = "0";
         inFireRate.max = "20";
         inFireRate.className = "input-styled input-num";
-        inFireRate.style.width = "50px";
+        inFireRate.style.width = "100%";
         inFireRate.addEventListener("input", (e) => {
           markUnsaved();
           arma.fireRate = Math.max(0, parseInt(e.target.value, 10) || 0);
         });
         tdFireRate.appendChild(inFireRate);
 
-        // 7. Tipo de dano (Um por linha)
+        // 7. Tipo de dano (90px)
         const tdDmgType = document.createElement("td");
         const dmgContainer = document.createElement("div");
         dmgContainer.className = "damage-types-column";
@@ -1864,12 +1864,12 @@
 
         tdDmgType.appendChild(dmgContainer);
 
-        // 8. Efeitos (Com popup modal e largura fixa)
+        // 8. Efeitos (110px)
         const tdEffects = document.createElement("td");
         const btnEffects = document.createElement("button");
         btnEffects.type = "button";
         btnEffects.className = "btn-table-text-trigger";
-        btnEffects.textContent = arma.effects ? arma.effects : "Clique para editar...";
+        btnEffects.textContent = arma.effects ? arma.effects : "Clique...";
         btnEffects.title = arma.effects ? arma.effects : "Clique para abrir caixa de texto de efeitos";
         btnEffects.addEventListener("click", () => {
           abrirEditorTextoModal({
@@ -1885,12 +1885,12 @@
         });
         tdEffects.appendChild(btnEffects);
 
-        // 9. Qualidades (Com popup modal, placeholder 'reliable' e largura fixa)
+        // 9. Qualidades (110px)
         const tdQual = document.createElement("td");
         const btnQual = document.createElement("button");
         btnQual.type = "button";
         btnQual.className = "btn-table-text-trigger";
-        btnQual.textContent = arma.qualidades ? arma.qualidades : "Clique para editar...";
+        btnQual.textContent = arma.qualidades ? arma.qualidades : "Clique...";
         btnQual.title = arma.qualidades ? arma.qualidades : "Clique para abrir caixa de texto de qualidades";
         btnQual.addEventListener("click", () => {
           abrirEditorTextoModal({
@@ -1906,12 +1906,12 @@
         });
         tdQual.appendChild(btnQual);
 
-        // 10. Outro (Com popup modal e largura fixa)
+        // 10. Outro (75px)
         const tdOutro = document.createElement("td");
         const btnOutro = document.createElement("button");
         btnOutro.type = "button";
         btnOutro.className = "btn-table-text-trigger";
-        btnOutro.textContent = arma.outro ? arma.outro : "Clique para editar...";
+        btnOutro.textContent = arma.outro ? arma.outro : "Clique...";
         btnOutro.title = arma.outro ? arma.outro : "Clique para abrir caixa de texto livre";
         btnOutro.addEventListener("click", () => {
           abrirEditorTextoModal({
@@ -1927,7 +1927,7 @@
         });
         tdOutro.appendChild(btnOutro);
 
-        // 11. Ações
+        // 11. Ações (75px)
         const tdAct = document.createElement("td");
         tdAct.style.textAlign = "center";
         tdAct.style.whiteSpace = "nowrap";
