@@ -322,7 +322,6 @@
       background: #fca5a5;
     }
 
-    /* Botão disparador de popup nas tabelas (Truncado e fixo) */
     .btn-table-text-trigger {
       display: block;
       width: 100%;
@@ -433,7 +432,6 @@
       border-radius: 4px;
     }
 
-    /* Danos em coluna única */
     .damage-types-column {
       display: flex;
       flex-direction: column;
@@ -906,6 +904,48 @@
         </div>
       </section>
 
+      <!-- CARD 8: MUTAÇÕES LENDÁRIAS (SOMENTE LEGENDARY / MAJOR) -->
+      <section id="card-legendary-mutations" class="card hidden">
+        <div class="card-header">
+          <span>Mutações Lendárias (Legendary / Major)</span>
+          <span style="font-size: 0.7rem; font-family: var(--font-mono);">Ativação em &lt; 50% HP (+1 Turno Extra)</span>
+        </div>
+        <div class="card-body">
+          
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 280px;">
+              <label for="select-preset-mutation" style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase;">Adicionar Pronta:</label>
+              <select id="select-preset-mutation" class="input-styled" style="flex: 1;"></select>
+              <button id="btn-add-preset-mutation" type="button" class="btn-pipboy-action">Adicionar</button>
+            </div>
+
+            <div>
+              <button id="btn-open-create-mutation-modal" type="button" class="btn-pipboy-action">
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Criar Mutação Customizada
+              </button>
+            </div>
+          </div>
+
+          <div class="custom-scrollbar" style="overflow-x: auto; width: 100%;">
+            <table class="compact-table" style="min-width: 800px; width: 100%; table-layout: fixed;">
+              <thead>
+                <tr>
+                  <th style="width: 160px;">Nome</th>
+                  <th style="width: 250px;">Efeito Passivo</th>
+                  <th style="width: 290px;">Mutação (&lt;50% HP)</th>
+                  <th style="width: 80px; text-align: center;">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-mutations"></tbody>
+            </table>
+          </div>
+
+        </div>
+      </section>
+
       <!-- BARRA INFERIOR COM BOTÃO ÚNICO DE EXPORTAR -->
       <div style="display: flex; gap: 12px; align-items: center; justify-content: flex-start; padding: 14px 18px; background-color: var(--vault-card); border: 2px solid var(--vault-border); border-radius: 8px; flex-wrap: wrap;">
         
@@ -973,7 +1013,7 @@
         </div>
       </div>
 
-      <!-- MODAL GENÉRICO PARA EDIÇÃO DE TEXTO LONGO -->
+      <!-- MODAL GENÉRICO PARA EDIÇÃO DE TEXTO LONGO (EFEITOS, QUALIDADES, OUTRO) -->
       <div id="text-edit-modal" class="modal-overlay hidden">
         <div class="modal-dialog">
           <div class="card-header">
@@ -990,6 +1030,42 @@
         </div>
       </div>
 
+      <!-- MODAL PARA CRIAÇÃO DE MUTAÇÃO LENDÁRIA CUSTOMIZADA -->
+      <div id="create-mutation-modal" class="modal-overlay hidden">
+        <div class="modal-dialog" style="max-width: 620px;">
+          <div class="card-header">
+            <span>Nova Mutação Lendária</span>
+            <button id="btn-close-create-mutation-modal" type="button" class="btn-remove" style="background:#e6e6e6; color:#000; border-color:#000; font-size:0.8rem; cursor:pointer;">Fechar &times;</button>
+          </div>
+          <div class="card-body" style="gap: 12px;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <label for="input-custom-mutation-name" style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase;">Nome da Mutação:</label>
+              <input type="text" id="input-custom-mutation-name" class="input-styled" placeholder="Ex: Berserk, Regenerativo...">
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <label for="textarea-custom-mutation-desc" style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase;">Descrição / Lore:</label>
+              <textarea id="textarea-custom-mutation-desc" rows="2" class="input-styled custom-scrollbar" placeholder="Breve contexto narrativo..."></textarea>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <label for="textarea-custom-mutation-passive" style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase;">Efeito Passivo (Constant Effect):</label>
+              <textarea id="textarea-custom-mutation-passive" rows="2" class="input-styled custom-scrollbar" placeholder="Efeito constante que sempre se aplica..."></textarea>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <label for="textarea-custom-mutation-active" style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase;">Efeito Ativo ao Mutar (&lt; 50% HP):</label>
+              <textarea id="textarea-custom-mutation-active" rows="3" class="input-styled custom-scrollbar" placeholder="Ganha turno extra e este efeito até o fim da cena..."></textarea>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px;">
+              <button id="btn-cancel-create-mutation" type="button" class="btn-pipboy-action">Cancelar</button>
+              <button id="btn-confirm-create-mutation" type="button" class="btn-pipboy-action" style="background-color: #cfd8dc;">Salvar Mutação</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </main>
 
     <footer>
@@ -1001,6 +1077,7 @@
   <script src="lib_scripts/estastisticasDerivadas.js"></script>
   <script src="lib_scripts/ItemClass.js"></script>
   <script src="lib_scripts/generalUtil.js"></script>
+  <script src="lib_scripts/MutacaoLendaria.js"></script>
 
   <script>
     /* =======================================================
@@ -1164,7 +1241,8 @@
         })
       ],
       specialAbilities: "Imune a Radiação.",
-      inventory: "Butchery: 1x Carne de Radroach"
+      inventory: "Butchery: 1x Carne de Radroach",
+      legendaryMutations: []
     };
 
     CHARACTER_SKILLS.forEach(sk => {
@@ -1226,6 +1304,22 @@
     const textAbilities = document.getElementById("text-npc-abilities");
     const textInventory = document.getElementById("text-npc-inventory");
 
+    // Elementos de Mutações Lendárias
+    const cardLegendaryMutations = document.getElementById("card-legendary-mutations");
+    const selectPresetMutation = document.getElementById("select-preset-mutation");
+    const btnAddPresetMutation = document.getElementById("btn-add-preset-mutation");
+    const btnOpenCreateMutationModal = document.getElementById("btn-open-create-mutation-modal");
+    const tbodyMutations = document.getElementById("tbody-mutations");
+
+    const createMutationModal = document.getElementById("create-mutation-modal");
+    const btnCloseCreateMutationModal = document.getElementById("btn-close-create-mutation-modal");
+    const btnCancelCreateMutation = document.getElementById("btn-cancel-create-mutation");
+    const btnConfirmCreateMutation = document.getElementById("btn-confirm-create-mutation");
+    const inputCustomMutationName = document.getElementById("input-custom-mutation-name");
+    const textareaCustomMutationDesc = document.getElementById("textarea-custom-mutation-desc");
+    const textareaCustomMutationPassive = document.getElementById("textarea-custom-mutation-passive");
+    const textareaCustomMutationActive = document.getElementById("textarea-custom-mutation-active");
+
     const inputImportNpcUniversal = document.getElementById("input-import-npc-universal");
 
     /* =======================================================
@@ -1266,6 +1360,113 @@
           state.type = "normal";
         }
       }
+      checkLegendaryMutationVisibility();
+    }
+
+    /* =======================================================
+       VERIFICAÇÃO DE EXIBIÇÃO DE MUTAÇÃO LENDÁRIA
+       ======================================================= */
+    function isLegendaryEligible() {
+      return (state.nature === "creature" && state.type === "legendary") ||
+             (state.nature === "character" && state.type === "major");
+    }
+
+    function checkLegendaryMutationVisibility() {
+      if (isLegendaryEligible()) {
+        cardLegendaryMutations.classList.remove("hidden");
+        populatePresetMutationDropdown();
+        renderMutationsTable();
+      } else {
+        cardLegendaryMutations.classList.add("hidden");
+      }
+    }
+
+    function populatePresetMutationDropdown() {
+      selectPresetMutation.innerHTML = "";
+      if (typeof CATALOGO_MUTACOES_LENDARIAS === "undefined") return;
+
+      Object.entries(CATALOGO_MUTACOES_LENDARIAS).forEach(([chave, mut]) => {
+        if (state.nature === "creature" && mut.somentePersonagem) return;
+        const opt = document.createElement("option");
+        opt.value = chave;
+        opt.textContent = `${mut.nome} ${mut.somentePersonagem ? '(Somente Personagem)' : ''}`;
+        selectPresetMutation.appendChild(opt);
+      });
+    }
+
+    function renderMutationsTable() {
+      tbodyMutations.innerHTML = "";
+      if (!Array.isArray(state.legendaryMutations)) {
+        state.legendaryMutations = [];
+      }
+
+      if (state.legendaryMutations.length === 0) {
+        const trEmpty = document.createElement("tr");
+        trEmpty.innerHTML = `<td colspan="4" style="text-align:center; color: var(--vault-dim); font-style:italic;">Nenhuma mutação lendária adicionada.</td>`;
+        tbodyMutations.appendChild(trEmpty);
+        return;
+      }
+
+      state.legendaryMutations.forEach((mut, index) => {
+        const tr = document.createElement("tr");
+        tr.className = index % 2 === 0 ? "row-odd" : "row-even";
+
+        // Nome
+        const tdName = document.createElement("td");
+        tdName.innerHTML = `<strong>${mut.nome}</strong>`;
+        if (mut.descricao) {
+          tdName.innerHTML += `<div style="font-size:0.68rem; color:var(--vault-dim); margin-top:2px;">${mut.descricao}</div>`;
+        }
+
+        // Passivo
+        const tdPass = document.createElement("td");
+        tdPass.style.fontSize = "0.75rem";
+        tdPass.textContent = mut.passivo;
+
+        // Ativo
+        const tdAct = document.createElement("td");
+        tdAct.style.fontSize = "0.75rem";
+        tdAct.textContent = mut.ativo;
+
+        // Ações
+        const tdActions = document.createElement("td");
+        tdActions.style.textAlign = "center";
+        tdActions.style.whiteSpace = "nowrap";
+
+        const btnDup = document.createElement("button");
+        btnDup.type = "button";
+        btnDup.className = "btn-row-action btn-row-duplicate";
+        btnDup.textContent = "Dup";
+        btnDup.title = "Duplicar esta mutação";
+        btnDup.addEventListener("click", () => {
+          markUnsaved();
+          const clone = typeof MutacaoLendaria !== "undefined"
+            ? new MutacaoLendaria({ ...mut })
+            : { ...mut };
+          state.legendaryMutations.splice(index + 1, 0, clone);
+          renderMutationsTable();
+        });
+
+        const btnDel = document.createElement("button");
+        btnDel.type = "button";
+        btnDel.className = "btn-remove";
+        btnDel.textContent = "Del";
+        btnDel.title = "Remover esta mutação";
+        btnDel.addEventListener("click", () => {
+          markUnsaved();
+          state.legendaryMutations.splice(index, 1);
+          renderMutationsTable();
+        });
+
+        tdActions.appendChild(btnDup);
+        tdActions.appendChild(btnDel);
+
+        tr.appendChild(tdName);
+        tr.appendChild(tdPass);
+        tr.appendChild(tdAct);
+        tr.appendChild(tdActions);
+        tbodyMutations.appendChild(tr);
+      });
     }
 
     /* =======================================================
@@ -1384,7 +1585,6 @@
           : (sp.A >= 9 ? 2 : 1);
         if (state.size === "little") defesa = Math.max(defesa, 2);
 
-        // Bônus Melee oficial por FORÇA (STR): 7-8: +1 DC | 9-10: +2 DC | 11+: +3 DC
         let bonusMeleeStr = "+0 DC";
         if (sp.S >= 11) bonusMeleeStr = "+3 DC";
         else if (sp.S >= 9) bonusMeleeStr = "+2 DC";
@@ -2028,12 +2228,77 @@
     if (btnCancelTextEdit) btnCancelTextEdit.addEventListener("click", fecharEditorTextoModal);
 
     /* =======================================================
+       LISTENERS DE MUTAÇÃO LENDÁRIA
+       ======================================================= */
+    btnAddPresetMutation.addEventListener("click", () => {
+      const chave = selectPresetMutation.value;
+      if (!chave || typeof CATALOGO_MUTACOES_LENDARIAS === "undefined" || !CATALOGO_MUTACOES_LENDARIAS[chave]) return;
+      markUnsaved();
+      const baseMut = CATALOGO_MUTACOES_LENDARIAS[chave];
+      const novaMut = typeof MutacaoLendaria !== "undefined"
+        ? new MutacaoLendaria({ ...baseMut })
+        : { ...baseMut };
+      state.legendaryMutations.push(novaMut);
+      renderMutationsTable();
+    });
+
+    btnOpenCreateMutationModal.addEventListener("click", () => {
+      inputCustomMutationName.value = "";
+      textareaCustomMutationDesc.value = "";
+      textareaCustomMutationPassive.value = "";
+      textareaCustomMutationActive.value = "";
+      createMutationModal.classList.remove("hidden");
+      inputCustomMutationName.focus();
+    });
+
+    function fecharModalCriarMutacao() {
+      createMutationModal.classList.add("hidden");
+    }
+
+    btnCloseCreateMutationModal.addEventListener("click", fecharModalCriarMutacao);
+    btnCancelCreateMutation.addEventListener("click", fecharModalCriarMutacao);
+
+    btnConfirmCreateMutation.addEventListener("click", () => {
+      const nome = inputCustomMutationName.value.trim();
+      const passivo = textareaCustomMutationPassive.value.trim();
+      const ativo = textareaCustomMutationActive.value.trim();
+      const descricao = textareaCustomMutationDesc.value.trim();
+
+      if (!nome) {
+        alert("Por favor, informe pelo menos o nome da mutação lendária.");
+        return;
+      }
+
+      markUnsaved();
+      const novaMut = typeof MutacaoLendaria !== "undefined"
+        ? new MutacaoLendaria({
+            nome,
+            descricao,
+            passivo,
+            ativo,
+            somentePersonagem: state.nature === "character"
+          })
+        : {
+            nome,
+            descricao,
+            passivo,
+            ativo,
+            somentePersonagem: state.nature === "character"
+          };
+
+      state.legendaryMutations.push(novaMut);
+      renderMutationsTable();
+      fecharModalCriarMutacao();
+    });
+
+    /* =======================================================
        EXPORTAÇÃO & IMPORTAÇÃO MULTI-FORMATO
        ======================================================= */
     function obterObjetoJsonBase() {
       return {
         ...state,
-        attacks: state.attacks.map(atk => atk.toJSON ? atk.toJSON() : atk)
+        attacks: state.attacks.map(atk => atk.toJSON ? atk.toJSON() : atk),
+        legendaryMutations: (state.legendaryMutations || []).map(m => m.toJSON ? m.toJSON() : m)
       };
     }
 
@@ -2076,6 +2341,13 @@
 
       txt += `\n--- HABILIDADES ESPECIAIS ---\n${npcData.specialAbilities || 'Nenhuma'}\n`;
       txt += `\n--- INVENTÁRIO & LOOT ---\n${npcData.inventory || 'Nenhum'}\n`;
+
+      if (Array.isArray(npcData.legendaryMutations) && npcData.legendaryMutations.length > 0) {
+        txt += `\n--- MUTAÇÕES LENDÁRIAS ---\n`;
+        npcData.legendaryMutations.forEach(m => {
+          txt += `* ${m.nome}: [Passivo] ${m.passivo} | [Mutação (<50% HP)] ${m.ativo}\n`;
+        });
+      }
 
       if (includeMetadata) {
         txt += `\n\n--- METADADOS JSON (DO NOT EDIT) ---\n`;
@@ -2126,6 +2398,16 @@
       md += `\n## Habilidades Especiais\n\n${npcData.specialAbilities || 'Nenhuma'}\n\n`;
       md += `## Inventário & Espólio\n\n${npcData.inventory || 'Nenhum'}\n\n`;
 
+      if (Array.isArray(npcData.legendaryMutations) && npcData.legendaryMutations.length > 0) {
+        md += `## Mutações Lendárias\n\n`;
+        md += `| Mutação | Efeito Passivo | Efeito Ativo (<50% HP) |\n`;
+        md += `|---|---|---|\n`;
+        npcData.legendaryMutations.forEach(m => {
+          md += `| **${m.nome}** | ${m.passivo} | ${m.ativo} |\n`;
+        });
+        md += `\n`;
+      }
+
       if (includeMetadata) {
         md += `<!-- JSON_PAYLOAD_START\n${JSON.stringify(npcData, null, 2)}\nJSON_PAYLOAD_END -->\n`;
       }
@@ -2137,6 +2419,16 @@
       const stats = getCalculatedStatsSnapshot();
       const scriptTag = includeMetadata 
         ? `\n  <script id="npc-json-data" type="application/json">\n    ${JSON.stringify(npcData)}\n  <\/script>` 
+        : "";
+
+      const mutationsHtml = (Array.isArray(npcData.legendaryMutations) && npcData.legendaryMutations.length > 0)
+        ? `<h2>Mutações Lendárias</h2>
+  <table>
+    <thead><tr><th>Mutação</th><th>Efeito Passivo</th><th>Efeito Ativo (&lt; 50% HP)</th></tr></thead>
+    <tbody>
+      ${npcData.legendaryMutations.map(m => `<tr><td><strong>${m.nome}</strong></td><td>${m.passivo}</td><td>${m.ativo}</td></tr>`).join('')}
+    </tbody>
+  </table>`
         : "";
 
       return `<!DOCTYPE html>
@@ -2191,7 +2483,9 @@
   <pre>${npcData.specialAbilities || 'Nenhuma'}</pre>
 
   <h2>Inventário</h2>
-  <pre>${npcData.inventory || 'Nenhum'}</pre>${scriptTag}
+  <pre>${npcData.inventory || 'Nenhum'}</pre>
+
+  ${mutationsHtml}${scriptTag}
 </body>
 </html>`;
     }
@@ -2335,6 +2629,16 @@
         state.bodyParts = npcData.bodyParts;
       }
 
+      if (Array.isArray(npcData.legendaryMutations)) {
+        state.legendaryMutations = npcData.legendaryMutations.map(m => {
+          return typeof MutacaoLendaria !== "undefined"
+            ? (m instanceof MutacaoLendaria ? m : MutacaoLendaria.fromJSON(m))
+            : m;
+        });
+      } else {
+        state.legendaryMutations = [];
+      }
+
       if (npcData.drPoisonGlobal !== undefined) {
         state.drPoisonGlobal = npcData.drPoisonGlobal;
         inputDrPoisonGlobal.value = state.drPoisonGlobal;
@@ -2370,6 +2674,7 @@
       renderCharacterSkillsTable();
       renderAttacksTable();
       calculateDerived();
+      checkLegendaryMutationVisibility();
       hasUnsavedChanges = false;
     }
 
@@ -2411,6 +2716,7 @@
       markUnsaved();
       state.type = e.target.value;
       calculateDerived();
+      checkLegendaryMutationVisibility();
     });
     inputKeywords.addEventListener("input", (e) => { markUnsaved(); state.keywords = e.target.value; });
     selectSize.addEventListener("change", (e) => {
@@ -2559,6 +2865,9 @@
       if (e.target === textEditModal) {
         fecharEditorTextoModal();
       }
+      if (e.target === createMutationModal) {
+        fecharModalCriarMutacao();
+      }
     });
 
     // Inicialização
@@ -2567,6 +2876,7 @@
     renderCharacterSkillsTable();
     renderAttacksTable();
     calculateDerived();
+    checkLegendaryMutationVisibility();
   </script>
 </body>
 </html>
