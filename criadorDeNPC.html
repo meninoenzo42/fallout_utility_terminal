@@ -321,9 +321,11 @@
       background: #fca5a5;
     }
 
-    /* Botão disparador de popup nas tabelas */
+    /* Botão disparador de popup nas tabelas (Truncado e fixo) */
     .btn-table-text-trigger {
+      display: block;
       width: 100%;
+      max-width: 100%;
       text-align: left;
       padding: 6px 8px;
       background: #e6e6e6;
@@ -336,6 +338,7 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      box-sizing: border-box;
       transition: background 0.15s;
     }
     .btn-table-text-trigger:hover {
@@ -358,6 +361,10 @@
       border-radius: 6px;
       padding: 10px;
       text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
     }
 
     .stat-badge-label {
@@ -388,11 +395,14 @@
     .budget-ok { background: #cfd8dc; color: #000000; border: 1px solid #455a64; }
     .budget-alert { background: #fee2e2; color: #991b1b; border: 1px solid #dc2626; }
 
-    /* Tabelas */
+    /* Tabelas com Layout Fixo para Travar Largura */
     .compact-table {
       width: 100%;
       border-collapse: collapse;
       text-align: left;
+    }
+    .table-fixed {
+      table-layout: fixed;
     }
     .compact-table th {
       background-color: var(--vault-header);
@@ -408,6 +418,7 @@
       border-bottom: 1px solid #888888;
       font-size: 0.85rem;
       vertical-align: middle;
+      overflow: hidden;
     }
 
     .row-odd { background-color: var(--vault-cell-bg); }
@@ -431,7 +442,7 @@
       font-size: 0.72rem;
       font-family: var(--font-sans);
       user-select: none;
-      min-width: 95px;
+      min-width: 85px;
     }
 
     .damage-checkbox-label {
@@ -683,12 +694,15 @@
             <div class="stat-badge-box">
               <span class="stat-badge-label">Dano Melee / Pontos</span>
               <span id="calc-disp-melee" class="stat-badge-val">+0 DC</span>
+              <span id="calc-disp-melee-formula" style="font-size: 0.65rem; color: var(--vault-dim); font-weight: 700; margin-top: 2px;">
+                Criaturas não usam bônus melee
+              </span>
             </div>
           </div>
 
           <div style="border-top: 1px dashed #444; padding-top: 10px; display: flex; flex-direction: column; gap: 6px;">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-              <div style="display: flex; align-items: center; gap: 8px;">
+              <div style="display: align-items: center; gap: 8px;">
                 <label for="select-npc-size" style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase;">Habilidade de Tamanho:</label>
                 <select id="select-npc-size" class="input-styled" style="padding: 4px 8px; font-size: 0.8rem;">
                   <option value="normal" selected>Normal (Sem modificadores de porte)</option>
@@ -770,7 +784,7 @@
           
           <div id="panel-skills-creature">
             <div style="margin-bottom: 8px; font-size: 0.72rem; color: #dcdcdc;">
-              Todas as perícias de criatura são tratadas automaticamente como <strong>Tag Skills</strong>[cite: 8].
+              Todas as perícias de criatura são tratadas automaticamente como <strong>Tag Skills</strong>[cite: 9].
             </div>
             <div class="custom-scrollbar" style="overflow-x: auto;">
               <table class="compact-table">
@@ -809,7 +823,7 @@
           <div id="panel-skills-character" class="hidden">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
               <span style="font-size: 0.72rem; color: #dcdcdc;">
-                Tags permitidas: <strong id="disp-tags-max">2</strong> | Pontos adicionais (INT + Nível): <strong id="disp-extra-skill-pts">6</strong>[cite: 8]
+                Tags permitidas: <strong id="disp-tags-max">2</strong> | Pontos adicionais (INT + Nível): <strong id="disp-extra-skill-pts">6</strong>[cite: 9]
               </span>
               <span id="disp-tag-counter" style="font-size: 0.72rem; font-weight: 800; font-family: var(--font-mono);">Tags: 0 / 2</span>
             </div>
@@ -838,7 +852,7 @@
         </div>
         <div class="card-body">
           <div class="custom-scrollbar" style="overflow-x: auto;">
-            <table class="compact-table">
+            <table class="compact-table table-fixed">
               <thead>
                 <tr>
                   <th style="width: 14%;">Nome</th>
@@ -960,7 +974,7 @@
         </div>
       </div>
 
-      <!-- MODAL GENÉRICO PARA EDIÇÃO DE TEXTO LONGO (EFEITOS, QUALIDADES, OUTRO) -->
+      <!-- MODAL GENÉRICO PARA EDIÇÃO DE TEXTO LONGO -->
       <div id="text-edit-modal" class="modal-overlay hidden">
         <div class="modal-dialog">
           <div class="card-header">
@@ -1183,6 +1197,7 @@
     const calcDispInitiative = document.getElementById("calc-disp-initiative");
     const calcDispDefense = document.getElementById("calc-disp-defense");
     const calcDispMelee = document.getElementById("calc-disp-melee");
+    const calcDispMeleeFormula = document.getElementById("calc-disp-melee-formula");
     const boxCharLuckPoints = document.getElementById("box-char-luck-points");
     const calcDispLuckPoints = document.getElementById("calc-disp-luck-points");
 
@@ -1303,54 +1318,29 @@
       if (isCreature) {
         const body = parseInt(state.creature.body, 10) || 4;
         const mind = parseInt(state.creature.mind, 10) || 4;
-        let derivadasCriatura;
-
-        if (window.SpecialDerived && window.SpecialDerived.calcularDerivadasCriatura) {
-          derivadasCriatura = window.SpecialDerived.calcularDerivadasCriatura({
-            body,
-            mind,
-            level,
-            type: state.type,
-            size: state.size,
-            skills: {
-              melee: parseInt(state.creature.melee, 10) || 0,
-              guns: parseInt(state.creature.guns, 10) || 0,
-              other: parseInt(state.creature.other, 10) || 0
-            }
-          });
-        } else {
-          let budget = 8 + Math.ceil(level / 2);
-          if (state.type === "mighty") budget += 2;
-          else if (state.type === "legendary") budget += 4;
-          let hp = body + level;
-          if (state.size === "big") hp += 4;
-          else if (state.size === "little") hp = Math.max(1, hp - 2);
-          if (state.type === "mighty") hp *= 2;
-          else if (state.type === "legendary") hp *= 3;
-          derivadasCriatura = {
-            orcamentoAtributos: budget,
-            hp,
-            iniciativa: body + mind,
-            defesa: state.size === "little" ? 2 : 1,
-            bonusMelee: { label: "+0 DC" },
-            tns: {
-              melee: body + (parseInt(state.creature.melee, 10) || 0),
-              guns: body + (parseInt(state.creature.guns, 10) || 0),
-              other: mind + (parseInt(state.creature.other, 10) || 0)
-            }
-          };
-        }
+        let budget = 8 + Math.ceil(level / 2);
+        if (state.type === "mighty") budget += 2;
+        else if (state.type === "legendary") budget += 4;
+        let hp = body + level;
+        if (state.size === "big") hp += 4;
+        else if (state.size === "little") hp = Math.max(1, hp - 2);
+        if (state.type === "mighty") hp *= 2;
+        else if (state.type === "legendary") hp *= 3;
 
         return {
           xp,
-          hp: derivadasCriatura.hp,
-          iniciativa: derivadasCriatura.iniciativa,
-          defesa: derivadasCriatura.defesa,
-          meleeBonus: derivadasCriatura.bonusMelee.label,
+          hp,
+          iniciativa: body + mind,
+          defesa: state.size === "little" ? 2 : 1,
+          meleeBonus: "+0 DC", // Criaturas não usam bônus melee
           luckPoints: 0,
-          budget: derivadasCriatura.orcamentoAtributos,
+          budget,
           currentAttrSum: body + mind,
-          tns: derivadasCriatura.tns
+          tns: {
+            melee: body + (parseInt(state.creature.melee, 10) || 0),
+            guns: body + (parseInt(state.creature.guns, 10) || 0),
+            other: mind + (parseInt(state.creature.other, 10) || 0)
+          }
         };
       } else {
         const sp = state.character.special;
@@ -1395,9 +1385,11 @@
           : (sp.A >= 9 ? 2 : 1);
         if (state.size === "little") defesa = Math.max(defesa, 2);
 
-        const meleeBonus = (window.SpecialDerived && window.SpecialDerived.calcularBonusMelee)
-          ? window.SpecialDerived.calcularBonusMelee(sp.S).label
-          : "+0 DC";
+        // Bônus Melee oficial por FORÇA (STR): 7-8: +1 DC | 9-10: +2 DC | 11+: +3 DC
+        let bonusMeleeStr = "+0 DC";
+        if (sp.S >= 11) bonusMeleeStr = "+3 DC";
+        else if (sp.S >= 9) bonusMeleeStr = "+2 DC";
+        else if (sp.S >= 7) bonusMeleeStr = "+1 DC";
 
         let luckPoints = 0;
         if (state.type === "notable") luckPoints = Math.ceil(sp.L / 2);
@@ -1408,7 +1400,7 @@
           hp: finalHp,
           iniciativa,
           defesa,
-          meleeBonus,
+          meleeBonus: bonusMeleeStr,
           luckPoints,
           budget: targetBudget,
           currentAttrSum: sumSpecial
@@ -1437,6 +1429,7 @@
       calcDispMelee.textContent = stats.meleeBonus;
 
       if (isCreature) {
+        calcDispMeleeFormula.textContent = "Criaturas não usam bônus melee";
         badgeAttrBudget.textContent = `Total: ${stats.currentAttrSum} / ${stats.budget}`;
         badgeAttrBudget.className = stats.currentAttrSum === stats.budget ? "badge-pill-budget budget-ok" : "badge-pill-budget budget-alert";
         attrFormulaHint.textContent = `Fórmula: 8 + teto(Nível / 2)${state.type === 'mighty' ? ' + 2 (Mighty)' : state.type === 'legendary' ? ' + 4 (Legendary)' : ''}. Mínimo 4 cada.`;
@@ -1446,6 +1439,7 @@
         tnCrGuns.textContent = stats.tns.guns;
         tnCrOther.textContent = stats.tns.other;
       } else {
+        calcDispMeleeFormula.textContent = "STR: 7-8 (+1 DC) | 9-10 (+2 DC) | 11+ (+3 DC)";
         const sp = state.character.special;
         let baseSpecialBudget = state.type === "notable" ? 42 : state.type === "major" ? 49 : 35;
         badgeAttrBudget.textContent = `SPECIAL: ${stats.currentAttrSum} / ${stats.budget}`;
@@ -1870,13 +1864,13 @@
 
         tdDmgType.appendChild(dmgContainer);
 
-        // 8. Efeitos (Com popup modal)
+        // 8. Efeitos (Com popup modal e largura fixa)
         const tdEffects = document.createElement("td");
         const btnEffects = document.createElement("button");
         btnEffects.type = "button";
         btnEffects.className = "btn-table-text-trigger";
         btnEffects.textContent = arma.effects ? arma.effects : "Clique para editar...";
-        btnEffects.title = "Clique para abrir caixa de texto de efeitos";
+        btnEffects.title = arma.effects ? arma.effects : "Clique para abrir caixa de texto de efeitos";
         btnEffects.addEventListener("click", () => {
           abrirEditorTextoModal({
             titulo: `Efeitos: ${arma.nome}`,
@@ -1891,13 +1885,13 @@
         });
         tdEffects.appendChild(btnEffects);
 
-        // 9. Qualidades (Com popup modal e placeholder 'reliable')
+        // 9. Qualidades (Com popup modal, placeholder 'reliable' e largura fixa)
         const tdQual = document.createElement("td");
         const btnQual = document.createElement("button");
         btnQual.type = "button";
         btnQual.className = "btn-table-text-trigger";
         btnQual.textContent = arma.qualidades ? arma.qualidades : "Clique para editar...";
-        btnQual.title = "Clique para abrir caixa de texto de qualidades";
+        btnQual.title = arma.qualidades ? arma.qualidades : "Clique para abrir caixa de texto de qualidades";
         btnQual.addEventListener("click", () => {
           abrirEditorTextoModal({
             titulo: `Qualidades: ${arma.nome}`,
@@ -1912,13 +1906,13 @@
         });
         tdQual.appendChild(btnQual);
 
-        // 10. Outro (Com popup modal)
+        // 10. Outro (Com popup modal e largura fixa)
         const tdOutro = document.createElement("td");
         const btnOutro = document.createElement("button");
         btnOutro.type = "button";
         btnOutro.className = "btn-table-text-trigger";
         btnOutro.textContent = arma.outro ? arma.outro : "Clique para editar...";
-        btnOutro.title = "Clique para abrir caixa de texto livre";
+        btnOutro.title = arma.outro ? arma.outro : "Clique para abrir caixa de texto livre";
         btnOutro.addEventListener("click", () => {
           abrirEditorTextoModal({
             titulo: `Outro (Livre): ${arma.nome}`,
