@@ -1,0 +1,1723 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestão de Personagem (S.P.E.C.I.A.L. &amp; Perícias) - Pip-Boy</title>
+
+  <!-- Folha de Estilos Centralizada -->
+  <link rel="stylesheet" href="styles/pipboy_theme.css">
+
+  <style>
+    /* =======================================================
+       1. SOBRESCRITA DE TEMA: PALETA AMARELA (PERÍCIAS)
+       ======================================================= */
+    :root {
+      --vault-bg: #f3edd9;
+      --vault-paper: #faeed2;
+      --vault-header: #1a1815;
+      --vault-card: #faeed2;
+      --vault-border: #1a1815;
+      --vault-text: #221f19;
+      --vault-dim: #665e4e;
+      --vault-cell-bg: #fcf5e5;
+      --vault-cell-alt: #f5e9ce;
+
+      --accent-amber: #ca8a04;
+      --accent-amber-dark: #78350f;
+      --accent-amber-border: #d6c49c;
+    }
+
+    body {
+      background-color: var(--vault-bg);
+      color: var(--vault-text);
+    }
+
+    /* Barra de Navegação / Separadores */
+    .module-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+      border-bottom: 2px solid var(--vault-border);
+      padding-bottom: 12px;
+    }
+
+    .tab-btn {
+      padding: 9px 18px;
+      font-family: var(--font-display);
+      font-size: 0.82rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--vault-text);
+      background-color: var(--vault-paper);
+      border: 2px solid var(--vault-border);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.15s, transform 0.05s;
+    }
+
+    .tab-btn:hover {
+      background-color: #f7de91;
+    }
+
+    .tab-btn:active {
+      transform: scale(0.97);
+    }
+
+    .tab-btn.active {
+      background-color: var(--vault-header);
+      color: #ffffff;
+    }
+
+    /* Grids de Layout */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (min-width: 1024px) {
+      .skills-grid {
+        grid-template-columns: 2fr 1fr;
+      }
+    }
+
+    .derived-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 640px) {
+      .derived-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* Tabelas */
+    .skills-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .skills-table th {
+      background-color: var(--vault-header);
+      color: #ffffff;
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      padding: 12px 16px;
+    }
+
+    .skills-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(214, 196, 156, 0.7);
+      font-size: 0.875rem;
+    }
+
+    .row-yellow-odd { background-color: #fdedbe; }
+    .row-yellow-even { background-color: #f7de91; }
+    .row-yellow-odd:hover, .row-yellow-even:hover { filter: brightness(0.97); }
+
+    .input-skill-points {
+      width: 72px;
+      text-align: center;
+      padding: 6px 8px;
+      border: 2px solid var(--vault-border);
+      border-radius: 4px;
+      background: #ffffff;
+      font-size: 0.875rem;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--vault-text);
+    }
+
+    .checkbox-tag {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: var(--vault-header);
+    }
+
+    .input-num-styled {
+      width: 100px;
+      text-align: center;
+      padding: 6px 10px;
+      border: 2px solid var(--vault-border);
+      border-radius: 4px;
+      background: #ffffff;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--vault-text);
+    }
+
+    /* Presets & Botões */
+    .preset-selector-vertical {
+      padding: 12px 16px;
+      background-color: #fbedc8;
+      border-bottom: 2px solid var(--vault-border);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .btn-preset-action, .btn-derived-action {
+      padding: 8px 12px;
+      font-family: var(--font-display);
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--accent-amber-dark);
+      background-color: #ffffff;
+      border: 1.5px solid var(--accent-amber);
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: left;
+      transition: background-color 0.15s, transform 0.05s;
+    }
+
+    .btn-preset-action:hover, .btn-derived-action:hover {
+      background-color: #fdedbe;
+    }
+
+    .btn-preset-action:active, .btn-derived-action:active {
+      transform: scale(0.98);
+      background-color: var(--accent-amber);
+      color: #ffffff;
+    }
+
+    .btn-step {
+      width: 32px;
+      height: 32px;
+      border: 2px solid var(--vault-border);
+      border-radius: 4px;
+      background: #ffffff;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-step:hover { background-color: #f7de91; }
+    .btn-step:active { transform: scale(0.95); }
+
+    .btn-reset {
+      padding: 8px 14px;
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 700;
+      color: var(--vault-text);
+      background-color: var(--vault-paper);
+      border: 2px solid var(--vault-border);
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s, transform 0.05s;
+    }
+
+    .btn-reset:hover { background-color: #ebd7a0; }
+    .btn-reset:active { transform: scale(0.96); }
+
+    /* Cards Derivados & Alertas */
+    .derived-item {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 12px;
+      background: #fcf5e5;
+      border: 2px solid var(--vault-border);
+      border-radius: 6px;
+      gap: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+
+    .badge-homebrew {
+      display: inline-block;
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      font-size: 0.6rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background-color: var(--accent-amber-dark);
+      color: #ffffff;
+    }
+
+    .melee-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-sans);
+      font-size: 0.72rem;
+      border: 1px solid var(--accent-amber);
+      margin-top: 6px;
+      background-color: #fcf5e5;
+    }
+
+    .melee-table th {
+      background-color: var(--vault-header);
+      color: #ffffff;
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      padding: 4px 6px;
+      font-size: 0.65rem;
+      letter-spacing: 0.04em;
+    }
+
+    .melee-table td {
+      padding: 4px 6px;
+      border-bottom: 1px solid #d6c49c;
+      font-family: var(--font-mono);
+      font-weight: 700;
+    }
+
+    .melee-row-active {
+      background-color: #eab308 !important;
+      color: #1a1815 !important;
+      font-weight: 900;
+    }
+
+    .status-alert {
+      padding: 14px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      border: 2px solid;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .badge-pill {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border: 1px solid;
+      margin: 2px;
+    }
+
+    .sync-badge {
+      font-size: 0.68rem;
+      font-family: var(--font-mono);
+      background-color: #fdedbe;
+      border: 1px solid #ca8a04;
+      color: #78350f;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    footer {
+      margin-top: 32px;
+      color: var(--vault-dim);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-container">
+
+    <!-- CABEÇALHO -->
+    <header>
+      <div class="header-top">
+        <div class="header-brand">
+          <span class="header-icon">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </span>
+          <h1 class="header-title">Pip-Boy &bull; S.P.E.C.I.A.L. &amp; Perícias</h1>
+        </div>
+
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button id="btn-reset-all" class="btn-reset">
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            Redefinir Tudo
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- SEPARADORES / ABAS -->
+    <nav class="module-tabs" aria-label="Navegação de Módulos">
+      <button type="button" class="tab-btn active" data-tab="special">1. S.P.E.C.I.A.L. &amp; Derivadas</button>
+      <button type="button" class="tab-btn" data-tab="skills">2. Perícias &amp; Tag Skills</button>
+    </nav>
+
+    <main>
+
+      <!-- =======================================================
+           ABA 1: S.P.E.C.I.A.L. & ESTATÍSTICAS DERIVADAS
+           ======================================================= -->
+      <section id="tab-panel-special">
+        <div class="skills-grid">
+
+          <!-- Coluna Esquerda: Tabela de Atributos + Estatísticas Derivadas -->
+          <div style="display: flex; flex-direction: column; gap: 20px;">
+            <div class="card">
+              <div class="card-header">
+                <span>Tabela de Atributos S.P.E.C.I.A.L.</span>
+              </div>
+
+              <div class="preset-selector-vertical">
+                <span style="font-size: 0.78rem; font-weight: 800; color: #78350f; text-transform: uppercase;">
+                  Aplicar Presets de Atributos:
+                </span>
+                <button type="button" class="btn-preset-action" data-preset="normal">
+                  Normal &bull; (Todos 10)
+                </button>
+                <button type="button" class="btn-preset-action" data-preset="supermutant">
+                  Super Mutante &bull; (STR/END 12, CHA/INT 6)
+                </button>
+                <button type="button" class="btn-preset-action" data-preset="nightkin">
+                  Nightkin Vanilla &bull; (STR/END 12, CHA/INT 8)
+                </button>
+              </div>
+
+              <div class="custom-scrollbar" style="overflow-x: auto;">
+                <table class="skills-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 40%;">Atributo</th>
+                      <th style="width: 25%; text-align: center;">Pontos</th>
+                      <th style="width: 20%; text-align: center;">Máx.</th>
+                      <th style="width: 15%; text-align: right; padding-right: 24px;">Valor</th>
+                    </tr>
+                  </thead>
+                  <tbody id="special-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Estatísticas Derivadas -->
+            <div class="card">
+              <div class="card-header">
+                <span>Estatísticas Derivadas</span>
+                <span class="sync-badge">Sincronizado com Perícias</span>
+              </div>
+
+              <div style="padding: 16px; background-color: #fbedc8;">
+                <div class="derived-grid">
+
+                  <div class="derived-item">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                      <div>
+                        <strong style="font-size: 0.8rem; color: var(--vault-text); text-transform: uppercase;">Iniciativa Base</strong>
+                        <span style="font-size: 0.68rem; color: var(--vault-dim); display: block;">PER + AGI</span>
+                      </div>
+                      <span id="res-derived-initiative" style="font-family: var(--font-mono); font-size: 1.35rem; font-weight: 900; color: #92400e;">0</span>
+                    </div>
+                  </div>
+
+                  <div class="derived-item">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                      <div>
+                        <strong style="font-size: 0.8rem; color: var(--vault-text); text-transform: uppercase;">Defesa</strong>
+                        <span style="font-size: 0.68rem; color: var(--vault-dim); display: block;">AGI &ge; 9: 2 | AGI &lt; 9: 1</span>
+                      </div>
+                      <span id="res-derived-defense" style="font-family: var(--font-mono); font-size: 1.35rem; font-weight: 900; color: #92400e;">1</span>
+                    </div>
+                  </div>
+
+                  <div class="derived-item" style="grid-column: 1 / -1;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #d6c49c; padding-bottom: 4px;">
+                      <div>
+                        <strong style="font-size: 0.8rem; color: var(--vault-text); text-transform: uppercase;">Bônus Corpo-a-Corpo</strong>
+                      </div>
+                      <span id="res-derived-melee" style="font-family: var(--font-mono); font-size: 1.4rem; font-weight: 900; color: #92400e;">+0 DC</span>
+                    </div>
+
+                    <table class="melee-table">
+                      <thead>
+                        <tr>
+                          <th style="text-align: left;">Atributo de Força (STR)</th>
+                          <th style="text-align: center;">Dados de Combate Adicionais (DC)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr id="melee-tier-0">
+                          <td>6 ou menos</td>
+                          <td style="text-align: center;">+0 DC</td>
+                        </tr>
+                        <tr id="melee-tier-1">
+                          <td>7–8</td>
+                          <td style="text-align: center;">+1 DC</td>
+                        </tr>
+                        <tr id="melee-tier-2">
+                          <td>9–10</td>
+                          <td style="text-align: center;">+2 DC</td>
+                        </tr>
+                        <tr id="melee-tier-3">
+                          <td>11+</td>
+                          <td style="text-align: center;">+3 DC</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <!-- Capacidade de Carga -->
+                  <div class="derived-item" style="grid-column: 1 / -1; gap: 10px;">
+                    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; border-bottom: 1px dashed #d6c49c; padding-bottom: 8px;">
+                      <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="font-size: 0.75rem; font-weight: 700; color: #78350f; text-transform: uppercase;">Carga Base:</span>
+                        <input type="number" id="input-derived-base-carry" value="" min="1" max="9999" step="1" placeholder="100" class="input-num-styled" style="width: 75px; height: 32px; font-size: 0.85rem;">
+                      </div>
+                      <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="font-size: 0.75rem; font-weight: 700; color: #78350f; text-transform: uppercase;">Multiplicador de Força:</span>
+                        <input type="number" id="input-derived-weight-mult" value="10" min="0" max="9999" step="1" class="input-num-styled" style="width: 75px; height: 32px; font-size: 0.85rem;">
+                      </div>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 4px; border-bottom: 1px dashed #d6c49c; padding-bottom: 8px;">
+                      <span style="font-size: 0.7rem; font-weight: 800; color: #78350f; text-transform: uppercase;">
+                        Presets de Multiplicador de Carga:
+                      </span>
+                      <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <button type="button" class="btn-derived-action" data-carry-mult="10">Padrão (10)</button>
+                        <button type="button" class="btn-derived-action" data-carry-mult="5">Estrutura Pequena (5)</button>
+                        <button type="button" class="btn-derived-action" data-carry-mult="0">Robô (0)</button>
+                      </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end; padding-top: 4px;">
+                      <div>
+                        <strong style="font-size: 0.8rem; color: var(--vault-text); text-transform: uppercase;">Capacidade Total</strong>
+                        <span style="font-size: 0.68rem; color: var(--vault-dim); display: block;">Base + (Multiplicador &times; Força) lbs</span>
+                      </div>
+                      <span id="res-derived-carry" style="font-family: var(--font-mono); font-size: 1.25rem; font-weight: 900; color: #92400e;">150 lbs</span>
+                    </div>
+                  </div>
+
+                  <!-- Sub-tabela de HP -->
+                  <div class="derived-item" style="grid-column: 1 / -1; gap: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #d6c49c; padding-bottom: 6px;">
+                      <span style="font-size: 0.75rem; font-weight: 700; color: #78350f; text-transform: uppercase;">Nível do Personagem:</span>
+                      <input type="number" id="input-derived-hp-level" value="" min="1" max="9999" step="1" placeholder="1" class="input-num-styled" style="width: 75px; height: 32px; font-size: 0.85rem;">
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 6px; border-bottom: 1px dashed #d6c49c; padding-bottom: 6px;">
+                      <label for="select-hp-multiplier-mode" style="font-size: 0.73rem; font-weight: 700; color: #78350f;">
+                        Possui algum benefício que multiplique o valor dos atributos para a fórmula? (Ex: Life Giver Perk)
+                      </label>
+                      <select id="select-hp-multiplier-mode" class="input-num-styled" style="width: 100%; text-align: left; height: 32px; font-size: 0.8rem; font-family: var(--font-sans); cursor: pointer; padding: 4px 8px;">
+                        <option value="none" selected>Não</option>
+                        <option value="end">Apenas END</option>
+                        <option value="lck">Apenas LCK</option>
+                        <option value="both">Ambos</option>
+                      </select>
+
+                      <div id="box-hp-mult-end" class="hidden" style="display: flex; justify-content: space-between; align-items: center; padding-top: 4px;">
+                        <label for="input-hp-mult-end" style="font-size: 0.73rem; font-weight: 700; color: #78350f; text-transform: uppercase;">
+                          Multiplicador de END:
+                        </label>
+                        <input type="number" id="input-hp-mult-end" value="1" min="1" max="99" step="1" class="input-num-styled" style="width: 75px; height: 30px; font-size: 0.85rem;">
+                      </div>
+
+                      <div id="box-hp-mult-lck" class="hidden" style="display: flex; justify-content: space-between; align-items: center; padding-top: 4px;">
+                        <label for="input-hp-mult-lck" style="font-size: 0.73rem; font-weight: 700; color: #78350f; text-transform: uppercase;">
+                          Multiplicador de LCK:
+                        </label>
+                        <input type="number" id="input-hp-mult-lck" value="1" min="1" max="99" step="1" class="input-num-styled" style="width: 75px; height: 30px; font-size: 0.85rem;">
+                      </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end; padding-top: 4px;">
+                      <div>
+                        <strong style="font-size: 0.8rem; color: var(--vault-text); text-transform: uppercase;">HP Base</strong>
+                        <span id="label-hp-formula-display" style="font-size: 0.68rem; color: var(--vault-dim); display: block;">END + LCK + (Nível - 1)</span>
+                      </div>
+                      <span id="res-derived-hp" style="font-family: var(--font-mono); font-size: 1.25rem; font-weight: 900; color: #92400e;">10</span>
+                    </div>
+                  </div>
+
+                  <!-- Contribuição de AP -->
+                  <div class="derived-item" style="grid-column: 1 / -1; gap: 8px;">
+                    <div>
+                      <span class="badge-homebrew">Regra Caseira</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 4px; border-bottom: 1px dashed #d6c49c; padding-bottom: 6px;">
+                      <span style="font-size: 0.75rem; font-weight: 700; color: #78350f; text-transform: uppercase;">
+                        Divisor de AP:
+                      </span>
+                      <input type="number" id="input-derived-ap-divisor" value="" min="1" max="100" step="1" placeholder="2" class="input-num-styled" style="width: 80px; height: 32px; padding: 4px 8px; font-size: 0.9rem;">
+                    </div>
+                    <div style="padding-top: 2px;">
+                      <strong style="font-size: 0.8rem; color: var(--vault-text); text-transform: uppercase; display: block;">Contribuição de AP</strong>
+                      <div id="res-derived-ap-text" style="font-family: var(--font-mono); font-size: 0.95rem; font-weight: 900; color: #92400e; margin-top: 2px;">
+                        Contribuição: +2 AP (Sobra: 1)
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Coluna Direita: Configuração do Sistema e Balanço de Pontos SPECIAL -->
+          <div style="display: flex; flex-direction: column; gap: 20px;">
+
+            <div class="card">
+              <div class="card-header">
+                <span>Configuração do Sistema</span>
+              </div>
+              <div style="padding: 16px; background-color: #fbedc8; display: flex; flex-direction: column; gap: 14px;">
+
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                  <div>
+                    <label for="input-special-min" style="font-size: 0.85rem; font-weight: 700; color: #78350f; text-transform: uppercase; display: block;">
+                      Mínimo por Atributo:
+                    </label>
+                    <span style="font-size: 0.7rem; color: var(--vault-dim);">Valor mínimo permitido (1 a 5, padrão: 3)</span>
+                  </div>
+                  <div style="display: flex; gap: 6px; align-items: center;">
+                    <button id="btn-dec-special-min" type="button" class="btn-step">-</button>
+                    <input type="number" id="input-special-min" value="3" min="1" max="5" step="1" placeholder="3" class="input-num-styled" style="width: 60px;">
+                    <button id="btn-inc-special-min" type="button" class="btn-step">+</button>
+                  </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; border-top: 1px solid #d6c49c; padding-top: 10px;">
+                  <div>
+                    <label for="input-special-extra" style="font-size: 0.85rem; font-weight: 700; color: #78350f; text-transform: uppercase; display: block;">
+                      SPECIALs Extras (Traços / Perks):
+                    </label>
+                    <span style="font-size: 0.7rem; color: var(--vault-dim);">Altera o total de pontos permitido (+ ou -)</span>
+                  </div>
+                  <div style="display: flex; gap: 6px; align-items: center;">
+                    <button id="btn-dec-special-extra" type="button" class="btn-step">-</button>
+                    <input type="number" id="input-special-extra" value="" step="1" placeholder="0" class="input-num-styled" style="width: 60px;">
+                    <button id="btn-inc-special-extra" type="button" class="btn-step">+</button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <div id="status-message-special" class="status-alert"></div>
+
+            <div class="card">
+              <div class="card-header">
+                <span>Balanço de Pontos S.P.E.C.I.A.L.</span>
+                <span id="status-pill-special" style="font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; border: 1px solid;">Calculando...</span>
+              </div>
+              <div style="padding: 16px; background-color: #fcf5e5; display: flex; flex-direction: column; gap: 10px; font-family: var(--font-mono); font-size: 0.875rem;">
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #d6c49c; padding-bottom: 6px;">
+                  <span style="font-family: var(--font-sans); color: var(--vault-dim); font-weight: 600;">Total de Pontos Usados</span>
+                  <span id="res-special-usados" style="font-weight: 700;">0</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #d6c49c; padding-bottom: 6px;">
+                  <span style="font-family: var(--font-sans); color: var(--vault-dim); font-weight: 600;">Total Permitido</span>
+                  <span id="res-special-permitido" style="font-weight: 700;">40</span>
+                </div>
+                <div id="box-diferenca-special" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border: 2px solid; border-radius: 4px;">
+                  <span style="font-family: var(--font-sans); font-weight: 700;">Diferença</span>
+                  <span id="res-special-diferenca" style="font-size: 1.15rem; font-weight: 900;">0</span>
+                </div>
+              </div>
+              <div style="padding: 10px 16px; background-color: #f5e9ce; border-top: 2px solid var(--vault-border); font-size: 0.75rem; color: var(--vault-dim);">
+                <strong style="display: block; color: var(--vault-text); font-family: var(--font-display); text-transform: uppercase;">Regra Oficial:</strong>
+                <span style="font-family: var(--font-mono); color: var(--vault-header); font-weight: 600;">Total Permitido = 40 + Extras | Mínimo [Definível] a Máximo [Por Atributo]</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- =======================================================
+           ABA 2: PERÍCIAS & TAG SKILLS
+           ======================================================= -->
+      <section id="tab-panel-skills" class="hidden">
+        <div class="skills-grid">
+
+          <!-- Tabela de Perícias -->
+          <div class="card">
+            <div class="card-header">
+              <span>Tabela de Perícias</span>
+              <button id="btn-reset-skills" type="button" class="btn-reset" style="padding: 4px 10px; font-size: 0.7rem;">
+                Zerar Perícias
+              </button>
+            </div>
+            <div class="custom-scrollbar" style="overflow-x: auto;">
+              <table class="skills-table">
+                <thead>
+                  <tr>
+                    <th style="width: 40%;">Perícias</th>
+                    <th style="width: 25%; text-align: center;">Quantidade Bruta (Sem tag)</th>
+                    <th style="width: 15%; text-align: center;">Tag?</th>
+                    <th style="width: 20%; text-align: right; padding-right: 24px;">Quantidade Líquida</th>
+                  </tr>
+                </thead>
+                <tbody id="skills-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Painel Lateral: Parâmetros, Balanço e Avisos -->
+          <div style="display: flex; flex-direction: column; gap: 20px;">
+
+            <!-- Parâmetros do Personagem -->
+            <div class="card">
+              <div class="card-header">
+                <span>Parâmetros do Personagem</span>
+                <span class="sync-badge">Auto-Sincronizado</span>
+              </div>
+              <div style="padding: 16px; background-color: #fbedc8; display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <label for="input-inteligencia" style="font-size: 0.875rem; font-weight: 700;">Inteligência (INT)</label>
+                  <input type="number" id="input-inteligencia" value="5" min="0" step="1" placeholder="5" class="input-num-styled" style="width: 80px;">
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <label for="input-nivel-skills" style="font-size: 0.875rem; font-weight: 700;">Nível</label>
+                  <input type="number" id="input-nivel-skills" value="1" min="1" step="1" placeholder="1" class="input-num-styled" style="width: 80px;">
+                </div>
+              </div>
+            </div>
+
+            <!-- Mensagem de Status -->
+            <div id="status-message" class="status-alert"></div>
+
+            <!-- Balanço de Pontos -->
+            <div class="card">
+              <div class="card-header">
+                <span>Balanço de Pontos</span>
+                <span id="status-pill" style="font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; border: 1px solid;">Calculando...</span>
+              </div>
+              <div style="padding: 16px; background-color: #fcf5e5; display: flex; flex-direction: column; gap: 10px; font-family: var(--font-mono); font-size: 0.875rem;">
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #d6c49c; padding-bottom: 6px;">
+                  <span style="font-family: var(--font-sans); color: var(--vault-dim); font-weight: 600;">Total de Pontos usados</span>
+                  <span id="res-usados" style="font-weight: 700;">0</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #d6c49c; padding-bottom: 6px;">
+                  <span style="font-family: var(--font-sans); color: var(--vault-dim); font-weight: 600;">Total Permitido de Pontos</span>
+                  <span id="res-permitido" style="font-weight: 700;">0</span>
+                </div>
+                <div id="box-diferenca" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border: 2px solid; border-radius: 4px;">
+                  <span style="font-family: var(--font-sans); font-weight: 700;">Diferença</span>
+                  <span id="res-diferenca" style="font-size: 1.15rem; font-weight: 900;">0</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #d6c49c; padding-top: 4px; padding-bottom: 6px;">
+                  <span style="font-family: var(--font-sans); color: var(--vault-dim); font-weight: 600;">Valor Líquido (com Tags)</span>
+                  <span id="res-bruto-tags" style="font-weight: 700; color: #78350f;">0</span>
+                </div>
+                <div style="border-top: 1px solid #d6c49c; padding-top: 8px;">
+                  <div style="display: flex; justify-content: space-between;">
+                    <span style="font-family: var(--font-sans); color: var(--vault-dim); font-weight: 600;">Total de Tag Skills</span>
+                    <span id="res-tags-count" style="font-weight: 700;">0</span>
+                  </div>
+                  <div id="res-tags-names" style="margin-top: 8px; font-family: var(--font-sans); font-size: 0.75rem; padding: 8px; border-radius: 4px; border: 1px solid;"></div>
+                </div>
+              </div>
+              <div style="padding: 10px 16px; background-color: #f5e9ce; border-top: 2px solid var(--vault-border); font-size: 0.75rem; color: var(--vault-dim);">
+                <strong style="display: block; color: var(--vault-text); font-family: var(--font-display); text-transform: uppercase;">Fórmula Oficial:</strong>
+                <span style="font-family: var(--font-mono); color: var(--vault-header); font-weight: 600;">Total = INT + 9 + (NÍVEL - 1)</span>
+                <span style="display: block; margin-top: 4px; font-size: 0.7rem; color: var(--vault-dim);">
+                  Valor Bruto (Estatística): INT + 9 + (NÍVEL - 1) + (TAGs &times; 2)
+                </span>
+              </div>
+            </div>
+
+            <!-- Relatório Final de Perícias -->
+            <div class="card">
+              <div class="card-header">
+                <span>Relatório final</span>
+                <span style="font-size: 0.7rem; color: #fde68a;">Por Valor Final</span>
+              </div>
+              <div style="padding: 16px; background-color: #fcf5e5; display: flex; flex-direction: column; gap: 14px;">
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; margin-bottom: 6px;">
+                    <span style="color: #7f1d1d;">▲ Mais de 6 pontos (Final &gt; 6)</span>
+                    <span id="badge-count-gt6" style="font-family: var(--font-mono); color: #991b1b;">0</span>
+                  </div>
+                  <div id="list-skills-gt6" style="display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; background: #f4ebd1; border: 1px solid #d6c49c; border-radius: 4px; font-size: 0.75rem; min-height: 36px;"></div>
+                </div>
+                <div style="border-top: 1px solid #d6c49c; padding-top: 10px;">
+                  <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; margin-bottom: 6px;">
+                    <span style="color: #78350f;">★ Exatamente 6 pontos (Final = 6)</span>
+                    <span id="badge-count-eq6" style="font-family: var(--font-mono); color: #92400e;">0</span>
+                  </div>
+                  <div id="list-skills-eq6" style="display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; background: #f4ebd1; border: 1px solid #d6c49c; border-radius: 4px; font-size: 0.75rem; min-height: 36px;"></div>
+                </div>
+                <div style="border-top: 1px solid #d6c49c; padding-top: 10px;">
+                  <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; margin-bottom: 6px;">
+                    <span style="color: #292524;">◆ Entre 4 e 5 pontos (Final 4 ou 5)</span>
+                    <span id="badge-count-4-5" style="font-family: var(--font-mono); color: #44403c;">0</span>
+                  </div>
+                  <div id="list-skills-4-5" style="display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; background: #f4ebd1; border: 1px solid #d6c49c; border-radius: 4px; font-size: 0.75rem; min-height: 36px;"></div>
+                </div>
+                <div style="border-top: 1px solid #d6c49c; padding-top: 10px;">
+                  <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; margin-bottom: 6px;">
+                    <span style="color: #166534;">● Entre 1 e 3 pontos (Final 1 a 3)</span>
+                    <span id="badge-count-1-3" style="font-family: var(--font-mono); color: #14532d;">0</span>
+                  </div>
+                  <div id="list-skills-1-3" style="display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; background: #f4ebd1; border: 1px solid #d6c49c; border-radius: 4px; font-size: 0.75rem; min-height: 36px;"></div>
+                </div>
+                <div style="border-top: 1px solid #d6c49c; padding-top: 10px;">
+                  <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; margin-bottom: 6px;">
+                    <span style="color: #6b7280;">○ Zero pontos (Final = 0)</span>
+                    <span id="badge-count-0" style="font-family: var(--font-mono); color: #4b5563;">0</span>
+                  </div>
+                  <div id="list-skills-0" style="display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; background: #f4ebd1; border: 1px solid #d6c49c; border-radius: 4px; font-size: 0.75rem; min-height: 36px;"></div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer>
+      Terminal Fallout RPG &bull; Módulo Unificado (S.P.E.C.I.A.L. &amp; Perícias)
+    </footer>
+  </div>
+
+  <!-- Biblioteca Modular de Estatísticas Derivadas -->
+  <script src="lib_scripts/estastisticasDerivadas.js"></script>
+
+  <script>
+    /* =======================================================
+       UTILITÁRIOS DE ENTRADA & PARSE
+       ======================================================= */
+    function parseSafeInt(value, fallbackDefault = 0) {
+      if (value === null || value === undefined || value === "") return fallbackDefault;
+      const strVal = String(value).split(".")[0].split(",")[0].trim();
+      const num = parseInt(strVal, 10);
+      return isNaN(num) ? fallbackDefault : Math.floor(num);
+    }
+
+    function parseSafeSignedInt(value, fallback = 0) {
+      if (value === null || value === undefined || value === "") return fallback;
+      const num = parseInt(value, 10);
+      return isNaN(num) ? fallback : num;
+    }
+
+    function enforceStrictIntegerInput(inputElement, minVal = 0) {
+      inputElement.addEventListener("keydown", (e) => {
+        if (e.key === "-" || e.key === "." || e.key === "," || e.key === "e" || e.key === "E" || e.key === "+") {
+          e.preventDefault();
+        }
+      });
+
+      inputElement.addEventListener("paste", (e) => {
+        e.preventDefault();
+        const text = (e.clipboardData || window.clipboardData).getData("text");
+        const clean = text.replace(/[^0-9]/g, "");
+        const parsed = parseSafeInt(clean, minVal);
+        inputElement.value = parsed === 0 ? "" : parsed;
+        inputElement.dispatchEvent(new Event("input"));
+      });
+    }
+
+    function enforceStrictBoundedInput(inputElement, minVal, maxVal, fallbackDefault, onChangeCallback) {
+      enforceStrictIntegerInput(inputElement, minVal);
+
+      inputElement.addEventListener("input", (e) => {
+        const raw = e.target.value;
+        if (raw === "") {
+          if (onChangeCallback) onChangeCallback(fallbackDefault);
+          return;
+        }
+        let val = parseInt(raw, 10);
+        if (isNaN(val)) val = fallbackDefault;
+        if (val > maxVal) {
+          val = maxVal;
+          inputElement.value = val;
+        }
+        if (onChangeCallback) onChangeCallback(val);
+      });
+
+      inputElement.addEventListener("blur", (e) => {
+        const raw = e.target.value;
+        if (raw === "") {
+          if (onChangeCallback) onChangeCallback(fallbackDefault);
+          return;
+        }
+        let val = parseInt(raw, 10);
+        if (isNaN(val)) val = fallbackDefault;
+        if (val < minVal) val = minVal;
+        if (val > maxVal) val = maxVal;
+        inputElement.value = val;
+        if (onChangeCallback) onChangeCallback(val);
+      });
+    }
+
+    /* =======================================================
+       NAVEGAÇÃO POR ABAS
+       ======================================================= */
+    const tabButtons = document.querySelectorAll(".tab-btn");
+    const panelSpecial = document.getElementById("tab-panel-special");
+    const panelSkills = document.getElementById("tab-panel-skills");
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        tabButtons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        const target = btn.getAttribute("data-tab");
+        if (target === "special") {
+          panelSpecial.classList.remove("hidden");
+          panelSkills.classList.add("hidden");
+        } else {
+          panelSkills.classList.remove("hidden");
+          panelSpecial.classList.add("hidden");
+        }
+      });
+    });
+
+    /* =======================================================
+       ESTADO E LÓGICA DO S.P.E.C.I.A.L.
+       ======================================================= */
+    const SPECIAL_ATTRIBUTES = [
+      { key: "S", name: "Força (Strength)", points: 5, max: 10 },
+      { key: "P", name: "Percepção (Perception)", points: 5, max: 10 },
+      { key: "E", name: "Resistência (Endurance)", points: 5, max: 10 },
+      { key: "C", name: "Carisma (Charisma)", points: 5, max: 10 },
+      { key: "I", name: "Inteligência (Intelligence)", points: 5, max: 10 },
+      { key: "A", name: "Agilidade (Agility)", points: 5, max: 10 },
+      { key: "L", name: "Sorte (Luck)", points: 5, max: 10 }
+    ];
+
+    const stateSpecial = {
+      minVal: 3,
+      extraPoints: 0,
+      derived: {
+        baseCarry: 100,
+        weightMult: 10,
+        hpLevel: 1,
+        hpMultMode: "none",
+        hpMultEnd: 1,
+        hpMultLck: 1,
+        apDivisor: 2
+      },
+      attributes: SPECIAL_ATTRIBUTES.map(attr => ({ ...attr }))
+    };
+
+    const SPECIAL_PRESETS = {
+      normal: { S: 10, P: 10, E: 10, C: 10, I: 10, A: 10, L: 10 },
+      supermutant: { S: 12, P: 10, E: 12, C: 6, I: 6, A: 10, L: 10 },
+      nightkin: { S: 12, P: 10, E: 12, C: 8, I: 8, A: 10, L: 10 }
+    };
+
+    const specialTbody = document.getElementById("special-tbody");
+    const presetActionButtons = document.querySelectorAll(".btn-preset-action");
+    const inputSpecialMin = document.getElementById("input-special-min");
+    const btnDecSpecialMin = document.getElementById("btn-dec-special-min");
+    const btnIncSpecialMin = document.getElementById("btn-inc-special-min");
+    const inputSpecialExtra = document.getElementById("input-special-extra");
+    const btnDecSpecialExtra = document.getElementById("btn-dec-special-extra");
+    const btnIncSpecialExtra = document.getElementById("btn-inc-special-extra");
+    const statusMessageSpecial = document.getElementById("status-message-special");
+    const statusPillSpecial = document.getElementById("status-pill-special");
+    const resSpecialUsados = document.getElementById("res-special-usados");
+    const resSpecialPermitido = document.getElementById("res-special-permitido");
+    const boxDiferencaSpecial = document.getElementById("box-diferenca-special");
+    const resSpecialDiferenca = document.getElementById("res-special-diferenca");
+
+    // Estatísticas Derivadas DOM
+    const resDerivedInitiative = document.getElementById("res-derived-initiative");
+    const resDerivedDefense = document.getElementById("res-derived-defense");
+    const resDerivedMelee = document.getElementById("res-derived-melee");
+    const inputDerivedBaseCarry = document.getElementById("input-derived-base-carry");
+    const inputDerivedWeightMult = document.getElementById("input-derived-weight-mult");
+    const resDerivedCarry = document.getElementById("res-derived-carry");
+    const inputDerivedHpLevel = document.getElementById("input-derived-hp-level");
+    const selectHpMultiplierMode = document.getElementById("select-hp-multiplier-mode");
+    const boxHpMultEnd = document.getElementById("box-hp-mult-end");
+    const inputHpMultEnd = document.getElementById("input-hp-mult-end");
+    const boxHpMultLck = document.getElementById("box-hp-mult-lck");
+    const inputHpMultLck = document.getElementById("input-hp-mult-lck");
+    const labelHpFormulaDisplay = document.getElementById("label-hp-formula-display");
+    const resDerivedHp = document.getElementById("res-derived-hp");
+    const inputDerivedApDivisor = document.getElementById("input-derived-ap-divisor");
+    const resDerivedApText = document.getElementById("res-derived-ap-text");
+
+    /* =======================================================
+       ESTADO E LÓGICA DE PERÍCIAS
+       ======================================================= */
+    const SKILLS_LIST = [
+      "Athletics", "Barter", "Big Guns", "Energy Weapons", "Explosives",
+      "Lockpick", "Medicine", "Melee Weapons", "Pilot", "Repair",
+      "Science", "Small Guns", "Sneak", "Speech", "Survival", "Throwing", "Unarmed"
+    ];
+
+    const stateSkills = {
+      inteligencia: 5,
+      nivel: 1,
+      skills: SKILLS_LIST.map(name => ({
+        name: name,
+        points: 0,
+        isTag: false
+      }))
+    };
+
+    const tbodySkills = document.getElementById("skills-tbody");
+    const inputInt = document.getElementById("input-inteligencia");
+    const inputNivelSkills = document.getElementById("input-nivel-skills");
+    const resUsados = document.getElementById("res-usados");
+    const resPermitido = document.getElementById("res-permitido");
+    const resDiferenca = document.getElementById("res-diferenca");
+    const resBrutoTags = document.getElementById("res-bruto-tags");
+    const resTagsCount = document.getElementById("res-tags-count");
+    const resTagsNames = document.getElementById("res-tags-names");
+    const boxDiferenca = document.getElementById("box-diferenca");
+    const statusPill = document.getElementById("status-pill");
+    const statusMessage = document.getElementById("status-message");
+    const btnResetSkills = document.getElementById("btn-reset-skills");
+    const btnResetAll = document.getElementById("btn-reset-all");
+
+    // Categorias de Alerta de Perícias
+    const listSkillsGt6 = document.getElementById("list-skills-gt6");
+    const badgeCountGt6 = document.getElementById("badge-count-gt6");
+    const listSkillsEq6 = document.getElementById("list-skills-eq6");
+    const badgeCountEq6 = document.getElementById("badge-count-eq6");
+    const listSkills45 = document.getElementById("list-skills-4-5");
+    const badgeCount45 = document.getElementById("badge-count-4-5");
+    const listSkills13 = document.getElementById("list-skills-1-3");
+    const badgeCount13 = document.getElementById("badge-count-1-3");
+    const listSkills0 = document.getElementById("list-skills-0");
+    const badgeCount0 = document.getElementById("badge-count-0");
+
+    /* =======================================================
+       FUNÇÕES DE SINCRONIZAÇÃO BIDIRECIONAL (INT & NÍVEL)
+       ======================================================= */
+    function syncIntFromSpecialToSkills(newIntVal) {
+      stateSkills.inteligencia = newIntVal;
+      inputInt.value = newIntVal === 5 ? "" : newIntVal;
+      updateSkillsCalculations();
+    }
+
+    function syncIntFromSkillsToSpecial(newIntVal) {
+      const intAttrIdx = stateSpecial.attributes.findIndex(a => a.key === "I");
+      if (intAttrIdx !== -1) {
+        stateSpecial.attributes[intAttrIdx].points = newIntVal;
+        const inputEl = document.getElementById(`input-special-points-${intAttrIdx}`);
+        if (inputEl) {
+          inputEl.value = newIntVal === stateSpecial.minVal ? "" : newIntVal;
+        }
+        updateSpecialCalculations(false);
+      }
+    }
+
+    function syncLevelFromSpecialToSkills(newLvlVal) {
+      stateSkills.nivel = newLvlVal;
+      inputNivelSkills.value = newLvlVal === 1 ? "" : newLvlVal;
+      updateSkillsCalculations();
+    }
+
+    function syncLevelFromSkillsToSpecial(newLvlVal) {
+      stateSpecial.derived.hpLevel = newLvlVal;
+      inputDerivedHpLevel.value = newLvlVal === 1 ? "" : newLvlVal;
+      updateSpecialCalculations(false);
+    }
+
+    /* =======================================================
+       RENDERIZAÇÃO & CÁLCULOS: SPECIAL
+       ======================================================= */
+    function renderSpecialTable() {
+      specialTbody.innerHTML = "";
+      stateSpecial.attributes.forEach((attr, index) => {
+        const tr = document.createElement("tr");
+        tr.className = index % 2 === 0 ? 'row-yellow-odd' : 'row-yellow-even';
+
+        const tdName = document.createElement("td");
+        tdName.style.fontWeight = "700";
+        tdName.textContent = attr.name;
+
+        const tdInput = document.createElement("td");
+        tdInput.style.textAlign = "center";
+        const inputVal = document.createElement("input");
+        inputVal.type = "number";
+        inputVal.min = stateSpecial.minVal;
+        inputVal.max = attr.max;
+        inputVal.step = "1";
+        inputVal.value = attr.points === stateSpecial.minVal ? "" : attr.points;
+        inputVal.placeholder = stateSpecial.minVal;
+        inputVal.className = "input-skill-points";
+        inputVal.id = `input-special-points-${index}`;
+        enforceStrictIntegerInput(inputVal, 0);
+
+        function handlePointsChange(forceStrictClamp = false) {
+          const raw = inputVal.value;
+          if (raw === "") {
+            stateSpecial.attributes[index].points = stateSpecial.minVal;
+            updateSpecialCalculations(true);
+            return;
+          }
+          let val = parseInt(raw, 10);
+          if (isNaN(val)) val = stateSpecial.minVal;
+
+          if (forceStrictClamp && val < stateSpecial.minVal) {
+            val = stateSpecial.minVal;
+          }
+          if (val > stateSpecial.attributes[index].max) {
+            val = stateSpecial.attributes[index].max;
+          }
+
+          inputVal.value = val === stateSpecial.minVal ? "" : val;
+          stateSpecial.attributes[index].points = val;
+          updateSpecialCalculations(true);
+        }
+
+        inputVal.addEventListener("input", () => handlePointsChange(false));
+        inputVal.addEventListener("blur", () => handlePointsChange(true));
+        tdInput.appendChild(inputVal);
+
+        const tdMax = document.createElement("td");
+        tdMax.style.textAlign = "center";
+        const inputMax = document.createElement("input");
+        inputMax.type = "number";
+        inputMax.min = "1";
+        inputMax.step = "1";
+        inputMax.value = attr.max === 10 ? "" : attr.max;
+        inputMax.placeholder = "10";
+        inputMax.className = "input-skill-points";
+        inputMax.style.width = "54px";
+        inputMax.style.backgroundColor = "#fcf5e5";
+        inputMax.id = `input-special-max-${index}`;
+        enforceStrictIntegerInput(inputMax, 1);
+
+        function handleMaxChange() {
+          const raw = inputMax.value;
+          let maxVal = raw === "" ? 10 : parseSafeInt(raw, 1);
+          stateSpecial.attributes[index].max = maxVal;
+          inputVal.max = maxVal;
+
+          if (stateSpecial.attributes[index].points > maxVal) {
+            stateSpecial.attributes[index].points = maxVal;
+            inputVal.value = maxVal === stateSpecial.minVal ? "" : maxVal;
+          }
+          updateSpecialCalculations(true);
+        }
+
+        inputMax.addEventListener("input", handleMaxChange);
+        inputMax.addEventListener("blur", handleMaxChange);
+        tdMax.appendChild(inputMax);
+
+        const tdFinal = document.createElement("td");
+        tdFinal.style.textAlign = "right";
+        tdFinal.style.paddingRight = "24px";
+        tdFinal.style.fontFamily = "var(--font-mono)";
+        tdFinal.style.fontWeight = "900";
+        tdFinal.style.fontSize = "1rem";
+        tdFinal.style.color = "#78350f";
+        tdFinal.id = `special-final-${index}`;
+        tdFinal.textContent = attr.points;
+
+        tr.appendChild(tdName);
+        tr.appendChild(tdInput);
+        tr.appendChild(tdMax);
+        tr.appendChild(tdFinal);
+
+        specialTbody.appendChild(tr);
+      });
+    }
+
+    function updateSpecialCalculations(propagateToSkills = true) {
+      let totalUsados = 0;
+      let hasBelowMin = false;
+      let hasAboveMax = false;
+      const minLimit = stateSpecial.minVal;
+
+      let strPoints = 5, perPoints = 5, endPoints = 5, chaPoints = 5, intPoints = 5, agiPoints = 5, lckPoints = 5;
+
+      stateSpecial.attributes.forEach((attr, idx) => {
+        const cell = document.getElementById(`special-final-${idx}`);
+        if (cell) cell.textContent = attr.points;
+        totalUsados += attr.points;
+
+        if (attr.key === "S") strPoints = attr.points;
+        else if (attr.key === "P") perPoints = attr.points;
+        else if (attr.key === "E") endPoints = attr.points;
+        else if (attr.key === "C") chaPoints = attr.points;
+        else if (attr.key === "I") intPoints = attr.points;
+        else if (attr.key === "A") agiPoints = attr.points;
+        else if (attr.key === "L") lckPoints = attr.points;
+
+        if (attr.points < minLimit) hasBelowMin = true;
+        if (attr.points > attr.max) hasAboveMax = true;
+      });
+
+      const curBaseCarry = inputDerivedBaseCarry.value === "" ? 100 : parseSafeInt(inputDerivedBaseCarry.value, 100);
+      const curWeightMult = inputDerivedWeightMult.value === "" ? 10 : parseSafeInt(inputDerivedWeightMult.value, 10);
+      const curHpLevel = inputDerivedHpLevel.value === "" ? 1 : parseSafeInt(inputDerivedHpLevel.value, 1);
+      const curHpMode = selectHpMultiplierMode.value;
+      const curMultEnd = parseSafeInt(inputHpMultEnd.value, 1);
+      const curMultLck = parseSafeInt(inputHpMultLck.value, 1);
+      const curApDivisor = inputDerivedApDivisor.value === "" ? 2 : parseSafeInt(inputDerivedApDivisor.value, 2);
+
+      // Cálculo via biblioteca ou fallback local seguro
+      let derivedCalc;
+      if (window.SpecialDerived && typeof window.SpecialDerived.calcularTodasDerivadas === "function") {
+        derivedCalc = window.SpecialDerived.calcularTodasDerivadas({
+          strength: strPoints,
+          perception: perPoints,
+          endurance: endPoints,
+          charisma: chaPoints,
+          intelligence: intPoints,
+          agility: agiPoints,
+          luck: lckPoints,
+          options: {
+            baseCarry: curBaseCarry,
+            weightMult: curWeightMult,
+            hpLevel: curHpLevel,
+            hpMultMode: curHpMode,
+            hpMultEnd: curMultEnd,
+            hpMultLck: curMultLck,
+            apDivisor: curApDivisor
+          }
+        });
+      } else {
+        const bonusMelee = strPoints >= 11 ? 3 : (strPoints >= 9 ? 2 : (strPoints >= 7 ? 1 : 0));
+        const activeTierId = `melee-tier-${bonusMelee}`;
+        const effEnd = (curHpMode === "end" || curHpMode === "both") ? curMultEnd : 1;
+        const effLck = (curHpMode === "lck" || curHpMode === "both") ? curMultLck : 1;
+        derivedCalc = {
+          iniciativa: perPoints + agiPoints,
+          defesa: agiPoints >= 9 ? 2 : 1,
+          bonusMelee: { label: `+${bonusMelee} DC`, activeTierId },
+          capacidadeCargaLbs: curBaseCarry + (curWeightMult * strPoints),
+          hp: {
+            totalHp: (endPoints * effEnd) + (lckPoints * effLck) + (curHpLevel - 1),
+            formulaLabel: `${effEnd !== 1 ? `(END * ${effEnd})` : "END"} + ${effLck !== 1 ? `(LCK * ${effLck})` : "LCK"} + (Nível - 1)`
+          },
+          ap: {
+            displayText: `Contribuição: +${Math.floor(chaPoints / curApDivisor)} AP (Sobra: ${chaPoints % curApDivisor})`
+          }
+        };
+      }
+
+      if (resDerivedInitiative) resDerivedInitiative.textContent = derivedCalc.iniciativa;
+      if (resDerivedDefense) resDerivedDefense.textContent = derivedCalc.defesa;
+      if (resDerivedMelee) resDerivedMelee.textContent = derivedCalc.bonusMelee.label;
+
+      ["melee-tier-0", "melee-tier-1", "melee-tier-2", "melee-tier-3"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.classList.toggle("melee-row-active", id === derivedCalc.bonusMelee.activeTierId);
+        }
+      });
+
+      if (resDerivedCarry) resDerivedCarry.textContent = `${derivedCalc.capacidadeCargaLbs} lbs`;
+      if (resDerivedHp) resDerivedHp.textContent = derivedCalc.hp.totalHp;
+      if (labelHpFormulaDisplay) labelHpFormulaDisplay.textContent = derivedCalc.hp.formulaLabel;
+      if (resDerivedApText) resDerivedApText.textContent = derivedCalc.ap.displayText;
+
+      // Propaga INT e Nível para Perícias
+      if (propagateToSkills) {
+        syncIntFromSpecialToSkills(intPoints);
+        syncLevelFromSpecialToSkills(curHpLevel);
+      }
+
+      // Balanço de Pontos S.P.E.C.I.A.L.
+      const totalPermitido = 40 + stateSpecial.extraPoints;
+      const diferenca = totalPermitido - totalUsados;
+
+      resSpecialUsados.textContent = totalUsados;
+      resSpecialPermitido.textContent = totalPermitido;
+      resSpecialDiferenca.textContent = diferenca > 0 ? `+${diferenca}` : diferenca;
+
+      if (hasAboveMax) {
+        boxDiferencaSpecial.style.backgroundColor = "#fee2e2";
+        boxDiferencaSpecial.style.borderColor = "#ef4444";
+        boxDiferencaSpecial.style.color = "#7f1d1d";
+
+        statusPillSpecial.style.borderColor = "#ef4444";
+        statusPillSpecial.style.backgroundColor = "#fecaca";
+        statusPillSpecial.style.color = "#450a0a";
+        statusPillSpecial.textContent = "Ultrapassa Máximo";
+
+        statusMessageSpecial.style.backgroundColor = "#fef2f2";
+        statusMessageSpecial.style.borderColor = "#ef4444";
+        statusMessageSpecial.style.color = "#450a0a";
+        statusMessageSpecial.innerHTML = `
+          <div>
+            <strong style="display: block; font-family: var(--font-display); text-transform: uppercase; color: #7f1d1d; margin-bottom: 2px;">Limite Individual Excedido!</strong>
+            Existe(m) atributo(s) com valor acima do valor máximo permitido.
+          </div>
+        `;
+      } else if (hasBelowMin) {
+        boxDiferencaSpecial.style.backgroundColor = "#fee2e2";
+        boxDiferencaSpecial.style.borderColor = "#ef4444";
+        boxDiferencaSpecial.style.color = "#7f1d1d";
+
+        statusPillSpecial.style.borderColor = "#ca8a04";
+        statusPillSpecial.style.backgroundColor = "#fef3c7";
+        statusPillSpecial.style.color = "#78350f";
+        statusPillSpecial.textContent = "Abaixo do Mínimo";
+
+        statusMessageSpecial.style.backgroundColor = "#faeed2";
+        statusMessageSpecial.style.borderColor = "#ca8a04";
+        statusMessageSpecial.style.color = "#78350f";
+        statusMessageSpecial.innerHTML = `
+          <div>
+            <strong style="display: block; font-family: var(--font-display); text-transform: uppercase; color: #78350f; margin-bottom: 2px;">Valor Abaixo do Mínimo!</strong>
+            Existe(m) atributo(s) com valor menor que o mínimo configurado (<strong>${minLimit} pontos</strong>).
+          </div>
+        `;
+      } else if (diferenca < 0) {
+        boxDiferencaSpecial.style.backgroundColor = "#fee2e2";
+        boxDiferencaSpecial.style.borderColor = "#ef4444";
+        boxDiferencaSpecial.style.color = "#7f1d1d";
+
+        statusPillSpecial.style.borderColor = "#ef4444";
+        statusPillSpecial.style.backgroundColor = "#fecaca";
+        statusPillSpecial.style.color = "#450a0a";
+        statusPillSpecial.textContent = "Limite Excedido";
+
+        statusMessageSpecial.style.backgroundColor = "#fef2f2";
+        statusMessageSpecial.style.borderColor = "#ef4444";
+        statusMessageSpecial.style.color = "#450a0a";
+        statusMessageSpecial.innerHTML = `
+          <div>
+            <strong style="display: block; font-family: var(--font-display); text-transform: uppercase; color: #7f1d1d; margin-bottom: 2px;">Atenção! Limite ultrapassado:</strong>
+            Você gastou <strong>${Math.abs(diferenca)} ponto(s) a mais</strong> do que o total permitido (${totalPermitido}).
+          </div>
+        `;
+      } else if (diferenca === 0) {
+        boxDiferencaSpecial.style.backgroundColor = "#d7ecd6";
+        boxDiferencaSpecial.style.borderColor = "#047857";
+        boxDiferencaSpecial.style.color = "#064e3b";
+
+        statusPillSpecial.style.borderColor = "#047857";
+        statusPillSpecial.style.backgroundColor = "#a7f3d0";
+        statusPillSpecial.style.color = "#064e3b";
+        statusPillSpecial.textContent = "Exato";
+
+        statusMessageSpecial.style.backgroundColor = "#eaf6e9";
+        statusMessageSpecial.style.borderColor = "#047857";
+        statusMessageSpecial.style.color = "#064e3b";
+        statusMessageSpecial.innerHTML = `
+          <div>
+            <strong style="display: block; font-family: var(--font-display); text-transform: uppercase; color: #064e3b; margin-bottom: 2px;">Distribuição Correta:</strong>
+            Todos os <strong>${totalPermitido} pontos SPECIAL</strong> foram distribuídos com perfeição.
+          </div>
+        `;
+      } else {
+        boxDiferencaSpecial.style.backgroundColor = "#f4de9c";
+        boxDiferencaSpecial.style.borderColor = "var(--vault-border)";
+        boxDiferencaSpecial.style.color = "var(--vault-text)";
+
+        statusPillSpecial.style.borderColor = "var(--vault-border)";
+        statusPillSpecial.style.backgroundColor = "#ebd7a0";
+        statusPillSpecial.style.color = "var(--vault-text)";
+        statusPillSpecial.textContent = "Disponível";
+
+        statusMessageSpecial.style.backgroundColor = "#faeed2";
+        statusMessageSpecial.style.borderColor = "var(--vault-border)";
+        statusMessageSpecial.style.color = "var(--vault-text)";
+        statusMessageSpecial.innerHTML = `
+          <div>
+            <strong style="display: block; font-family: var(--font-display); text-transform: uppercase; color: var(--vault-header); margin-bottom: 2px;">Pontos Restantes:</strong>
+            Você ainda tem <strong>${diferenca} ponto(s)</strong> para distribuir entre os atributos SPECIAL.
+          </div>
+        `;
+      }
+    }
+
+    function applyMinClampToAll() {
+      stateSpecial.attributes.forEach((attr, idx) => {
+        if (attr.points < stateSpecial.minVal) {
+          attr.points = stateSpecial.minVal;
+          const valInput = document.getElementById(`input-special-points-${idx}`);
+          if (valInput) valInput.value = "";
+        }
+      });
+      renderSpecialTable();
+      updateSpecialCalculations(true);
+    }
+
+    /* =======================================================
+       RENDERIZAÇÃO & CÁLCULOS: PERÍCIAS
+       ======================================================= */
+    function calculateSkillFinal(skill) {
+      const pts = parseSafeInt(skill.points, 0);
+      return pts + (skill.isTag ? 2 : 0);
+    }
+
+    function renderSkillsTable() {
+      tbodySkills.innerHTML = "";
+      stateSkills.skills.forEach((skill, index) => {
+        const tr = document.createElement("tr");
+        tr.className = index % 2 === 0 ? 'row-yellow-odd' : 'row-yellow-even';
+
+        const tdName = document.createElement("td");
+        tdName.style.fontWeight = "700";
+        tdName.textContent = skill.name;
+
+        const tdPoints = document.createElement("td");
+        tdPoints.style.textAlign = "center";
+        const inputPts = document.createElement("input");
+        inputPts.type = "number";
+        inputPts.min = "0";
+        inputPts.step = "1";
+        inputPts.value = skill.points === 0 ? "" : skill.points;
+        inputPts.placeholder = "0";
+        inputPts.className = "input-skill-points";
+        enforceStrictIntegerInput(inputPts, 0);
+
+        inputPts.addEventListener("input", (e) => {
+          const val = parseSafeInt(e.target.value, 0);
+          stateSkills.skills[index].points = val;
+          updateSkillsCalculations();
+        });
+        tdPoints.appendChild(inputPts);
+
+        const tdTag = document.createElement("td");
+        tdTag.style.textAlign = "center";
+        const checkboxTag = document.createElement("input");
+        checkboxTag.type = "checkbox";
+        checkboxTag.checked = skill.isTag;
+        checkboxTag.className = "checkbox-tag";
+        checkboxTag.addEventListener("change", (e) => {
+          stateSkills.skills[index].isTag = e.target.checked;
+          updateSkillsCalculations();
+        });
+        tdTag.appendChild(checkboxTag);
+
+        const tdFinal = document.createElement("td");
+        tdFinal.style.textAlign = "right";
+        tdFinal.style.paddingRight = "24px";
+        tdFinal.style.fontFamily = "var(--font-mono)";
+        tdFinal.style.fontWeight = "900";
+        tdFinal.style.fontSize = "1rem";
+        tdFinal.id = `final-val-${index}`;
+        tdFinal.textContent = calculateSkillFinal(skill);
+
+        tr.appendChild(tdName);
+        tr.appendChild(tdPoints);
+        tr.appendChild(tdTag);
+        tr.appendChild(tdFinal);
+
+        tbodySkills.appendChild(tr);
+      });
+    }
+
+    function updateSkillsCalculations() {
+      const skillsWithFinal = stateSkills.skills.map((skill, idx) => {
+        const finalVal = calculateSkillFinal(skill);
+        const cell = document.getElementById(`final-val-${idx}`);
+        if (cell) cell.textContent = finalVal;
+        return { ...skill, finalVal };
+      });
+
+      const tagSkills = skillsWithFinal.filter(s => s.isTag);
+      resTagsCount.textContent = tagSkills.length;
+      if (tagSkills.length > 0) {
+        resTagsNames.style.backgroundColor = "rgba(253, 224, 71, 0.9)";
+        resTagsNames.style.borderColor = "rgba(34, 31, 25, 0.4)";
+        resTagsNames.style.color = "var(--vault-text)";
+        resTagsNames.style.fontWeight = "600";
+        resTagsNames.textContent = tagSkills.map(s => s.name).join(", ");
+      } else {
+        resTagsNames.style.backgroundColor = "#f3edd9";
+        resTagsNames.style.borderColor = "#d6c49c";
+        resTagsNames.style.color = "var(--vault-dim)";
+        resTagsNames.style.fontWeight = "400";
+        resTagsNames.textContent = "Nenhuma perícia marcada como Tag";
+      }
+
+      const totalUsados = stateSkills.skills.reduce((acc, s) => acc + parseSafeInt(s.points, 0), 0);
+      const inteligencia = parseSafeInt(stateSkills.inteligencia, 0);
+      const nivel = parseSafeInt(stateSkills.nivel, 1);
+
+      const totalPermitido = inteligencia + 9 + (nivel - 1);
+      const valorBrutoOriginal = totalPermitido + (tagSkills.length * 2);
+      const diferenca = totalPermitido - totalUsados;
+
+      resUsados.textContent = totalUsados;
+      resPermitido.textContent = totalPermitido;
+      resDiferenca.textContent = diferenca > 0 ? `+${diferenca}` : diferenca;
+      resBrutoTags.textContent = valorBrutoOriginal;
+
+      if (diferenca < 0) {
+        boxDiferenca.style.backgroundColor = "#fee2e2";
+        boxDiferenca.style.borderColor = "#ef4444";
+        boxDiferenca.style.color = "#7f1d1d";
+
+        statusPill.style.borderColor = "#ef4444";
+        statusPill.style.backgroundColor = "#fecaca";
+        statusPill.style.color = "#450a0a";
+        statusPill.textContent = "Limite Excedido";
+
+        statusMessage.style.backgroundColor = "#fef2f2";
+        statusMessage.style.borderColor = "#ef4444";
+        statusMessage.style.color = "#450a0a";
+        statusMessage.innerHTML = `
+          <div>
+            <strong style="display: block; font-family: var(--font-display); text-transform: uppercase; color: #7f1d1d; margin-bottom: 2px;">Atenção! Limite ultrapassado:</strong>
+            Você gastou <strong>${Math.abs(diferenca)} ponto(s) a mais</strong> do que o permitido pelo nível e atributos.
+          </div>
+        `;
+      } else if (diferenca === 0) {
+        boxDiferenca.style.backgroundColor = "#d7ecd6";
+        boxDiferenca.style.borderColor = "#047857";
+        boxDiferenca.style.color = "#064e3b";
+
+        statusPill.style.borderColor = "#047857";
+        statusPill.style.backgroundColor = "#a7f3d0";
+        statusPill.style.color = "#064e3b";
+        statusPill.textContent = "Exato";
+
+        statusMessage.style.backgroundColor = "#eaf6e9";
+        statusMessage.style.borderColor = "#047857";
+        statusMessage.style.color = "#064e3b";
+        statusMessage.innerHTML = `
+          <div>
+            <strong style="display: block; font-family: var(--font-display); text-transform: uppercase; color: #064e3b; margin-bottom: 2px;">Distribuição Ideal:</strong>
+            Todos os <strong>${totalPermitido} pontos disponíveis</strong> foram distribuídos com precisão.
+          </div>
+        `;
+      } else {
+        boxDiferenca.style.backgroundColor = "#f4de9c";
+        boxDiferenca.style.borderColor = "var(--vault-border)";
+        boxDiferenca.style.color = "var(--vault-text)";
+
+        statusPill.style.borderColor = "var(--vault-border)";
+        statusPill.style.backgroundColor = "#ebd7a0";
+        statusPill.style.color = "var(--vault-text)";
+        statusPill.textContent = "Disponível";
+
+        statusMessage.style.backgroundColor = "#faeed2";
+        statusMessage.style.borderColor = "var(--vault-border)";
+        statusMessage.style.color = "var(--vault-text)";
+        statusMessage.innerHTML = `
+          <div>
+            <strong style="display: block; font-family: var(--font-display); text-transform: uppercase; color: var(--vault-header); margin-bottom: 2px;">Pontos Restantes:</strong>
+            Você ainda possui <strong>${diferenca} ponto(s)</strong> livres para atribuir às suas perícias.
+          </div>
+        `;
+      }
+
+      // Faixas do relatório final
+      const skillsTierGt6 = skillsWithFinal.filter(s => s.finalVal > 6);
+      badgeCountGt6.textContent = skillsTierGt6.length;
+      listSkillsGt6.innerHTML = skillsTierGt6.length > 0
+        ? skillsTierGt6.map(s => `<span class="badge-pill" style="background:#fee2e2; border-color:#f87171; color:#450a0a;">${s.name} <strong style="font-family:var(--font-mono);">${s.finalVal}</strong></span>`).join("")
+        : `<span style="font-style:italic; color:var(--vault-dim);">Nenhuma perícia nesta faixa</span>`;
+
+      const skillsTierEq6 = skillsWithFinal.filter(s => s.finalVal === 6);
+      badgeCountEq6.textContent = skillsTierEq6.length;
+      listSkillsEq6.innerHTML = skillsTierEq6.length > 0
+        ? skillsTierEq6.map(s => `<span class="badge-pill" style="background:#fef3c7; border-color:#fbbf24; color:#78350f;">${s.name} <strong style="font-family:var(--font-mono);">${s.finalVal}</strong></span>`).join("")
+        : `<span style="font-style:italic; color:var(--vault-dim);">Nenhuma perícia nesta faixa</span>`;
+
+      const skillsTier45 = skillsWithFinal.filter(s => s.finalVal >= 4 && s.finalVal <= 5);
+      badgeCount45.textContent = skillsTier45.length;
+      listSkills45.innerHTML = skillsTier45.length > 0
+        ? skillsTier45.map(s => `<span class="badge-pill" style="background:#fdedbe; border-color:#d6c49c; color:var(--vault-text);">${s.name} <strong style="font-family:var(--font-mono);">${s.finalVal}</strong></span>`).join("")
+        : `<span style="font-style:italic; color:var(--vault-dim);">Nenhuma perícia nesta faixa</span>`;
+
+      const skillsTier13 = skillsWithFinal.filter(s => s.finalVal >= 1 && s.finalVal <= 3);
+      badgeCount13.textContent = skillsTier13.length;
+      listSkills13.innerHTML = skillsTier13.length > 0
+        ? skillsTier13.map(s => `<span class="badge-pill" style="background:#dcfce7; border-color:#86efac; color:#14532d;">${s.name} <strong style="font-family:var(--font-mono);">${s.finalVal}</strong></span>`).join("")
+        : `<span style="font-style:italic; color:var(--vault-dim);">Nenhuma perícia nesta faixa</span>`;
+
+      const skillsTier0 = skillsWithFinal.filter(s => s.finalVal === 0);
+      badgeCount0.textContent = skillsTier0.length;
+      listSkills0.innerHTML = skillsTier0.length > 0
+        ? skillsTier0.map(s => `<span class="badge-pill" style="background:#f3f4f6; border-color:#d1d5db; color:#374151;">${s.name} <strong style="font-family:var(--font-mono);">${s.finalVal}</strong></span>`).join("")
+        : `<span style="font-style:italic; color:var(--vault-dim);">Nenhuma perícia nesta faixa</span>`;
+    }
+
+    /* =======================================================
+       LISTENERS & INICIALIZAÇÃO
+       ======================================================= */
+    presetActionButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const presetKey = btn.getAttribute("data-preset");
+        const preset = SPECIAL_PRESETS[presetKey];
+        if (!preset) return;
+
+        stateSpecial.attributes.forEach((attr, idx) => {
+          if (preset[attr.key] !== undefined) {
+            const newMax = preset[attr.key];
+            attr.max = newMax;
+
+            const maxInput = document.getElementById(`input-special-max-${idx}`);
+            const valInput = document.getElementById(`input-special-points-${idx}`);
+            if (maxInput) maxInput.value = newMax === 10 ? "" : newMax;
+
+            if (attr.points > newMax) {
+              attr.points = newMax;
+              if (valInput) valInput.value = newMax === stateSpecial.minVal ? "" : newMax;
+            }
+          }
+        });
+        updateSpecialCalculations(true);
+      });
+    });
+
+    document.querySelectorAll(".btn-derived-action[data-carry-mult]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const mult = parseSafeInt(btn.getAttribute("data-carry-mult"), 0);
+        stateSpecial.derived.weightMult = mult;
+        if (inputDerivedWeightMult) inputDerivedWeightMult.value = mult;
+        updateSpecialCalculations(false);
+      });
+    });
+
+    enforceStrictBoundedInput(inputSpecialMin, 1, 5, 3, (v) => {
+      stateSpecial.minVal = v;
+      applyMinClampToAll();
+    });
+
+    btnDecSpecialMin.addEventListener("click", () => {
+      let v = Math.max(1, stateSpecial.minVal - 1);
+      stateSpecial.minVal = v;
+      inputSpecialMin.value = v === 3 ? "" : v;
+      applyMinClampToAll();
+    });
+
+    btnIncSpecialMin.addEventListener("click", () => {
+      let v = Math.min(5, stateSpecial.minVal + 1);
+      stateSpecial.minVal = v;
+      inputSpecialMin.value = v === 3 ? "" : v;
+      applyMinClampToAll();
+    });
+
+    inputSpecialExtra.addEventListener("input", (e) => {
+      stateSpecial.extraPoints = parseSafeSignedInt(e.target.value, 0);
+      updateSpecialCalculations(false);
+    });
+
+    btnDecSpecialExtra.addEventListener("click", () => {
+      stateSpecial.extraPoints--;
+      inputSpecialExtra.value = stateSpecial.extraPoints === 0 ? "" : stateSpecial.extraPoints;
+      updateSpecialCalculations(false);
+    });
+
+    btnIncSpecialExtra.addEventListener("click", () => {
+      stateSpecial.extraPoints++;
+      inputSpecialExtra.value = stateSpecial.extraPoints === 0 ? "" : stateSpecial.extraPoints;
+      updateSpecialCalculations(false);
+    });
+
+    enforceStrictBoundedInput(inputDerivedBaseCarry, 1, 9999, 100, (val) => {
+      stateSpecial.derived.baseCarry = val;
+      updateSpecialCalculations(false);
+    });
+
+    enforceStrictBoundedInput(inputDerivedWeightMult, 0, 9999, 10, (val) => {
+      stateSpecial.derived.weightMult = val;
+      updateSpecialCalculations(false);
+    });
+
+    enforceStrictBoundedInput(inputDerivedHpLevel, 1, 9999, 1, (val) => {
+      stateSpecial.derived.hpLevel = val;
+      updateSpecialCalculations(true);
+    });
+
+    selectHpMultiplierMode.addEventListener("change", (e) => {
+      stateSpecial.derived.hpMultMode = e.target.value;
+      boxHpMultEnd.classList.toggle("hidden", !(e.target.value === "end" || e.target.value === "both"));
+      boxHpMultLck.classList.toggle("hidden", !(e.target.value === "lck" || e.target.value === "both"));
+      updateSpecialCalculations(false);
+    });
+
+    enforceStrictBoundedInput(inputHpMultEnd, 1, 99, 1, (val) => {
+      stateSpecial.derived.hpMultEnd = val;
+      updateSpecialCalculations(false);
+    });
+
+    enforceStrictBoundedInput(inputHpMultLck, 1, 99, 1, (val) => {
+      stateSpecial.derived.hpMultLck = val;
+      updateSpecialCalculations(false);
+    });
+
+    enforceStrictBoundedInput(inputDerivedApDivisor, 1, 100, 2, (val) => {
+      stateSpecial.derived.apDivisor = val;
+      updateSpecialCalculations(false);
+    });
+
+    // Inputs da aba de Perícias sincronizados com S.P.E.C.I.A.L.
+    enforceStrictBoundedInput(inputInt, 0, 9999, 5, (v) => {
+      stateSkills.inteligencia = v;
+      syncIntFromSkillsToSpecial(v);
+      updateSkillsCalculations();
+    });
+
+    enforceStrictBoundedInput(inputNivelSkills, 1, 9999, 1, (v) => {
+      stateSkills.nivel = v;
+      syncLevelFromSkillsToSpecial(v);
+      updateSkillsCalculations();
+    });
+
+    btnResetSkills.addEventListener("click", () => {
+      stateSkills.skills.forEach(s => {
+        s.points = 0;
+        s.isTag = false;
+      });
+      renderSkillsTable();
+      updateSkillsCalculations();
+    });
+
+    btnResetAll.addEventListener("click", () => {
+      stateSpecial.minVal = 3;
+      stateSpecial.extraPoints = 0;
+      stateSpecial.derived = {
+        baseCarry: 100,
+        weightMult: 10,
+        hpLevel: 1,
+        hpMultMode: "none",
+        hpMultEnd: 1,
+        hpMultLck: 1,
+        apDivisor: 2
+      };
+      stateSpecial.attributes = SPECIAL_ATTRIBUTES.map(attr => ({ ...attr }));
+
+      inputSpecialMin.value = "3";
+      inputSpecialExtra.value = "";
+      inputDerivedBaseCarry.value = "";
+      inputDerivedWeightMult.value = "10";
+      inputDerivedHpLevel.value = "";
+      selectHpMultiplierMode.value = "none";
+      boxHpMultEnd.classList.add("hidden");
+      boxHpMultLck.classList.add("hidden");
+      inputHpMultEnd.value = "1";
+      inputHpMultLck.value = "1";
+      inputDerivedApDivisor.value = "";
+
+      stateSkills.skills.forEach(s => {
+        s.points = 0;
+        s.isTag = false;
+      });
+      stateSkills.inteligencia = 5;
+      stateSkills.nivel = 1;
+      inputInt.value = "";
+      inputNivelSkills.value = "";
+
+      renderSpecialTable();
+      updateSpecialCalculations(true);
+      renderSkillsTable();
+      updateSkillsCalculations();
+    });
+
+    // Inicialização
+    renderSpecialTable();
+    updateSpecialCalculations(true);
+    renderSkillsTable();
+    updateSkillsCalculations();
+  </script>
+</body>
+</html>
