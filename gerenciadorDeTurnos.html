@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerenciador de Rodadas & Turnos - Pip-Boy</title>
+
+  <!-- Base Pip-Boy CSS -->
+  <link rel="stylesheet" href="styles/pipboy_theme.css">
+
+  <style>
+    /* =======================================================
+       SOBRESCRITA DE TEMA: PALETA ROSA (#ffc0cb)
+       ======================================================= */
+    :root {
+      --vault-bg: #ffc0cb;
+      --vault-paper: #fff1f3;
+      --vault-header: #000000;
+      --vault-card: #f8a5b2;
+      --vault-border: #000000;
+      --vault-text: #000000;
+      --vault-dim: #4c1d24;
+      --vault-green: #15803d;
+      --vault-accent: #701a28;
+      --vault-accent-light: #fecdd3;
+      --vault-alert: #991b1b;
+      --vault-cell-bg: #ffe4e8;
+      --vault-cell-alt: #fbcfe8;
+
+      /* Cores de Alinhamento */
+      --color-ally-bg: #e6f7ec;
+      --color-ally-border: #15803d;
+      --color-enemy-bg: #fee2e2;
+      --color-enemy-border: #b91c1c;
+      --color-neutral-bg: #fef3c7;
+      --color-neutral-border: #b45309;
+    }
+
+    body {
+      background-color: var(--vault-bg);
+      color: var(--vault-text);
+    }
+
+    /* Painel do Rastreador de Rodadas */
+    .tracker-control-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 12px 16px;
+      background: var(--vault-cell-bg);
+      border: 2px solid var(--vault-border);
+      border-radius: 6px;
+    }
+
+    .round-counter-badge {
+      font-family: var(--font-mono);
+      font-size: 1.25rem;
+      font-weight: 900;
+      background: #000000;
+      color: #ffffff;
+      padding: 4px 12px;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+    }
+
+    /* Lista de Iniciativa */
+    .actors-list-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* Retângulo do Ator */
+    .actor-card {
+      border-radius: 8px;
+      border: 2.5px solid var(--vault-border);
+      overflow: hidden;
+      background: var(--vault-cell-bg);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      cursor: default;
+    }
+
+    .actor-card.draggable {
+      cursor: grab;
+    }
+    .actor-card.dragging {
+      opacity: 0.45;
+      cursor: grabbing;
+    }
+    .actor-card.drag-over {
+      outline: 3px dashed #000000;
+      outline-offset: -3px;
+    }
+
+    .actor-card.is-active-turn {
+      box-shadow: 0 0 0 4px #000000, 0 6px 16px rgba(0,0,0,0.3);
+      transform: scale(1.01);
+    }
+
+    /* Diferenciação por Tipo de Ator */
+    .actor-card.type-ally {
+      border-color: var(--color-ally-border);
+      background: var(--color-ally-bg);
+    }
+    .actor-card.type-enemy {
+      border-color: var(--color-enemy-border);
+      background: var(--color-enemy-bg);
+    }
+    .actor-card.type-neutral {
+      border-color: var(--color-neutral-border);
+      background: var(--color-neutral-bg);
+    }
+
+    /* Barra Principal do Retângulo */
+    .actor-card-main {
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      user-select: none;
+    }
+
+    .actor-card.has-details .actor-card-main {
+      cursor: pointer;
+    }
+
+    .actor-turn-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-family: var(--font-display);
+      font-size: 0.72rem;
+      font-weight: 900;
+      background: #000000;
+      color: #ffffff;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .actor-init-box {
+      font-family: var(--font-mono);
+      font-size: 1.1rem;
+      font-weight: 900;
+      background: #000000;
+      color: #ffffff;
+      padding: 4px 10px;
+      border-radius: 4px;
+      min-width: 50px;
+      text-align: center;
+    }
+
+    .actor-meta-title {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1.05rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .actor-badge-type {
+      font-size: 0.68rem;
+      font-family: var(--font-display);
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 4px;
+      border: 1.5px solid currentColor;
+    }
+    .type-ally .actor-badge-type { color: var(--color-ally-border); }
+    .type-enemy .actor-badge-type { color: var(--color-enemy-border); }
+    .type-neutral .actor-badge-type { color: var(--color-neutral-border); }
+
+    .actor-hp-block {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #ffffff;
+      padding: 4px 8px;
+      border: 1.5px solid var(--vault-border);
+      border-radius: 4px;
+    }
+
+    .actor-details-panel {
+      border-top: 1.5px dashed var(--vault-border);
+      padding: 14px;
+      background: rgba(255, 255, 255, 0.45);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .badge-hp-status {
+      font-size: 0.65rem;
+      font-family: var(--font-mono);
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 3px;
+      text-transform: uppercase;
+    }
+    .badge-rad-damage {
+      background: #fef08a;
+      color: #854d0e;
+      border: 1px solid #ca8a04;
+    }
+    .badge-extra-hp {
+      background: #bbf7d0;
+      color: #166534;
+      border: 1px solid #16a34a;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-container">
+
+    <!-- CABEÇALHO -->
+    <header>
+      <div class="header-top">
+        <div class="header-brand">
+          <span class="header-icon">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </span>
+          <h1 class="header-title">Pip-Boy &bull; Gerenciador de Turnos</h1>
+        </div>
+      </div>
+    </header>
+
+    <main class="module-grid">
+
+      <!-- CARD CONTROLE DE RODADAS & AÇÕES -->
+      <section class="card">
+        <div class="card-header">
+          <span>Controle de Combate</span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span>RODADA:</span>
+            <span id="label-round-number" class="round-counter-badge">1</span>
+          </div>
+        </div>
+        <div class="card-body" style="gap: 12px;">
+
+          <div class="tracker-control-bar">
+            <!-- Botões de Ciclo de Turnos -->
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+              <button id="btn-prev-turn" type="button" class="btn-pipboy-action">
+                &larr; Retroceder Turno
+              </button>
+              <button id="btn-next-turn" type="button" class="btn-pipboy-action" style="background-color: #fbcfe8;">
+                Avançar Turno &rarr;
+              </button>
+              <button id="btn-reset-combat" type="button" class="btn-pipboy-action">
+                Resetar Rodada
+              </button>
+            </div>
+
+            <!-- Botões de Atores -->
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+              <button id="btn-open-create-actor" type="button" class="btn-pipboy-action">
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Adicionar Combatente
+              </button>
+              <button id="btn-clear-actors" type="button" class="btn-remove">Limpar Todos</button>
+            </div>
+          </div>
+
+          <!-- Opção de ignorar restrições de iniciativa -->
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 8px; flex-wrap: wrap; gap: 8px;">
+            <label style="display: flex; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer;">
+              <input type="checkbox" id="chk-ignore-init-order" style="cursor: pointer; width: 16px; height: 16px;">
+              <span>Permitir reorganização manual ignorando TODAS as iniciativas</span>
+            </label>
+            <span style="font-size: 0.7rem; color: var(--vault-dim); font-style: italic;">
+              Dica: Atores com a mesma iniciativa podem ser reordenados arrastando o card.
+            </span>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- LISTA DE ATORES / ORDEM DE INICIATIVA -->
+      <section class="card">
+        <div class="card-header">
+          <span>Ordem de Iniciativa &amp; Combatentes</span>
+          <span id="label-actors-count" style="font-family: var(--font-mono); font-size: 0.75rem;">0 Combatentes</span>
+        </div>
+        <div class="card-body">
+          <div id="actors-list" class="actors-list-container"></div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- MODAL DE CRIAÇÃO / IMPORTAÇÃO DE COMBATENTE -->
+    <div id="modal-actor-create" class="modal-overlay hidden">
+      <div class="modal-dialog" style="max-width: 580px;">
+        <div class="card-header">
+          <span>Adicionar Novo Combatente</span>
+          <button id="btn-close-modal-actor" type="button" class="btn-remove" style="background:#e6e6e6; color:#000; border-color:#000;">Fechar &times;</button>
+        </div>
+        <div class="card-body" style="gap: 14px;">
+
+          <!-- Abas de Escolha -->
+          <div style="display: flex; gap: 4px; border-bottom: 2px solid var(--vault-border); padding-bottom: 6px;">
+            <button id="tab-btn-empty" type="button" class="btn-pipboy-action" style="flex: 1; justify-content: center; background-color: #dcdcdc;">Ator Vazio</button>
+            <button id="tab-btn-json" type="button" class="btn-pipboy-action" style="flex: 1; justify-content: center;">Importar JSON de NPC</button>
+          </div>
+
+          <!-- Formulário Ator Vazio -->
+          <div id="panel-actor-empty" style="display: flex; flex-direction: column; gap: 10px;">
+            <div class="cell-box">
+              <label for="input-empty-name" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Nome:</label>
+              <input type="text" id="input-empty-name" placeholder="Ex: Incursor, Guarda, Companheiro..." class="input-styled" style="flex: 1;">
+            </div>
+
+            <div class="cell-box">
+              <label for="input-empty-init" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Iniciativa:</label>
+              <input type="number" id="input-empty-init" value="9" min="0" max="99" class="input-styled input-num">
+            </div>
+
+            <div class="cell-box">
+              <label for="select-empty-type" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Tipo de Ator:</label>
+              <select id="select-empty-type" class="input-styled" style="flex: 1;">
+                <option value="enemy" selected>Inimigo</option>
+                <option value="ally">Aliado</option>
+                <option value="neutral">Neutro</option>
+              </select>
+            </div>
+
+            <button id="btn-confirm-empty-actor" type="button" class="btn-pipboy-action" style="margin-top: 4px; justify-content: center;">
+              Criar Ator Vazio
+            </button>
+          </div>
+
+          <!-- Formulário Importar JSON -->
+          <div id="panel-actor-json" class="hidden" style="display: flex; flex-direction: column; gap: 10px;">
+            <div class="cell-box" style="flex-direction: column; align-items: stretch; gap: 8px;">
+              <span style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase;">Selecione o arquivo .json gerado pelo Criador de NPC:</span>
+              <input type="file" id="input-json-file" accept=".json" class="input-styled">
+            </div>
+
+            <div class="cell-box">
+              <label for="select-json-type" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Alinhamento no Combate:</label>
+              <select id="select-json-type" class="input-styled" style="flex: 1;">
+                <option value="enemy" selected>Inimigo</option>
+                <option value="ally">Aliado</option>
+                <option value="neutral">Neutro</option>
+              </select>
+            </div>
+
+            <div class="cell-box">
+              <label for="input-json-override-init" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Iniciativa (Detectada do JSON ou Personalizada):</label>
+              <input type="number" id="input-json-override-init" value="" placeholder="Auto" class="input-styled input-num">
+            </div>
+
+            <button id="btn-confirm-json-actor" type="button" class="btn-pipboy-action" style="margin-top: 4px; justify-content: center;">
+              Carregar Combatente do JSON
+            </button>
+          </div>
+
+          <!-- Link Externo para Criador de NPC -->
+          <div style="border-top: 1px dashed var(--vault-border); padding-top: 8px; text-align: center;">
+            <a href="https://meninoenzo42.github.io/fallout_utility_terminal/criadorDeNPC.html" target="_blank" rel="noopener noreferrer" style="font-size: 0.75rem; font-family: var(--font-mono); color: #000000; font-weight: 700; text-decoration: underline;">
+              &nearr; Abrir Criador de NPC em uma nova guia
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      Terminal Pip-Boy RPG &bull; Módulo Gerenciador de Rodadas e Turnos
+    </footer>
+  </div>
+
+  <!-- Importações Compartilhadas das Bibliotecas Externas -->
+  <script src="estastisticasDerivadas.js"></script>
+  <script src="ItemClass.js"></script>
+  <script src="generalUtil.js"></script>
+  <script src="MutacaoLendaria.js"></script>
+
+  <script>
+    /* =======================================================
+       ESTADO DO GERENCIADOR DE TURNOS
+       ======================================================= */
+    const combatState = {
+      round: 1,
+      currentTurnIndex: 0,
+      ignoreInitiativeOrder: false,
+      actors: []
+    };
+
+    let draggedActorIndex = null;
+    let pendingJsonData = null;
+
+    /* =======================================================
+       ELEMENTOS DOM
+       ======================================================= */
+    const labelRoundNumber = document.getElementById("label-round-number");
+    const labelActorsCount = document.getElementById("label-actors-count");
+    const actorsList = document.getElementById("actors-list");
+
+    const btnNextTurn = document.getElementById("btn-next-turn");
+    const btnPrevTurn = document.getElementById("btn-prev-turn");
+    const btnResetCombat = document.getElementById("btn-reset-combat");
+    const btnClearActors = document.getElementById("btn-clear-actors");
+    const chkIgnoreInitOrder = document.getElementById("chk-ignore-init-order");
+
+    const btnOpenCreateActor = document.getElementById("btn-open-create-actor");
+    const modalActorCreate = document.getElementById("modal-actor-create");
+    const btnCloseModalActor = document.getElementById("btn-close-modal-actor");
+
+    const tabBtnEmpty = document.getElementById("tab-btn-empty");
+    const tabBtnJson = document.getElementById("tab-btn-json");
+    const panelActorEmpty = document.getElementById("panel-actor-empty");
+    const panelActorJson = document.getElementById("panel-actor-json");
+
+    const inputEmptyName = document.getElementById("input-empty-name");
+    const inputEmptyInit = document.getElementById("input-empty-init");
+    const selectEmptyType = document.getElementById("select-empty-type");
+    const btnConfirmEmptyActor = document.getElementById("btn-confirm-empty-actor");
+
+    const inputJsonFile = document.getElementById("input-json-file");
+    const selectJsonType = document.getElementById("select-json-type");
+    const inputJsonOverrideInit = document.getElementById("input-json-override-init");
+    const btnConfirmJsonActor = document.getElementById("btn-confirm-json-actor");
+
+    /* =======================================================
+       CÁLCULO E DETECÇÃO DE ESTATÍSTICAS DO JSON
+       ======================================================= */
+    function processarNpcJson(jsonData, roleType, overrideInit) {
+      const level = Math.max(1, parseInt(jsonData.level, 10) || 1);
+      const nature = jsonData.nature || "creature";
+      const type = jsonData.type || "normal";
+      const size = jsonData.size || "normal";
+
+      let initiative = 9;
+      let maxHp = 10;
+
+      if (nature === "creature") {
+        const body = (jsonData.creature && jsonData.creature.body) ? parseInt(jsonData.creature.body, 10) : 5;
+        const mind = (jsonData.creature && jsonData.creature.mind) ? parseInt(jsonData.creature.mind, 10) : 4;
+        initiative = body + mind;
+
+        let baseHp = body + level;
+        if (size === "big") baseHp += 4;
+        else if (size === "little") baseHp = Math.max(1, baseHp - 2);
+        if (type === "mighty") baseHp *= 2;
+        else if (type === "legendary") baseHp *= 3;
+        maxHp = baseHp;
+      } else {
+        const sp = (jsonData.character && jsonData.character.special) ? jsonData.character.special : { S:5, P:5, E:5, C:5, I:5, A:5, L:5 };
+        let bonusInit = type === "notable" ? 2 : (type === "major" ? 4 : 0);
+        initiative = (parseInt(sp.P, 10) || 5) + (parseInt(sp.A, 10) || 5) + bonusInit;
+
+        let multLckHp = type === "notable" ? 1 : (type === "major" ? 2 : 0);
+        let hp = (parseInt(sp.E, 10) || 5) + level + (multLckHp * (parseInt(sp.L, 10) || 5));
+        if (size === "big") hp += 4;
+        else if (size === "little") hp = Math.max(1, hp - 2);
+        maxHp = hp;
+      }
+
+      if (overrideInit !== null && overrideInit !== "" && !isNaN(parseInt(overrideInit, 10))) {
+        initiative = parseInt(overrideInit, 10);
+      }
+
+      // Inicializa partes do corpo com controle de lesões
+      const rawParts = Array.isArray(jsonData.bodyParts) && jsonData.bodyParts.length > 0
+        ? jsonData.bodyParts
+        : [
+            { name: "Cabeça", range: "1-2", drPhysical: 1, drEnergy: 0, drRadiation: 0 },
+            { name: "Torso", range: "3-8", drPhysical: 1, drEnergy: 0, drRadiation: 0 },
+            { name: "Braço Esquerdo", range: "9-11", drPhysical: 1, drEnergy: 0, drRadiation: 0 },
+            { name: "Braço Direito", range: "12-14", drPhysical: 1, drEnergy: 0, drRadiation: 0 },
+            { name: "Perna Esquerda", range: "15-17", drPhysical: 1, drEnergy: 0, drRadiation: 0 },
+            { name: "Perna Direita", range: "18-20", drPhysical: 1, drEnergy: 0, drRadiation: 0 }
+          ];
+
+      const bodyParts = rawParts.map(p => ({
+        name: p.name || "Parte",
+        range: p.range || "1-20",
+        drPhysical: parseInt(p.drPhysical, 10) || 0,
+        drEnergy: parseInt(p.drEnergy, 10) || 0,
+        drRadiation: parseInt(p.drRadiation, 10) || 0,
+        injuries: 0,
+        treated: false
+      }));
+
+      return {
+        id: "actor_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5),
+        isEmpty: false,
+        name: jsonData.name || "NPC",
+        role: roleType || "enemy",
+        initiative: initiative,
+        currentHp: maxHp,
+        maxHp: maxHp,
+        originalMaxHp: maxHp,
+        bodyParts: bodyParts,
+        attacks: Array.isArray(jsonData.attacks) ? jsonData.attacks : [],
+        specialAbilities: jsonData.specialAbilities || "",
+        inventory: jsonData.inventory || "",
+        legendaryMutations: Array.isArray(jsonData.legendaryMutations) ? jsonData.legendaryMutations : [],
+        isExpanded: false
+      };
+    }
+
+    function criarAtorVazio(nome, iniciativa, roleType) {
+      return {
+        id: "actor_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5),
+        isEmpty: true,
+        name: nome || "Combatente Vazio",
+        role: roleType || "enemy",
+        initiative: parseInt(iniciativa, 10) || 0,
+        currentHp: null,
+        maxHp: null,
+        originalMaxHp: null,
+        bodyParts: [],
+        attacks: [],
+        specialAbilities: "",
+        inventory: "",
+        legendaryMutations: [],
+        isExpanded: false
+      };
+    }
+
+    /* =======================================================
+       ORDENAÇÃO DE ATORES
+       ======================================================= */
+    function ordenarAtores() {
+      if (combatState.ignoreInitiativeOrder) return;
+      combatState.actors.sort((a, b) => b.initiative - a.initiative);
+    }
+
+    /* =======================================================
+       RENDERIZAÇÃO DA LISTA DE ATORES
+       ======================================================= */
+    function renderActorsList() {
+      actorsList.innerHTML = "";
+      labelRoundNumber.textContent = combatState.round;
+      labelActorsCount.textContent = `${combatState.actors.length} Combatente${combatState.actors.length === 1 ? '' : 's'}`;
+
+      if (combatState.actors.length === 0) {
+        actorsList.innerHTML = `
+          <div style="text-align: center; padding: 24px; color: var(--vault-dim); font-style: italic;">
+            Nenhum combatente em batalha. Clique em "+ Adicionar Combatente" para iniciar.
+          </div>
+        `;
+        return;
+      }
+
+      // Garante limites de turno
+      if (combatState.currentTurnIndex >= combatState.actors.length) {
+        combatState.currentTurnIndex = 0;
+      }
+      if (combatState.currentTurnIndex < 0) {
+        combatState.currentTurnIndex = 0;
+      }
+
+      combatState.actors.forEach((actor, index) => {
+        const isCurrentTurn = index === combatState.currentTurnIndex;
+        const card = document.createElement("div");
+        card.className = `actor-card type-${actor.role} draggable ${actor.isEmpty ? 'is-empty' : 'has-details'} ${isCurrentTurn ? 'is-active-turn' : ''}`;
+        card.setAttribute("draggable", "true");
+        card.dataset.index = index;
+
+        // Cabeçalho Principal (Retângulo)
+        const mainBar = document.createElement("div");
+        mainBar.className = "actor-card-main";
+
+        // Lado Esquerdo: Indicador de turno + Iniciativa + Nome + Tipo
+        const leftBox = document.createElement("div");
+        leftBox.style.display = "flex";
+        leftBox.style.alignItems = "center";
+        leftBox.style.gap = "10px";
+        leftBox.style.flexWrap = "wrap";
+
+        if (isCurrentTurn) {
+          const turnBadge = document.createElement("span");
+          turnBadge.className = "actor-turn-indicator";
+          turnBadge.innerHTML = `▶ TURNO ATIVO`;
+          leftBox.appendChild(turnBadge);
+        }
+
+        const initBox = document.createElement("div");
+        initBox.className = "actor-init-box";
+        initBox.title = "Iniciativa";
+        initBox.textContent = actor.initiative;
+        leftBox.appendChild(initBox);
+
+        const nameLabel = document.createElement("span");
+        nameLabel.className = "actor-meta-title";
+        nameLabel.textContent = actor.name;
+        leftBox.appendChild(nameLabel);
+
+        const roleBadge = document.createElement("span");
+        roleBadge.className = "actor-badge-type";
+        const roleLabels = { ally: "Aliado", enemy: "Inimigo", neutral: "Neutro" };
+        roleBadge.textContent = roleLabels[actor.role] || actor.role;
+        leftBox.appendChild(roleBadge);
+
+        mainBar.appendChild(leftBox);
+
+        // Lado Direito: HP / HP Máximo + Badges de Radiação / Vida Adicional + Ações
+        const rightBox = document.createElement("div");
+        rightBox.style.display = "flex";
+        rightBox.style.alignItems = "center";
+        rightBox.style.gap = "8px";
+        rightBox.style.flexWrap = "wrap";
+
+        if (!actor.isEmpty && actor.maxHp !== null) {
+          // Status de radiação ou vida máxima adicional
+          if (actor.maxHp < actor.originalMaxHp) {
+            const radBadge = document.createElement("span");
+            radBadge.className = "badge-hp-status badge-rad-damage";
+            radBadge.title = `HP Máximo reduzido por radiação (Original: ${actor.originalMaxHp})`;
+            radBadge.textContent = `☢ Radiação (-${actor.originalMaxHp - actor.maxHp})`;
+            rightBox.appendChild(radBadge);
+          } else if (actor.maxHp > actor.originalMaxHp) {
+            const extraBadge = document.createElement("span");
+            extraBadge.className = "badge-hp-status badge-extra-hp";
+            extraBadge.title = `HP Máximo aumentado além do original (Original: ${actor.originalMaxHp})`;
+            extraBadge.textContent = `★ Vida Máx. Adicional (+${actor.maxHp - actor.originalMaxHp})`;
+            rightBox.appendChild(extraBadge);
+          }
+
+          const hpContainer = document.createElement("div");
+          hpContainer.className = "actor-hp-block";
+
+          const inCurHp = document.createElement("input");
+          inCurHp.type = "number";
+          inCurHp.value = actor.currentHp;
+          inCurHp.className = "input-styled input-num";
+          inCurHp.style.width = "48px";
+          inCurHp.style.padding = "2px 4px";
+          inCurHp.addEventListener("click", (e) => e.stopPropagation());
+          inCurHp.addEventListener("input", (e) => {
+            actor.currentHp = parseInt(e.target.value, 10) || 0;
+          });
+
+          const slash = document.createElement("span");
+          slash.textContent = "/";
+          slash.style.fontFamily = "var(--font-mono)";
+          slash.style.fontWeight = "800";
+
+          const inMaxHp = document.createElement("input");
+          inMaxHp.type = "number";
+          inMaxHp.value = actor.maxHp;
+          inMaxHp.className = "input-styled input-num";
+          inMaxHp.style.width = "48px";
+          inMaxHp.style.padding = "2px 4px";
+          inMaxHp.addEventListener("click", (e) => e.stopPropagation());
+          inMaxHp.addEventListener("input", (e) => {
+            actor.maxHp = Math.max(1, parseInt(e.target.value, 10) || 1);
+            renderActorsList();
+          });
+
+          const hpSuffix = document.createElement("span");
+          hpSuffix.textContent = "HP";
+          hpSuffix.style.fontSize = "0.75rem";
+          hpSuffix.style.fontWeight = "800";
+
+          hpContainer.appendChild(inCurHp);
+          hpContainer.appendChild(slash);
+          hpContainer.appendChild(inMaxHp);
+          hpContainer.appendChild(hpSuffix);
+          rightBox.appendChild(hpContainer);
+        }
+
+        // Ações: Duplicar e Excluir
+        const btnDup = document.createElement("button");
+        btnDup.type = "button";
+        btnDup.className = "btn-row-action btn-row-duplicate";
+        btnDup.textContent = "Dup";
+        btnDup.title = "Duplicar este combatente";
+        btnDup.addEventListener("click", (e) => {
+          e.stopPropagation();
+          duplicarAtor(index);
+        });
+
+        const btnDel = document.createElement("button");
+        btnDel.type = "button";
+        btnDel.className = "btn-remove";
+        btnDel.textContent = "Del";
+        btnDel.title = "Excluir combatente";
+        btnDel.addEventListener("click", (e) => {
+          e.stopPropagation();
+          removerAtor(index);
+        });
+
+        rightBox.appendChild(btnDup);
+        rightBox.appendChild(btnDel);
+
+        mainBar.appendChild(rightBox);
+        card.appendChild(mainBar);
+
+        // Expansão / Colapso ao clicar no retângulo (Se não for ator vazio)
+        if (!actor.isEmpty) {
+          mainBar.addEventListener("click", () => {
+            actor.isExpanded = !actor.isExpanded;
+            renderActorsList();
+          });
+
+          if (actor.isExpanded) {
+            const detailsPanel = renderActorDetails(actor);
+            card.appendChild(detailsPanel);
+          }
+        }
+
+        // Eventos de Drag & Drop
+        configurarDragAndDrop(card, index);
+
+        actorsList.appendChild(card);
+      });
+    }
+
+    /* =======================================================
+       RENDERIZAÇÃO DOS DETALHES DE UM COMBATENTE (EXPANDIDO)
+       ======================================================= */
+    function renderActorDetails(actor) {
+      const panel = document.createElement("div");
+      panel.className = "actor-details-panel";
+
+      // 1. Tabela de Partes do Corpo e Lesões
+      if (Array.isArray(actor.bodyParts) && actor.bodyParts.length > 0) {
+        const partsHeader = document.createElement("strong");
+        partsHeader.style.fontSize = "0.78rem";
+        partsHeader.style.textTransform = "uppercase";
+        partsHeader.textContent = "Localização, Resistências & Lesões:";
+        panel.appendChild(partsHeader);
+
+        const tableWrapper = document.createElement("div");
+        tableWrapper.className = "custom-scrollbar";
+        tableWrapper.style.overflowX = "auto";
+
+        const table = document.createElement("table");
+        table.className = "compact-table";
+        table.style.width = "100%";
+        table.innerHTML = `
+          <thead>
+            <tr>
+              <th style="width: 20%;">Parte</th>
+              <th style="width: 15%; text-align: center;">d20</th>
+              <th style="width: 25%; text-align: center;">DR (F / E / R)</th>
+              <th style="width: 20%; text-align: center;">Lesões (0-X)</th>
+              <th style="width: 20%; text-align: center;">Remendado?</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        `;
+
+        const tbody = table.querySelector("tbody");
+        actor.bodyParts.forEach((part, pIdx) => {
+          const tr = document.createElement("tr");
+          tr.className = pIdx % 2 === 0 ? "row-odd" : "row-even";
+
+          // Nome
+          const tdName = document.createElement("td");
+          tdName.innerHTML = `<strong>${part.name}</strong>`;
+
+          // d20
+          const tdRange = document.createElement("td");
+          tdRange.style.textAlign = "center";
+          tdRange.style.fontFamily = "var(--font-mono)";
+          tdRange.textContent = part.range;
+
+          // DRs
+          const tdDr = document.createElement("td");
+          tdDr.style.textAlign = "center";
+          tdDr.style.fontFamily = "var(--font-mono)";
+          tdDr.textContent = `${part.drPhysical} / ${part.drEnergy} / ${part.drRadiation}`;
+
+          // Lesões
+          const tdInjuries = document.createElement("td");
+          tdInjuries.style.textAlign = "center";
+          const inInjuries = document.createElement("input");
+          inInjuries.type = "number";
+          inInjuries.value = part.injuries;
+          inInjuries.min = "0";
+          inInjuries.className = "input-styled input-num";
+          inInjuries.style.width = "50px";
+          inInjuries.style.padding = "2px 4px";
+          inInjuries.addEventListener("click", (e) => e.stopPropagation());
+          inInjuries.addEventListener("input", (e) => {
+            part.injuries = Math.max(0, parseInt(e.target.value, 10) || 0);
+          });
+          tdInjuries.appendChild(inInjuries);
+
+          // Remendado?
+          const tdTreated = document.createElement("td");
+          tdTreated.style.textAlign = "center";
+          const chkTreated = document.createElement("input");
+          chkTreated.type = "checkbox";
+          chkTreated.checked = Boolean(part.treated);
+          chkTreated.style.width = "18px";
+          chkTreated.style.height = "18px";
+          chkTreated.style.cursor = "pointer";
+          chkTreated.addEventListener("click", (e) => e.stopPropagation());
+          chkTreated.addEventListener("change", (e) => {
+            part.treated = e.target.checked;
+          });
+          tdTreated.appendChild(chkTreated);
+
+          tr.appendChild(tdName);
+          tr.appendChild(tdRange);
+          tr.appendChild(tdDr);
+          tr.appendChild(tdInjuries);
+          tr.appendChild(tdTreated);
+          tbody.appendChild(tr);
+        });
+
+        tableWrapper.appendChild(table);
+        panel.appendChild(tableWrapper);
+      }
+
+      // 2. Ataques
+      if (Array.isArray(actor.attacks) && actor.attacks.length > 0) {
+        const atkHeader = document.createElement("strong");
+        atkHeader.style.fontSize = "0.78rem";
+        atkHeader.style.textTransform = "uppercase";
+        atkHeader.textContent = "Ataques & Armamentos:";
+        panel.appendChild(atkHeader);
+
+        const atkList = document.createElement("ul");
+        atkList.style.listStyle = "none";
+        atkList.style.fontSize = "0.75rem";
+        atkList.style.paddingLeft = "4px";
+
+        actor.attacks.forEach(atk => {
+          const li = document.createElement("li");
+          li.style.marginBottom = "4px";
+          li.innerHTML = `<strong>${atk.nome || atk.name || 'Ataque'}</strong> [${atk.tipoAtaque || atk.type || 'Melee'}]: ${atk.dice || 2} DC | Alcance: ${atk.alcance || atk.range || 'Close'} | Dano: ${(atk.tiposDano || []).join(', ')} | Efeitos: ${atk.effects || '-'} | Qualidades: ${atk.qualidades || '-'}`;
+          atkList.appendChild(li);
+        });
+        panel.appendChild(atkList);
+      }
+
+      // 3. Mutações Lendárias (Se houver)
+      if (Array.isArray(actor.legendaryMutations) && actor.legendaryMutations.length > 0) {
+        const mutHeader = document.createElement("strong");
+        mutHeader.style.fontSize = "0.78rem";
+        mutHeader.style.textTransform = "uppercase";
+        mutHeader.textContent = "Mutações Lendárias Ativas:";
+        panel.appendChild(mutHeader);
+
+        const mutList = document.createElement("ul");
+        mutList.style.listStyle = "none";
+        mutList.style.fontSize = "0.75rem";
+        mutList.style.paddingLeft = "4px";
+
+        actor.legendaryMutations.forEach(m => {
+          const li = document.createElement("li");
+          li.style.marginBottom = "4px";
+          li.innerHTML = `<span style="background:#000; color:#fff; padding:2px 6px; border-radius:3px; font-weight:800;">${m.nome}</span> <strong>Passivo:</strong> ${m.passivo} | <strong>Mutação (&lt;50% HP):</strong> ${m.ativo}`;
+          mutList.appendChild(li);
+        });
+        panel.appendChild(mutList);
+      }
+
+      // 4. Habilidades Especiais & Loot
+      if (actor.specialAbilities || actor.inventory) {
+        const notesGrid = document.createElement("div");
+        notesGrid.style.display = "grid";
+        notesGrid.style.gridTemplateColumns = "repeat(auto-fit, minmax(240px, 1fr))";
+        notesGrid.style.gap = "8px";
+        notesGrid.style.fontSize = "0.72rem";
+
+        if (actor.specialAbilities) {
+          const abBox = document.createElement("div");
+          abBox.style.background = "#ffffff";
+          abBox.style.padding = "6px 8px";
+          abBox.style.border = "1px solid #000";
+          abBox.style.borderRadius = "4px";
+          abBox.innerHTML = `<strong>Habilidades Especiais:</strong><br>${actor.specialAbilities.replace(/\n/g, '<br>')}`;
+          notesGrid.appendChild(abBox);
+        }
+
+        if (actor.inventory) {
+          const invBox = document.createElement("div");
+          invBox.style.background = "#ffffff";
+          invBox.style.padding = "6px 8px";
+          invBox.style.border = "1px solid #000";
+          invBox.style.borderRadius = "4px";
+          invBox.innerHTML = `<strong>Inventário / Loot:</strong><br>${actor.inventory.replace(/\n/g, '<br>')}`;
+          notesGrid.appendChild(invBox);
+        }
+
+        panel.appendChild(notesGrid);
+      }
+
+      return panel;
+    }
+
+    /* =======================================================
+       DRAG & DROP E REORGANIZAÇÃO DE INICIATIVA
+       ======================================================= */
+    function configurarDragAndDrop(cardElement, index) {
+      cardElement.addEventListener("dragstart", (e) => {
+        draggedActorIndex = index;
+        cardElement.classList.add("dragging");
+        e.dataTransfer.effectAllowed = "move";
+      });
+
+      cardElement.addEventListener("dragend", () => {
+        cardElement.classList.remove("dragging");
+        document.querySelectorAll(".actor-card").forEach(el => el.classList.remove("drag-over"));
+        draggedActorIndex = null;
+      });
+
+      cardElement.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+        cardElement.classList.add("drag-over");
+      });
+
+      cardElement.addEventListener("dragleave", () => {
+        cardElement.classList.remove("drag-over");
+      });
+
+      cardElement.addEventListener("drop", (e) => {
+        e.preventDefault();
+        cardElement.classList.remove("drag-over");
+        const targetIndex = index;
+
+        if (draggedActorIndex === null || draggedActorIndex === targetIndex) return;
+
+        const sourceActor = combatState.actors[draggedActorIndex];
+        const targetActor = combatState.actors[targetIndex];
+
+        // Regra de iniciativa:
+        // Se a opção de ignorar iniciativa NÃO estiver ativa, só permite mover entre atores de MESMA iniciativa.
+        if (!combatState.ignoreInitiativeOrder && sourceActor.initiative !== targetActor.initiative) {
+          alert("Atores com iniciativas diferentes não podem ser reordenados manualmente a menos que a opção 'Permitir reorganização manual ignorando TODAS as iniciativas' esteja marcada.");
+          return;
+        }
+
+        // Reorganiza no array
+        const [movedActor] = combatState.actors.splice(draggedActorIndex, 1);
+        combatState.actors.splice(targetIndex, 0, movedActor);
+
+        renderActorsList();
+      });
+    }
+
+    /* =======================================================
+       OPERAÇÕES DE COMBATE (TURNOS, RODADAS, DUPLICAR, REMOVER)
+       ======================================================= */
+    function avancarTurno() {
+      if (combatState.actors.length === 0) return;
+
+      combatState.currentTurnIndex++;
+      if (combatState.currentTurnIndex >= combatState.actors.length) {
+        combatState.currentTurnIndex = 0;
+        combatState.round++;
+      }
+      renderActorsList();
+    }
+
+    function retrocederTurno() {
+      if (combatState.actors.length === 0) return;
+
+      combatState.currentTurnIndex--;
+      if (combatState.currentTurnIndex < 0) {
+        if (combatState.round > 1) {
+          combatState.round--;
+          combatState.currentTurnIndex = combatState.actors.length - 1;
+        } else {
+          combatState.currentTurnIndex = 0;
+        }
+      }
+      renderActorsList();
+    }
+
+    function resetarCombate() {
+      combatState.round = 1;
+      combatState.currentTurnIndex = 0;
+      renderActorsList();
+    }
+
+    function duplicarAtor(index) {
+      const original = combatState.actors[index];
+      const clone = JSON.parse(JSON.stringify(original));
+      clone.id = "actor_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5);
+      clone.name = clone.name + " (Cópia)";
+      clone.isExpanded = false;
+
+      combatState.actors.splice(index + 1, 0, clone);
+      ordenarAtores();
+      renderActorsList();
+    }
+
+    function removerAtor(index) {
+      combatState.actors.splice(index, 1);
+      if (combatState.currentTurnIndex >= combatState.actors.length) {
+        combatState.currentTurnIndex = Math.max(0, combatState.actors.length - 1);
+      }
+      renderActorsList();
+    }
+
+    /* =======================================================
+       CONTROLE DO MODAL DE CRIAÇÃO / IMPORTAÇÃO
+       ======================================================= */
+    function abrirModalCriarAtor() {
+      modalActorCreate.classList.remove("hidden");
+    }
+
+    function fecharModalCriarAtor() {
+      modalActorCreate.classList.add("hidden");
+      inputEmptyName.value = "";
+      inputJsonFile.value = "";
+      inputJsonOverrideInit.value = "";
+      pendingJsonData = null;
+    }
+
+    tabBtnEmpty.addEventListener("click", () => {
+      tabBtnEmpty.style.backgroundColor = "#dcdcdc";
+      tabBtnJson.style.backgroundColor = "#e6e6e6";
+      panelActorEmpty.classList.remove("hidden");
+      panelActorJson.classList.add("hidden");
+    });
+
+    tabBtnJson.addEventListener("click", () => {
+      tabBtnJson.style.backgroundColor = "#dcdcdc";
+      tabBtnEmpty.style.backgroundColor = "#e6e6e6";
+      panelActorJson.classList.remove("hidden");
+      panelActorEmpty.classList.add("hidden");
+    });
+
+    // Criação de Ator Vazio
+    btnConfirmEmptyActor.addEventListener("click", () => {
+      const nome = inputEmptyName.value.trim() || "Combatente Vazio";
+      const init = parseInt(inputEmptyInit.value, 10) || 0;
+      const role = selectEmptyType.value;
+
+      const newActor = criarAtorVazio(nome, init, role);
+      combatState.actors.push(newActor);
+      ordenarAtores();
+      renderActorsList();
+      fecharModalCriarAtor();
+    });
+
+    // Upload do JSON do Criador de NPC
+    inputJsonFile.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        try {
+          const parsed = JSON.parse(evt.target.result);
+          pendingJsonData = parsed;
+
+          // Sugere a iniciativa caso esteja declarada ou derivada
+          if (parsed.nature === "creature" && parsed.creature) {
+            inputJsonOverrideInit.value = (parseInt(parsed.creature.body, 10) || 5) + (parseInt(parsed.creature.mind, 10) || 4);
+          } else if (parsed.character && parsed.character.special) {
+            let bonus = parsed.type === "notable" ? 2 : (parsed.type === "major" ? 4 : 0);
+            inputJsonOverrideInit.value = (parseInt(parsed.character.special.P, 10) || 5) + (parseInt(parsed.character.special.A, 10) || 5) + bonus;
+          }
+        } catch (err) {
+          alert("Arquivo JSON inválido. Verifique o arquivo exportado pelo Criador de NPC.");
+          pendingJsonData = null;
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    btnConfirmJsonActor.addEventListener("click", () => {
+      if (!pendingJsonData) {
+        alert("Por favor, selecione um arquivo .json válido primeiro.");
+        return;
+      }
+
+      const role = selectJsonType.value;
+      const overrideInit = inputJsonOverrideInit.value.trim();
+      const newActor = processarNpcJson(pendingJsonData, role, overrideInit);
+
+      combatState.actors.push(newActor);
+      ordenarAtores();
+      renderActorsList();
+      fecharModalCriarAtor();
+    });
+
+    /* =======================================================
+       LISTENERS GERAIS
+       ======================================================= */
+    btnNextTurn.addEventListener("click", avancarTurno);
+    btnPrevTurn.addEventListener("click", retrocederTurno);
+    btnResetCombat.addEventListener("click", resetarCombate);
+
+    btnClearActors.addEventListener("click", () => {
+      if (confirm("Deseja realmente remover todos os combatentes da batalha?")) {
+        combatState.actors = [];
+        resetarCombate();
+      }
+    });
+
+    chkIgnoreInitOrder.addEventListener("change", (e) => {
+      combatState.ignoreInitiativeOrder = e.target.checked;
+    });
+
+    btnOpenCreateActor.addEventListener("click", abrirModalCriarAtor);
+    btnCloseModalActor.addEventListener("click", fecharModalCriarAtor);
+
+    window.addEventListener("click", (e) => {
+      if (e.target === modalActorCreate) fecharModalCriarAtor();
+    });
+
+    // Inicialização da lista
+    renderActorsList();
+  </script>
+</body>
+</html>
